@@ -1,0 +1,7 @@
+{
+    "AI": {
+        "js": "WaveAI.js",
+        "name": "Wave",
+        "tip": "Only without a compromise attack. No base, no production, no research. Sends all available units into battle."
+    }
+}
