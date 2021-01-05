@@ -45,8 +45,9 @@ function calcBudget()
 function wa_eventGameInit()
 {
 	console (["difficulty" + difficulty,"protectTime"+protectTime, "PauseTime"+PauseTime, "AI"+AI].join("\n"));
-	setTimer("getResearch", 60*1000);
-	setTimer("landing", PauseTime*60*1000);
+	setTimer("getResearch", 3*1000);
+	queue("landing", protectTime*60*1000);
+	setMissionTime(protectTime*60);
 	makeComponentAvailable("MG1Mk1", AI);
 	var spotter = {
 		X: mapWidth/2,
@@ -62,6 +63,7 @@ function wa_eventGameInit()
 
 function landing()
 {
+	playSound("pcv381.ogg");
 	if (gameTime/1000 < protectTime*60 ){return;}
 	var avalibleTemplate = [];
 	for (var key in allTemplates)
@@ -84,6 +86,9 @@ function landing()
 		budget -= makeTemplate(AI, droidName, allTemplates[droidName].body, allTemplates[droidName].propulsion , "", allTemplates[droidName].weapons).power;
 		debug("add", droidName);
 	}
+	playSound("pcv395.ogg", X, Y, 0);
+	setMissionTime(PauseTime*60);
+	queue("landing", PauseTime*60*1000);
 }
 
 function getResearch()
