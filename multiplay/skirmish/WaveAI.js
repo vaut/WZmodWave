@@ -41,12 +41,17 @@ function takeUnits()
 	newWave = newWave.concat(enumDroid(me, DROID_CYBORG));
 	newWave = newWave.filter(function(p){if(p.group) return false; return true;});
 	if (!newWave || !newWave.length){return;}
-	let group =  newGroup();
+	let group;
+	for (let i = 0; i < waves.length ; i++) {
+		if (enumGroup(i).length == 0){group =i;}
+	}
+	if (!group) {group =  newGroup();}
 	waves[group] = {
 		"group" : group,
 		"mainTarget" : {"x":Infinity, "y":Infinity},
 		"secondTarget":[]
 		};
+
 	newWave.forEach(function(o){groupAdd(waves[group].group, o);});
 	updateMainTarget(group);
 	debug ("new group", group);
@@ -87,8 +92,10 @@ function target(group)
 		}
 	}
 	waves[group].target = secondTarget;
+	let mainTarget = waves[group].mainTarget;
 	enumGroup(group).forEach(function(o)
 	{
+		if (o.isVTOL == true) {orderDroidObj(o, DORDER_ATTACK, secondTarget); return;}
 		if (secondTarget.type == DROID){orderDroidLoc(o, DORDER_MOVE, secondTarget.x, secondTarget.y);}
 		else orderDroidObj(o, DORDER_ATTACK, secondTarget);
 //		debug ("target", secondTarget);
@@ -127,7 +134,7 @@ function updateSecondTarget(group)
 	targets = getAllTargets();
 	pos = enumGroup(group)[0];
 	targets = targets.filter(function(p){
-		if(cosPhy(pos, waves[group].mainTarget, p) < 0.96){return true;}
+		if(cosPhy(pos, waves[group].mainTarget, p) < 0.965){return true;}
 		return false;
 	});
 	targets.sort(function (a, b) {

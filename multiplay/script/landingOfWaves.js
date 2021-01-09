@@ -70,7 +70,7 @@ function landing()
 	{
 		if (!allTemplates[key].weapons){continue;}
 		if (makeTemplate(AI, key, allTemplates[key].body, allTemplates[key].propulsion, "", allTemplates[key].weapons) !== null && //у makeTemplate изменен синтаксис в мастере. Не совместимо с 3.4.1
-		(allTemplates[key].propulsion != "wheeled01" ))
+		(allTemplates[key].propulsion != "wheeled01" && allTemplates[key].propulsion != "hover01" && allTemplates[key].weapons[0] !="CommandTurret1"))
 		{
 			avalibleTemplate.push(key);
 		}
@@ -94,7 +94,7 @@ function landing()
 function getResearch()
 {
 
-	completeResearchOnTime((gameTime+startTime)/1000, AI);
+	completeResearchOnTime((gameTime)/1000+startTime, AI);
 }
 
 function getStartTime()
