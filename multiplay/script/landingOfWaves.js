@@ -61,8 +61,10 @@ function wa_eventGameInit()
 }
 
 
+var waveNam =0;
 function landing()
 {
+	waveNam++;
 	playSound("pcv381.ogg");
 	if (gameTime/1000 < protectTime*60 ){return;}
 	var avalibleTemplate = [];
@@ -77,6 +79,7 @@ function landing()
 	}
 	if (avalibleTemplate.length <1){avalibleTemplate.push("ViperMG01Wheels");}
 	var budget = calcBudget();
+	let units = 0; 
 	while (budget >0)
 	{
 		var droidName = avalibleTemplate[syncRandom(avalibleTemplate.length)];
@@ -84,8 +87,11 @@ function landing()
 		Y = mapHeight/2+syncRandom(1024)/128-4;
 		addDroid(AI, X, Y, droidName, allTemplates[droidName].body, allTemplates[droidName].propulsion , "", "", allTemplates[droidName].weapons );
 		budget -= makeTemplate(AI, droidName, allTemplates[droidName].body, allTemplates[droidName].propulsion , "", allTemplates[droidName].weapons).power;
-		debug("add", droidName);
+		units++;
+//		debug("add", droidName);
 	}
+	debug("wave number", waveNam, "units landed", units);
+	console("wave number", waveNam, "units landed", units);
 	playSound("pcv395.ogg", X, Y, 0);
 	setMissionTime(PauseTime*60);
 	queue("landing", PauseTime*60*1000);
@@ -93,8 +99,9 @@ function landing()
 
 function getResearch()
 {
-
+	hackNetOff();
 	completeResearchOnTime((gameTime)/1000+startTime, AI);
+	hackNetOn();
 }
 
 function getStartTime()
