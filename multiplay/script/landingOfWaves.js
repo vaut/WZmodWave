@@ -20,7 +20,7 @@ var protectTime = 5/waveDifficulty;	//time to first attack in minutes
 var PauseTime = 2/waveDifficulty;	//pause between attacks in minutes
 
 var startTime = getStartTime();
-debug (startTime);
+debug ("startTime", startTime);
 
 var numOil=enumFeature(ALL_PLAYERS).filter(function(e){if(e.stattype == OIL_RESOURCE)return true;return false;}).length;
 numOil += enumStruct(scavengerPlayer, RESOURCE_EXTRACTOR).length;
@@ -28,13 +28,22 @@ for (var playnum = 0; playnum < maxPlayers; playnum++)
 {
 	numOil += enumStruct(playnum, RESOURCE_EXTRACTOR).length;
 }
-debug (numOil);
+debug ("oil on map", numOil);
 
 function calcBudget()
 {
 
-	var budget = (numOil/4)*(gameTime+startTime)/1000*waveDifficulty;
+	let K = numOil/4;
+	let totalTime = (gameTime+startTime)/1000; //время игры в секудах при старте с 0 базы
+//	var budget = K*totalTime*waveDifficulty; 
+	//этого не достаточно, игрок по мере игры получает апы на ген, что проиводит к росуту доступных ресурсов.
+	//при первом приблежении вторая производная энергии по времени прямая с увеличением в два раза за 15 минут.
+	//по этому вот так
+	let A = K/(15*60);
+	let budget = (K*totalTime + A*totalTime*totalTime/2)*waveDifficulty;
+	
 	debug("budget", budget);
+	debug (budget - K*totalTime*waveDifficulty );
 	return budget;
 }
 
@@ -44,11 +53,12 @@ function calcBudget()
 
 function wa_eventGameInit()
 {
-	console (["difficulty" + difficulty,"protectTime"+protectTime, "PauseTime"+PauseTime, "AI"+AI].join("\n"));
-	setTimer("getResearch", 3*1000);
+	console (["difficulty "+ difficulty,"protectTime "+protectTime, "PauseTime "+PauseTime].join("\n"));
+	setTimer("getResearch", 60*1000);
 	queue("landing", protectTime*60*1000);
 	setMissionTime(protectTime*60);
 	makeComponentAvailable("MG1Mk1", AI);
+	setAlliance(scavengerPlayer, AI, true);
 	var spotter = {
 		X: mapWidth/2,
 		Y: mapHeight/2,
@@ -58,10 +68,11 @@ function wa_eventGameInit()
 	{
 		addSpotter(spotter.X, spotter.Y, playnum, spotter.radius, 0, 1000);
 	}
+	
 }
 
 
-var waveNam =0;
+var waveNam = 0;
 function landing()
 {
 	waveNam++;
