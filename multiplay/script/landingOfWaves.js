@@ -43,7 +43,7 @@ function calcBudget()
 	let budget = (K*totalTime + A*totalTime*totalTime/2)*waveDifficulty;
 	
 	debug("budget", budget);
-	debug (budget - K*totalTime*waveDifficulty );
+//	debug ("progressive bonuce", budget - K*totalTime*waveDifficulty );
 	return budget;
 }
 
@@ -83,7 +83,7 @@ function landing()
 	{
 		if (!allTemplates[key].weapons){continue;}
 		if (makeTemplate(AI, key, allTemplates[key].body, allTemplates[key].propulsion, "", allTemplates[key].weapons) !== null && //у makeTemplate изменен синтаксис в мастере. Не совместимо с 3.4.1
-		(allTemplates[key].propulsion != "wheeled01" && allTemplates[key].propulsion != "hover01" && allTemplates[key].weapons[0] !="CommandTurret1"))
+		(allTemplates[key].propulsion != "wheeled01" && allTemplates[key].propulsion != "hover01" && allTemplates[key].weapons[0] !="CommandTurret1" && allTemplates[key].weapons[0] !="MG1Mk1"))
 		{
 			avalibleTemplate.push(key);
 		}
