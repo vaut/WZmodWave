@@ -24,7 +24,7 @@ debug ("startTime", startTime);
 
 var numOil=enumFeature(ALL_PLAYERS).filter(function(e){if(e.stattype == OIL_RESOURCE)return true;return false;}).length;
 numOil += enumStruct(scavengerPlayer, RESOURCE_EXTRACTOR).length;
-for (var playnum = 0; playnum < maxPlayers; playnum++)
+for (let playnum = 0; playnum < maxPlayers; playnum++)
 {
 	numOil += enumStruct(playnum, RESOURCE_EXTRACTOR).length;
 }
@@ -35,13 +35,13 @@ function calcBudget()
 
 	let K = numOil/4;
 	let totalTime = (gameTime+startTime)/1000; //время игры в секудах при старте с 0 базы
-//	var budget = K*totalTime*waveDifficulty; 
+//	var budget = K*totalTime*waveDifficulty;
 	//этого не достаточно, игрок по мере игры получает апы на ген, что проиводит к росуту доступных ресурсов.
 	//при первом приблежении вторая производная энергии по времени прямая с увеличением в два раза за 15 минут.
 	//по этому вот так
 	let A = K/(15*60);
 	let budget = (K*totalTime + A*totalTime*totalTime/2)*waveDifficulty;
-	
+
 	debug("budget", budget);
 //	debug ("progressive bonuce", budget - K*totalTime*waveDifficulty );
 	return budget;
@@ -59,20 +59,30 @@ function wa_eventGameInit()
 	setMissionTime(protectTime*60);
 	makeComponentAvailable("MG1Mk1", AI);
 	setAlliance(scavengerPlayer, AI, true);
-	var spotter = {
+	let spotter = {
 		X: mapWidth/2,
 		Y: mapHeight/2,
 		radius: Math.sqrt(mapWidth*mapWidth + mapHeight*mapHeight)/2*128
 	};
-	for (var playnum = 0; playnum < maxPlayers; playnum++)
+	for (let playnum = 0; playnum < maxPlayers; playnum++)
 	{
 		addSpotter(spotter.X, spotter.Y, playnum, spotter.radius, 0, 1000);
 	}
-	
+
+setLZtile(LZdefoult);
 }
 
 
 var waveNam = 0;
+var LZs = [];
+let LZdefoult = {
+	X : Math.ceil(mapWidth/2),
+	Y : Math.ceil(mapHeight/2),
+	radius : 5
+	};
+LZs.push(LZdefoult);
+
+
 function landing()
 {
 	waveNam++;
@@ -90,7 +100,7 @@ function landing()
 	}
 	if (avalibleTemplate.length <1){avalibleTemplate.push("ViperMG01Wheels");}
 	var budget = calcBudget();
-	let units = 0; 
+	let units = 0;
 	while (budget >0)
 	{
 		var droidName = avalibleTemplate[syncRandom(avalibleTemplate.length)];
@@ -128,6 +138,72 @@ function getStartTime()
 	if (baseType == CAMP_WALLS){startTime=timeAdvancedBaseTech;}
 	if (techLevel == 2){startTime=timeT2;}
 	if (techLevel == 3){startTime=timeT3;}
-	if (techLevel == 4){startTime=Infinity;}
+	if (techLevel == 4){startTime=100*60;}
 	return startTime;
+}
+
+const PLACE = "O";	//landing place
+const CLIFF = "X";	//impassable tile
+const POSS = ".";	//landing is possible
+
+function isPassable (X,Y) {
+	if (terrainType(X, Y) == TER_CLIFFFACE || terrainType(X, Y) == TER_WATER){return false;} //TODO добавить проверку есть ли тут объект
+	return true;
+}
+
+function markAvailableTile(tiles)
+{
+	let addPOSS = false;
+	tiles.forEach(function O(row, X){
+		row.forEach(function M (tile, Y){
+ 			if (tile == CLIFF){return;}
+			if (tile == PLACE){return;}
+			if (tile == POSS &&
+			(
+			(tiles[X-1] && tiles[X-1][Y] ==  PLACE) ||
+			(tiles[X+1] && tiles[X+1][Y] ==  PLACE) ||
+			tiles[X][Y-1] ==  PLACE ||
+			tiles[X][Y+1] ==  PLACE))
+			{
+				tiles[X][Y] = PLACE;
+				addPOSS = true;
+			}
+		});
+	});
+//	debug(JSON.stringify(tiles));
+	if (addPOSS){markAvailableTile(tiles);}// TODO заменить на цикл
+}
+
+function setLZtile(LZ)
+{
+	if (!isPassable(LZ.X, LZ.Y)){return false;} // incorrect LZ
+	let tiles = [];
+	for (let X = LZ.X-LZ.radius; X <=  LZ.X+LZ.radius; X++)
+	{
+		tiles[X] = [];
+		for (let Y = LZ.Y-LZ.radius; Y <=  LZ.Y+LZ.radius; Y++)
+		{
+			if (isPassable(X,Y)) {tiles[X][Y] = POSS;} // TODO add check radius
+			else {tiles[X][Y] = CLIFF;}
+		}
+	}
+	tiles[LZ.X][LZ.Y] = PLACE;
+
+	markAvailableTile(tiles);
+//	debug(JSON.stringify(tiles));
+
+	let LZtile = [];
+	for (let X = LZ.X-LZ.radius; X <=  LZ.X+LZ.radius; X++)
+	{
+		for (let Y = LZ.Y-LZ.radius; Y <=  LZ.Y+LZ.radius; Y++)
+		{
+			if (tiles[X][Y] == PLACE)
+			{
+				LZtile.push({"X":X,"Y":Y});
+			}
+		}
+	}
+	debug(JSON.stringify(LZtile));
+				//TODO sort
+	return LZtile;
 }
