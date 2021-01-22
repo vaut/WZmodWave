@@ -30,6 +30,14 @@ for (let playnum = 0; playnum < maxPlayers; playnum++)
 }
 debug ("oil on map", numOil);
 
+var LZs = [];
+//TODO read LZ from map
+var LZdefoult = {
+	X : Math.ceil(mapWidth/2),
+	Y : Math.ceil(mapHeight/2),
+	radius : 5
+	};
+
 function calcBudget()
 {
 
@@ -68,19 +76,20 @@ function wa_eventGameInit()
 	{
 		addSpotter(spotter.X, spotter.Y, playnum, spotter.radius, 0, 1000);
 	}
-
-setLZtile(LZdefoult);
+	if (LZs.length == 0){
+		LZdefoult.tiles = setLZtile(LZdefoult);
+		LZs.push(LZdefoult);
+	}
 }
 
 
+
 var waveNam = 0;
-var LZs = [];
-let LZdefoult = {
-	X : Math.ceil(mapWidth/2),
-	Y : Math.ceil(mapHeight/2),
-	radius : 5
+var theLanding = {
+	"LZ" : false,
+	"budget" : 0,
+	"units" : 0
 	};
-LZs.push(LZdefoult);
 
 
 function landing()
@@ -99,21 +108,23 @@ function landing()
 		}
 	}
 	if (avalibleTemplate.length <1){avalibleTemplate.push("ViperMG01Wheels");}
-	var budget = calcBudget();
-	let units = 0;
-	while (budget >0)
+	theLanding.budget = calcBudget();
+	theLanding.units = 0;
+	theLanding.LZ = LZs[0];
+	let tiles = Object.assign([], theLanding.LZ.tiles);
+debug(JSON.stringify(tiles));
+	while (theLanding.budget > 0 && tiles.length > 0)
 	{
 		var droidName = avalibleTemplate[syncRandom(avalibleTemplate.length)];
-		X = mapWidth/2+syncRandom(1024)/128-4;
-		Y = mapHeight/2+syncRandom(1024)/128-4;
-		addDroid(AI, X, Y, droidName, allTemplates[droidName].body, allTemplates[droidName].propulsion , "", "", allTemplates[droidName].weapons );
-		budget -= makeTemplate(AI, droidName, allTemplates[droidName].body, allTemplates[droidName].propulsion , "", allTemplates[droidName].weapons).power;
-		units++;
+		let pos = tiles.shift();
+		addDroid(AI, pos.X, pos.Y, droidName, allTemplates[droidName].body, allTemplates[droidName].propulsion , "", "", allTemplates[droidName].weapons );
+		theLanding.budget -= makeTemplate(AI, droidName, allTemplates[droidName].body, allTemplates[droidName].propulsion , "", allTemplates[droidName].weapons).power;
+		theLanding.units++;
 //		debug("add", droidName);
 	}
-	debug("wave number", waveNam, "units landed", units);
-	console("wave number", waveNam, "units landed", units);
-	playSound("pcv395.ogg", X, Y, 0);
+	debug("wave number", waveNam, "units landed", theLanding.units);
+	console("wave number", waveNam, "units landed", theLanding.units);
+	playSound("pcv395.ogg", theLanding.LZ.X, theLanding.LZ.Y, 0);
 	setMissionTime(PauseTime*60);
 	queue("landing", PauseTime*60*1000);
 }
