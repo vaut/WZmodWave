@@ -154,7 +154,7 @@ function getStartTime()
 	const timeT3 = 26*60;			// after Needle Gun and Scourge Missile
 	var startTime=1;
 	var techLevel = getMultiTechLevel();
-	if (baseType == CAMP_BASE){startTime = 1;}
+	if (baseType == CAMP_BASE){startTime = timeBaseTech;}
 	if (baseType == CAMP_WALLS){startTime=timeAdvancedBaseTech;}
 	if (techLevel == 2){startTime=timeT2;}
 	if (techLevel == 3){startTime=timeT3;}
