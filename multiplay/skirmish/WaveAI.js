@@ -4,13 +4,21 @@ debug ("run");
 var waves = [];
 function wave_eventGameInit()
 {
-	setTimer("attack", 1*1000);
+	setTimer("groupsAttack", 1*1000);
 	setTimer("takeUnits", 5*1000);
 }
 
-function attack()
+function groupsAttack()
 {
-	let group = Math.floor(Math.random()*waves.length)+1;
+	for (var i = 1; i < waves.length+1 ; i++) {
+		if (Math.random()*2 <= 1){continue;}
+		attack(i);
+	}
+}
+
+function attack(group)
+{
+//	let group = Math.floor(Math.random()*waves.length)+1;
 	let myWave = enumGroup(group);
 //	debug(group);
 	if (myWave.length == 0)
