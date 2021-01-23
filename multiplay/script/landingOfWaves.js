@@ -41,13 +41,13 @@ var LZdefoult = {
 function calcBudget()
 {
 
-	let K = numOil/7;
+	let K = numOil/4;
 	let totalTime = (gameTime+startTime)/1000; //время игры в секудах при старте с 0 базы
 //	var budget = K*totalTime*waveDifficulty;
 	//этого не достаточно, игрок по мере игры получает апы на ген, что проиводит к росуту доступных ресурсов.
 	//при первом приблежении вторая производная энергии по времени прямая с увеличением в два раза за 15 минут.
 	//по этому вот так
-	let A = K/(15*60);
+	let A = K/(20*60);
 	let budget = (K*totalTime + A*totalTime*totalTime/2)*waveDifficulty;
 
 	debug("budget", budget);
