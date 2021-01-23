@@ -110,9 +110,9 @@ function landing()
 	if (avalibleTemplate.length <1){avalibleTemplate.push("ViperMG01Wheels");}
 	theLanding.budget = calcBudget();
 	theLanding.units = 0;
-	theLanding.LZ = LZs[0];
+	theLanding.LZ = LZs[syncRandom(LZs.length)];
 	let tiles = Object.assign([], theLanding.LZ.tiles);
-debug(JSON.stringify(tiles));
+//debug(JSON.stringify(tiles));
 	while (theLanding.budget > 0 && tiles.length > 0)
 	{
 		var droidName = avalibleTemplate[syncRandom(avalibleTemplate.length)];
@@ -214,7 +214,18 @@ function setLZtile(LZ)
 			}
 		}
 	}
-	debug(JSON.stringify(LZtile));
-				//TODO sort
+	LZtile.sort(function (a, b) {
+		if (mDist (a, LZ) > mDist (b, LZ)) {return 1;}
+		if (mDist (a, LZ) < mDist (b, LZ)){return -1;}
+		return 0;
+	});
+//	debug(JSON.stringify(LZtile));
+	//TODO добавить фильтр занятых объектами клеток
 	return LZtile;
+}
+
+function mDist(a,b)
+{
+	if (!(a.X && b.X && a.Y && b.Y)) {return Infinity;}
+	return (Math.abs(a.X-b.X)+Math.abs(a.Y-b.Y));
 }
