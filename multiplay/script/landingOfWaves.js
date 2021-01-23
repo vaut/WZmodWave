@@ -88,7 +88,8 @@ var waveNam = 0;
 var theLanding = {
 	"LZ" : false,
 	"budget" : 0,
-	"units" : 0
+	"units" : 0,
+	"avalibleTemplate" : []
 	};
 
 
@@ -97,37 +98,45 @@ function landing()
 	waveNam++;
 	playSound("pcv381.ogg");
 	if (gameTime/1000 < protectTime*60 ){return;}
-	var avalibleTemplate = [];
+	theLanding.avalibleTemplate = [];
 	for (var key in allTemplates)
 	{
 		if (!allTemplates[key].weapons){continue;}
 		if (makeTemplate(AI, key, allTemplates[key].body, allTemplates[key].propulsion, "", allTemplates[key].weapons) !== null && //у makeTemplate изменен синтаксис в мастере. Не совместимо с 3.4.1
 		(allTemplates[key].propulsion != "wheeled01" && allTemplates[key].propulsion != "hover01" && allTemplates[key].weapons[0] !="CommandTurret1" && allTemplates[key].weapons[0] !="MG1Mk1"))
 		{
-			avalibleTemplate.push(key);
+			theLanding.avalibleTemplate.push(key);
 		}
 	}
-	if (avalibleTemplate.length <1){avalibleTemplate.push("ViperMG01Wheels");}
+	if (theLanding.avalibleTemplate.length <1){theLanding.avalibleTemplate.push("ViperMG01Wheels");}
 	theLanding.budget = calcBudget();
 	theLanding.units = 0;
 	theLanding.LZ = LZs[syncRandom(LZs.length)];
+	pushUnits();
+	setMissionTime(PauseTime*60);
+	queue("landing", PauseTime*60*1000);
+}
+
+function pushUnits()
+{
 	let tiles = Object.assign([], theLanding.LZ.tiles);
 //debug(JSON.stringify(tiles));
 	while (theLanding.budget > 0 && tiles.length > 0)
 	{
-		var droidName = avalibleTemplate[syncRandom(avalibleTemplate.length)];
+		var droidName = theLanding.avalibleTemplate[syncRandom(theLanding.avalibleTemplate.length)];
 		let pos = tiles.shift();
 		addDroid(AI, pos.X, pos.Y, droidName, allTemplates[droidName].body, allTemplates[droidName].propulsion , "", "", allTemplates[droidName].weapons );
 		theLanding.budget -= makeTemplate(AI, droidName, allTemplates[droidName].body, allTemplates[droidName].propulsion , "", allTemplates[droidName].weapons).power;
 		theLanding.units++;
 //		debug("add", droidName);
 	}
+	if (theLanding.budget > 0){queue("pushUnits", 6*1000); return;}
 	debug("wave number", waveNam, "units landed", theLanding.units);
 	console("wave number", waveNam, "units landed", theLanding.units);
 	playSound("pcv395.ogg", theLanding.LZ.X, theLanding.LZ.Y, 0);
-	setMissionTime(PauseTime*60);
-	queue("landing", PauseTime*60*1000);
+
 }
+
 
 function getResearch()
 {
