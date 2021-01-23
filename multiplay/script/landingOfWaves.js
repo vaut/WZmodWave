@@ -41,7 +41,7 @@ var LZdefoult = {
 function calcBudget()
 {
 
-	let K = numOil/4;
+	let K = numOil/7;
 	let totalTime = (gameTime+startTime)/1000; //время игры в секудах при старте с 0 базы
 //	var budget = K*totalTime*waveDifficulty;
 	//этого не достаточно, игрок по мере игры получает апы на ген, что проиводит к росуту доступных ресурсов.
@@ -84,7 +84,7 @@ function wa_eventGameInit()
 
 
 
-var waveNam = 0;
+var waveNum = 0;
 var theLanding = {
 	"LZ" : false,
 	"budget" : 0,
@@ -95,7 +95,7 @@ var theLanding = {
 
 function landing()
 {
-	waveNam++;
+	waveNum++;
 	playSound("pcv381.ogg");
 	if (gameTime/1000 < protectTime*60 ){return;}
 	theLanding.avalibleTemplate = [];
@@ -131,8 +131,8 @@ function pushUnits()
 //		debug("add", droidName);
 	}
 	if (theLanding.budget > 0){queue("pushUnits", 6*1000); return;}
-	debug("wave number", waveNam, "units landed", theLanding.units);
-	console("wave number", waveNam, "units landed", theLanding.units);
+	debug("wave number", waveNum, "units landed", theLanding.units);
+	console("wave number", waveNum, "units landed", theLanding.units);
 	playSound("pcv395.ogg", theLanding.LZ.X, theLanding.LZ.Y, 0);
 
 }
