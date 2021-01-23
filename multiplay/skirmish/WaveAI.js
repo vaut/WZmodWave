@@ -5,7 +5,7 @@ var waves = [];
 function wave_eventGameInit()
 {
 	setTimer("groupsAttack", 1*1000);
-	setTimer("takeUnits", 5*1000);
+	setTimer("takeUnits", 1*1000);
 }
 
 function groupsAttack()
