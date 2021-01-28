@@ -1,4 +1,4 @@
-/*jshint esversion: 7 */
+include ("multiplay/script/lib.js");
 namespace("wave_");
 debug ("run");
 var waves = [];
@@ -66,17 +66,7 @@ function takeUnits()
 	return group;
 }
 
-function dist(a,b)
-{
-	if (!(a.x && b.x && a.y && b.y)) {return Infinity;}
-	return ((a.x-b.x)*(a.x-b.x)+(a.y-b.y)*(a.y-b.y));
-}
-function cosPhy(pos, target1, target2)
-{
-	let a = {x: target1.x-pos.x, y:target1.y-pos.y};
-	let b = {x: target2.x-pos.x, y:target2.y-pos.y};
-	return (a.x*b.x+a.y*b.y)*Math.abs(a.x*b.x+a.y*b.y)/((a.x**2+a.y**2)*(b.x**2+b.y**2));
-}
+
 
 function eventDroidIdle(droid){
 	if (droid.player !== me){return;}
@@ -128,7 +118,7 @@ function updateMainTarget(group)
 		target = temp;
 		}
 	}
-//	debug("random target", group, target.name, target.x, target.y);
+//	debug("random target", group, target.name, target.y, target.y);
 	waves[group] = {"mainTarget" : target};
 	updateSecondTarget(group);
 
@@ -145,11 +135,7 @@ function updateSecondTarget(group)
 		if(cosPhy(pos, waves[group].mainTarget, p) < 0.965){return true;}
 		return false;
 	});
-	targets.sort(function (a, b) {
-		if (dist (a, pos) > dist (b, pos)) {return 1;}
-  		if (dist (a, pos) < dist (b, pos)){return -1;}
-  		return 0;
-	});
+	sortByDist( targets, pos);
 //	debug("second targets", JSON.stringify(targets[0]));
 	waves[group].secondTarget = targets;
 }

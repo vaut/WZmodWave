@@ -1,4 +1,6 @@
 include ("multiplay/script/templates.js");
+include ("multiplay/script/lib.js");
+
 namespace("wa_");
 
 // Defining script variables
@@ -33,8 +35,8 @@ debug ("oil on map", numOil);
 var LZs = [];
 //TODO read LZ from map
 var LZdefoult = {
-	X : Math.ceil(mapWidth/2),
-	Y : Math.ceil(mapHeight/2),
+	x : Math.ceil(mapWidth/2),
+	y : Math.ceil(mapHeight/2),
 	radius : 5
 	};
 
@@ -68,13 +70,13 @@ function wa_eventGameInit()
 	makeComponentAvailable("MG1Mk1", AI);
 	setAlliance(scavengerPlayer, AI, true);
 	let spotter = {
-		X: mapWidth/2,
-		Y: mapHeight/2,
+		x: mapWidth/2,
+		y: mapHeight/2,
 		radius: Math.sqrt(mapWidth*mapWidth + mapHeight*mapHeight)/2*128
 	};
 	for (let playnum = 0; playnum < maxPlayers; playnum++)
 	{
-		addSpotter(spotter.X, spotter.Y, playnum, spotter.radius, 0, 1000);
+		addSpotter(spotter.x, spotter.y, playnum, spotter.radius, 0, 1000);
 	}
 	if (LZs.length == 0){
 		LZdefoult.tiles = setLZtile(LZdefoult);
@@ -127,25 +129,21 @@ function pushUnits()
 		let pos = tiles.shift();
 		if (allTemplates[droidName].propulsion == "V-Tol")
 		{
-			let borders = [ {X:2, Y:pos.Y}, {X:pos.X, Y: 2}, {X:mapWidth-2, Y:pos.Y}, {X :pos.X, Y:mapHeight-2}];
-			borders.sort(function (a, b) {
-				if (mDist (a, pos) > mDist (b, pos)) {return 1;}
-				if (mDist (a, pos) < mDist (b, pos)){return -1;}
-				return 0;
-			});
-			debug (pos.X, pos.Y);
+			let borders = [ {x:2, y:pos.y}, {x:pos.x, y: 2}, {x:mapWidth-2, y:pos.y}, {x :pos.x, y:mapHeight-2}];
+			sortBymDist(borders, pos);
+//			debug (pos.x, pos.y);
 			pos = borders.shift();
 		}
 		
-		addDroid(AI, pos.X, pos.Y, droidName, allTemplates[droidName].body, allTemplates[droidName].propulsion , "", "", allTemplates[droidName].weapons );
+		addDroid(AI, pos.x, pos.y, droidName, allTemplates[droidName].body, allTemplates[droidName].propulsion , "", "", allTemplates[droidName].weapons );
 		theLanding.budget -= makeTemplate(AI, droidName, allTemplates[droidName].body, allTemplates[droidName].propulsion , "", allTemplates[droidName].weapons).power;
 		theLanding.units++;
-		debug("add", droidName);
+//		debug("add", droidName);
 	}
 	if (theLanding.budget > 0){queue("pushUnits", 6*1000); return;}
 	debug("wave number", waveNum, "units landed", theLanding.units);
 	console("wave number", waveNum, "units landed", theLanding.units);
-	playSound("pcv395.ogg", theLanding.LZ.X, theLanding.LZ.Y, 0);
+	playSound("pcv395.ogg", theLanding.LZ.x, theLanding.LZ.y, 0);
 
 }
 
@@ -178,26 +176,26 @@ const PLACE = "O";	//landing place
 const CLIFF = "X";	//impassable tile
 const POSS = ".";	//landing is possible
 
-function isPassable (X,Y) {
-	if (terrainType(X, Y) == TER_CLIFFFACE || terrainType(X, Y) == TER_WATER){return false;} //TODO добавить проверку есть ли тут объект
+function isPassable (x,y) {
+	if (terrainType(x, y) == TER_CLIFFFACE || terrainType(x, y) == TER_WATER){return false;} //TODO добавить проверку есть ли тут объект
 	return true;
 }
 
 function markAvailableTile(tiles)
 {
 	let addPOSS = false;
-	tiles.forEach(function O(row, X){
-		row.forEach(function M (tile, Y){
+	tiles.forEach(function O(row, x){
+		row.forEach(function M (tile, y){
  			if (tile == CLIFF){return;}
 			if (tile == PLACE){return;}
 			if (tile == POSS &&
 			(
-			(tiles[X-1] && tiles[X-1][Y] ==  PLACE) ||
-			(tiles[X+1] && tiles[X+1][Y] ==  PLACE) ||
-			tiles[X][Y-1] ==  PLACE ||
-			tiles[X][Y+1] ==  PLACE))
+			(tiles[x-1] && tiles[x-1][y] ==  PLACE) ||
+			(tiles[x+1] && tiles[x+1][y] ==  PLACE) ||
+			tiles[x][y-1] ==  PLACE ||
+			tiles[x][y+1] ==  PLACE))
 			{
-				tiles[X][Y] = PLACE;
+				tiles[x][y] = PLACE;
 				addPOSS = true;
 			}
 		});
@@ -208,45 +206,37 @@ function markAvailableTile(tiles)
 
 function setLZtile(LZ)
 {
-	if (!isPassable(LZ.X, LZ.Y)){return false;} // incorrect LZ
+	if (!isPassable(LZ.x, LZ.y)){return false;} // incorrect LZ
 	let tiles = [];
-	for (let X = LZ.X-LZ.radius; X <=  LZ.X+LZ.radius; X++)
+	for (let x = LZ.x-LZ.radius; x <=  LZ.x+LZ.radius; x++)
 	{
-		tiles[X] = [];
-		for (let Y = LZ.Y-LZ.radius; Y <=  LZ.Y+LZ.radius; Y++)
+		tiles[x] = [];
+		for (let y = LZ.y-LZ.radius; y <=  LZ.y+LZ.radius; y++)
 		{
-			if (isPassable(X,Y)) {tiles[X][Y] = POSS;} // TODO add check radius
-			else {tiles[X][Y] = CLIFF;}
+			if (isPassable(x,y)) {tiles[x][y] = POSS;} // TODO add check radius
+			else {tiles[x][y] = CLIFF;}
 		}
 	}
-	tiles[LZ.X][LZ.Y] = PLACE;
+	tiles[LZ.x][LZ.y] = PLACE;
 
 	markAvailableTile(tiles);
 //	debug(JSON.stringify(tiles));
 
 	let LZtile = [];
-	for (let X = LZ.X-LZ.radius; X <=  LZ.X+LZ.radius; X++)
+	for (let x = LZ.x-LZ.radius; x <=  LZ.x+LZ.radius; x++)
 	{
-		for (let Y = LZ.Y-LZ.radius; Y <=  LZ.Y+LZ.radius; Y++)
+		for (let y = LZ.y-LZ.radius; y <=  LZ.y+LZ.radius; y++)
 		{
-			if (tiles[X][Y] == PLACE)
+			if (tiles[x][y] == PLACE)
 			{
-				LZtile.push({"X":X,"Y":Y});
+				LZtile.push({"x":x,"y":y});
 			}
 		}
 	}
-	LZtile.sort(function (a, b) {
-		if (mDist (a, LZ) > mDist (b, LZ)) {return 1;}
-		if (mDist (a, LZ) < mDist (b, LZ)){return -1;}
-		return 0;
-	});
+	sortBymDist(LZtile, LZ);
 //	debug(JSON.stringify(LZtile));
 	//TODO добавить фильтр занятых объектами клеток
 	return LZtile;
 }
 
-function mDist(a,b)
-{
-	if (!(a.X && b.X && a.Y && b.Y)) {return Infinity;}
-	return (Math.abs(a.X-b.X)+Math.abs(a.Y-b.Y));
-}
+
