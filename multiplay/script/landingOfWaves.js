@@ -125,10 +125,22 @@ function pushUnits()
 	{
 		var droidName = theLanding.avalibleTemplate[syncRandom(theLanding.avalibleTemplate.length)];
 		let pos = tiles.shift();
+		if (allTemplates[droidName].propulsion == "V-Tol")
+		{
+			let borders = [ {X:2, Y:pos.Y}, {X:pos.X, Y: 2}, {X:mapWidth-2, Y:pos.Y}, {X :pos.X, Y:mapHeight-2}];
+			borders.sort(function (a, b) {
+				if (mDist (a, pos) > mDist (b, pos)) {return 1;}
+				if (mDist (a, pos) < mDist (b, pos)){return -1;}
+				return 0;
+			});
+			debug (pos.X, pos.Y);
+			pos = borders.shift();
+		}
+		
 		addDroid(AI, pos.X, pos.Y, droidName, allTemplates[droidName].body, allTemplates[droidName].propulsion , "", "", allTemplates[droidName].weapons );
 		theLanding.budget -= makeTemplate(AI, droidName, allTemplates[droidName].body, allTemplates[droidName].propulsion , "", allTemplates[droidName].weapons).power;
 		theLanding.units++;
-//		debug("add", droidName);
+		debug("add", droidName);
 	}
 	if (theLanding.budget > 0){queue("pushUnits", 6*1000); return;}
 	debug("wave number", waveNum, "units landed", theLanding.units);
