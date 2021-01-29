@@ -33,6 +33,16 @@ for (let playnum = 0; playnum < maxPlayers; playnum++)
 debug ("oil on map", numOil);
 
 var LZs = [];
+var labels = enumLabels().map(function(label) {return getObject(label); });
+LZs = labels.map(function(label){
+	LZ = {
+		x : Math.ceil((label.x+label.x2)/2),
+		y : Math.ceil((label.y+label.y2)/2),
+		radius : Math.ceil(Math.abs(label.x-label.x2)/2)
+	};
+	return LZ;
+});
+
 //TODO read LZ from map
 var LZdefoult = {
 	x : Math.ceil(mapWidth/2),
@@ -79,9 +89,9 @@ function wa_eventGameInit()
 		addSpotter(spotter.x, spotter.y, playnum, spotter.radius, 0, 1000);
 	}
 	if (LZs.length == 0){
-		LZdefoult.tiles = setLZtile(LZdefoult);
 		LZs.push(LZdefoult);
 	}
+	LZs.forEach(function(LZ){LZ.tiles = setLZtile(LZ);});
 }
 
 
@@ -134,7 +144,7 @@ function pushUnits()
 //			debug (pos.x, pos.y);
 			pos = borders.shift();
 		}
-		
+
 		addDroid(AI, pos.x, pos.y, droidName, allTemplates[droidName].body, allTemplates[droidName].propulsion , "", "", allTemplates[droidName].weapons );
 		theLanding.budget -= makeTemplate(AI, droidName, allTemplates[droidName].body, allTemplates[droidName].propulsion , "", allTemplates[droidName].weapons).power;
 		theLanding.units++;
