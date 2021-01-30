@@ -22,12 +22,22 @@ function cosPhy(pos, target1, target2)
 function sortBymDist (list, pos)
 {
 	const sorter = (a, b) => mDist (a, pos) -  mDist (b, pos);
-	list.sort(sorter);
+	return list.sort(sorter);
 }
 
 function sortByDist (list, pos)
 {
 	const sorter = (a, b) => dist (a, pos) -  dist (b, pos);
-	list.sort(sorter);
+	return list.sort(sorter);
 }
 
+function getRandom (arr, n) {
+	let len = arr.length;
+	if (!n) {return arr[Math.floor(Math.random() * len)];}
+	let result = new Array(n);
+	while (n--) {
+		let i = Math.floor(Math.random() * len);
+		result.push = arr[i];
+	}
+	return result;
+}

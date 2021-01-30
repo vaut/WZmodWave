@@ -1,21 +1,135 @@
 include ("multiplay/script/lib.js");
-namespace("wave_");
-debug ("run");
-var waves = [];
-function wave_eventGameInit()
-{
-	setTimer("groupsAttack", 1*1000);
-	setTimer("takeUnits", 1*1000);
-}
+var groups = [];
 
-function groupsAttack()
-{
-	for (var i = 1; i < waves.length+1 ; i++) {
-		if (Math.random()*2 <= 1){continue;}
-		attack(i);
+class Group {	
+	constructor(units){
+		let num = newGroup();
+		this.num = num;
+		units.forEach(function(o){groupAdd(num, o);});
+//		this.type = type;
+		this.secondTargets=[];
+		this.mainTarget=null;
+		this.updateMainTarget();
+		this.orderUpdate();
 	}
+
+	get droids(){
+	return enumGroup(this.num);
+	}
+
+	get pos(){
+	return enumGroup(this.num)[0];
+	}
+	
+	get count(){
+	return groupSize(this.num);
+	}
+
+	updateMainTarget(){
+		let targets = enumMainEnemyObjects();
+		if (targets.length == 0){targets = enumEnemyObjects();}
+		if (this.count == 0 || targets.length == 0){return;}
+		targets = getRandom(targets, 5);
+		this.mainTarget = sortByDist(targets, this.pos).shift;
+		this.updateSecondTargets();
+	}
+
+	updateSecondTargets(){
+		if (this.count == 0 || !this.mainTarget){return;}
+//		debug(JSON.stringify(waves[group].mainTarget));
+		let targets = enumEnemyObjects;
+		targets = targets.filter(function(p){
+			return cosPhy(this.pos, this.mainTarget, p) < 0.965;
+		});
+		sortByDist(targets, pos);
+//		debug("second targets", JSON.stringify(targets[0]));
+		this.secondTarget = targets;
+	}
+	
+	get shiftSecondTarget(){
+		if (this.secondTargets.length == 0){this.updateMainTarget(group);}
+		let secondTarget = this.secondTargets.shift();
+		while (!getObject(secondTarget.type, secondTarget.player, secondTarget.id))
+		{
+			if (waves[group].secondTargets.length == 0)
+			{
+				this.updateMainTarget();
+				secondTarget = this.secondTargets.shift();
+			}
+		}
+	return secondTarget;
+	}	
+
+	orderUpdate(){
+//	updateSecondTarget(group);
+		let secondTarget = this.shiftSecondTarget;
+//	this.target = secondTarget;
+//	let mainTarget = waves[group].mainTarget;
+		this.droids.forEach(function(o)
+		{
+			if (o.isVTOL == true) {orderDroidObj(o, DORDER_ATTACK, secondTarget); return;}
+			if (secondTarget.type == DROID){orderDroidLoc(o, DORDER_MOVE, secondTarget.x, secondTarget.y);}
+			else orderDroidObj(o, DORDER_ATTACK, secondTarget);
+//		debug ("target", secondTarget);
+//
+		});
+		debug("target", group, secondTarget.name, secondTarget.x, secondTarget.y );
+	}
+	
+/*
+	clustering()
+	{
+		droids.forEach(function(o)
+		{
+			orderDroidLoc(o, DORDER_SCOUT, this.pos.x, this.pos.y);
+		});
+	}
+*/
+//	waves : N,
+}	 
+
+
+
+function eventGameInit()
+{
+	setTimer("unitsСontrol", 1*100);
+	setTimer("groupsManagement", 1*1000);
 }
 
+function eventDroidIdle(droid){
+	if (droid.player !== me){return;}
+	groupsManagement();
+	let groupNum = droid.group;
+	if (groupNum == null ){return;}
+	groups.groupNum.orderUpdate();
+}
+
+function unitsСontrol()
+{
+	groups.filter(function(group)
+	{
+		return true;
+//		return (Math.abs((group.grupnum % 10) - (gametime % 1000)/100) < 1); //обязательно проверить как работает 
+	}).forEach(function(group)
+	{
+		group.orderUpdate();
+	});
+}
+
+function groupsManagement()
+{
+	groups = groups.filter(function(group)
+	{
+		return group.count != 0;
+	});
+	let units = [].concat(enumDroid(me, DROID_CYBORG), enumDroid(me, DROID_WEAPON));
+	units = units.filter(function(obj){return (!obj.group);});
+	if (!units.length){return;}
+//разбить на втол, арту, огонь и для каждого создать свою группу
+	groups.push(new Group(units));
+	
+}
+/*
 function attack(group)
 {
 //	let group = Math.floor(Math.random()*waves.length)+1;
@@ -42,114 +156,9 @@ function attack(group)
 		}
 	}
 }
+*/
 
-function takeUnits()
-{
-	let newWave = enumDroid(me, DROID_WEAPON);
-	newWave = newWave.concat(enumDroid(me, DROID_CYBORG));
-	newWave = newWave.filter(function(p){if(p.group) return false; return true;});
-	if (!newWave || !newWave.length){return;}
-	let group;
-	for (let i = 0; i < waves.length ; i++) {
-		if (enumGroup(i).length == 0){group =i;}
-	}
-	if (!group) {group =  newGroup();}
-	waves[group] = {
-		"group" : group,
-		"mainTarget" : {"x":Infinity, "y":Infinity},
-		"secondTarget":[]
-		};
-
-	newWave.forEach(function(o){groupAdd(waves[group].group, o);});
-	updateMainTarget(group);
-	debug ("new group", group);
-	return group;
-}
-
-
-
-function eventDroidIdle(droid){
-	if (droid.player !== me){return;}
-	let group = droid.group;
-	if (group == null ){group =takeUnits(); debug("take", group);}
-	if (group == 0){return;}
-	target(group);
-}
-
-function target(group)
-{
-	updateSecondTarget(group);
-	if (waves[group].secondTarget.length == 0){updateMainTarget(group);}
-	let secondTarget = waves[group].secondTarget.shift();
-	while (!getObject(secondTarget.type, secondTarget.player, secondTarget.id))
-	{
-		if (waves[group].secondTarget.length == 0)
-		{
-			updateMainTarget(group);
-			secondTarget = waves[group].secondTarget.shift();
-		}
-	}
-	waves[group].target = secondTarget;
-	let mainTarget = waves[group].mainTarget;
-	enumGroup(group).forEach(function(o)
-	{
-		if (o.isVTOL == true) {orderDroidObj(o, DORDER_ATTACK, secondTarget); return;}
-		if (secondTarget.type == DROID){orderDroidLoc(o, DORDER_MOVE, secondTarget.x, secondTarget.y);}
-		else orderDroidObj(o, DORDER_ATTACK, secondTarget);
-//		debug ("target", secondTarget);
-//
-	});
-	debug("target", group, secondTarget.name, secondTarget.x, secondTarget.y );
-}
-
-function updateMainTarget(group)
-{
-	let targets = getMainTargets();
-	if (targets.length == 0){targets = getAllTargets();}
-	let target=targets[Math.floor(Math.random()*targets.length)];
-	let myWave = enumGroup(group);
-	if (myWave.length == 0){ return;}
-	let my = myWave[0];
-	for (let N=0; N < 5; N++)
-	{
-		let temp = targets[Math.floor(Math.random()*targets.length)];
-		if (dist(target, my) > dist(my, temp))
-		{
-		target = temp;
-		}
-	}
-//	debug("random target", group, target.name, target.y, target.y);
-	waves[group] = {"mainTarget" : target};
-	updateSecondTarget(group);
-
-}
-
-function updateSecondTarget(group)
-{
-	if (enumGroup(group).length == 0){ return;}
-	if (!waves[group].mainTarget){ return;}
-//	debug(JSON.stringify(waves[group].mainTarget));
-	targets = getAllTargets();
-	pos = enumGroup(group)[0];
-	targets = targets.filter(function(p){
-		if(cosPhy(pos, waves[group].mainTarget, p) < 0.965){return true;}
-		return false;
-	});
-	sortByDist( targets, pos);
-//	debug("second targets", JSON.stringify(targets[0]));
-	waves[group].secondTarget = targets;
-}
-
-function clustering(group)
-{
-	let [x, y] = [enumGroup(group)[0].x, enumGroup(group)[0].y];
-	enumGroup(group).forEach(function(o)
-		{
-			orderDroidLoc(o, DORDER_SCOUT, x, y);
-		});
-}
-
-function getAllTargets()
+function enumEnemyObjects()
 {
 	let targets = [];
 	for (let playnum = 0; playnum < maxPlayers; playnum++)
@@ -161,10 +170,9 @@ function getAllTargets()
 
 }
 
-function getMainTargets()
-{
+function enumMainEnemyObjects(){	
 	let targets=[];
-	let structs = [HQ, FACTORY, POWER_GEN, RESOURCE_EXTRACTOR, LASSAT, RESEARCH_LAB, REPAIR_FACILITY, CYBORG_FACTORY, VTOL_FACTORY, REARM_PAD, SAT_UPLINK, GATE, COMMAND_CONTROL];
+	let structs = [HQ, FACTORY, POWER_GEN, RESOURCE_EXTRACTOR, LASSAT, RESEARCH_LAB, REPAIR_FACILITY, CYBORG_FACTORY, VTOL_FACTORY, REARM_PAD, SAT_UPLINK, COMMAND_CONTROL];
 	for (let playnum = 0; playnum < maxPlayers; playnum++)
 	{
 		if (playnum == me || allianceExistsBetween(me, playnum)) {continue;}
@@ -174,9 +182,6 @@ function getMainTargets()
 		}
 //		targets = targets.concat(enumDroid(playnum), DROID_CONSTRUCT);
 	}
-	if (targets.length == 0){targets=getAllTargets();}
+	if (targets.length == 0){targets=enumEnemyObjects();}
 	return targets;
 }
-
-
-
