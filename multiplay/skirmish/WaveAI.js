@@ -1,7 +1,7 @@
 include ("multiplay/script/lib.js");
 var groups = [];
 
-class Group {	
+class Group {
 	constructor(units){
 		let num = newGroup();
 		this.num = num;
@@ -11,6 +11,7 @@ class Group {
 		this.mainTarget=null;
 		this.updateMainTarget();
 		this.orderUpdate();
+
 	}
 
 	get droids(){
@@ -20,7 +21,7 @@ class Group {
 	get pos(){
 	return enumGroup(this.num)[0];
 	}
-	
+
 	get count(){
 	return groupSize(this.num);
 	}
@@ -30,24 +31,26 @@ class Group {
 		if (targets.length == 0){targets = enumEnemyObjects();}
 		if (this.count == 0 || targets.length == 0){return;}
 		targets = getRandom(targets, 5);
-		this.mainTarget = sortByDist(targets, this.pos).shift;
+		sortByDist(targets, this.pos);
+		this.mainTarget = targets.shift();
 		this.updateSecondTargets();
 	}
 
 	updateSecondTargets(){
 		if (this.count == 0 || !this.mainTarget){return;}
-//		debug(JSON.stringify(waves[group].mainTarget));
-		let targets = enumEnemyObjects;
+		let targets = enumEnemyObjects(),
+			pos = this.pos,
+			mainTarget = this.mainTarget;
 		targets = targets.filter(function(p){
-			return cosPhy(this.pos, this.mainTarget, p) < 0.965;
+			return cosPhy(pos, mainTarget, p) > 0.965;
 		});
 		sortByDist(targets, pos);
-//		debug("second targets", JSON.stringify(targets[0]));
-		this.secondTarget = targets;
+		this.secondTargets = targets;
 	}
-	
+
 	get shiftSecondTarget(){
-		if (this.secondTargets.length == 0){this.updateMainTarget(group);}
+		if (this.secondTargets.length == 0){this.updateMainTarget();}
+
 		let secondTarget = this.secondTargets.shift();
 		while (!getObject(secondTarget.type, secondTarget.player, secondTarget.id))
 		{
@@ -58,7 +61,7 @@ class Group {
 			}
 		}
 	return secondTarget;
-	}	
+	}
 
 	orderUpdate(){
 //	updateSecondTarget(group);
@@ -73,9 +76,9 @@ class Group {
 //		debug ("target", secondTarget);
 //
 		});
-		debug("target", group, secondTarget.name, secondTarget.x, secondTarget.y );
+		debug("target", this.num, secondTarget.name, secondTarget.x, secondTarget.y );
 	}
-	
+
 /*
 	clustering()
 	{
@@ -86,7 +89,7 @@ class Group {
 	}
 */
 //	waves : N,
-}	 
+}
 
 
 
@@ -109,7 +112,7 @@ function unitsСontrol()
 	groups.filter(function(group)
 	{
 		return true;
-//		return (Math.abs((group.grupnum % 10) - (gametime % 1000)/100) < 1); //обязательно проверить как работает 
+//		return (Math.abs((group.grupnum % 10) - (gametime % 1000)/100) < 1); //обязательно проверить как работает
 	}).forEach(function(group)
 	{
 		group.orderUpdate();
@@ -127,7 +130,7 @@ function groupsManagement()
 	if (!units.length){return;}
 //разбить на втол, арту, огонь и для каждого создать свою группу
 	groups.push(new Group(units));
-	
+
 }
 /*
 function attack(group)
@@ -170,7 +173,7 @@ function enumEnemyObjects()
 
 }
 
-function enumMainEnemyObjects(){	
+function enumMainEnemyObjects(){
 	let targets=[];
 	let structs = [HQ, FACTORY, POWER_GEN, RESOURCE_EXTRACTOR, LASSAT, RESEARCH_LAB, REPAIR_FACILITY, CYBORG_FACTORY, VTOL_FACTORY, REARM_PAD, SAT_UPLINK, COMMAND_CONTROL];
 	for (let playnum = 0; playnum < maxPlayers; playnum++)

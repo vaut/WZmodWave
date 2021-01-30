@@ -34,10 +34,10 @@ function sortByDist (list, pos)
 function getRandom (arr, n) {
 	let len = arr.length;
 	if (!n) {return arr[Math.floor(Math.random() * len)];}
-	let result = new Array(n);
+	let result = [];
 	while (n--) {
 		let i = Math.floor(Math.random() * len);
-		result.push = arr[i];
+		result.push(arr[i]);
 	}
 	return result;
 }
