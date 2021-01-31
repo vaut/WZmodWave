@@ -9,35 +9,34 @@ class Group {
 //		this.type = type;
 		this.secondTargets=[];
 		this.mainTarget=null;
-		this.updateMainTarget();
-		this.orderUpdate();
-
 	}
 
 	get droids(){
-	return enumGroup(this.num);
+		return enumGroup(this.num);
 	}
 
 	get pos(){
-	return enumGroup(this.num)[0];
+		return enumGroup(this.num)[0];
 	}
 
 	get count(){
-	return groupSize(this.num);
+		return groupSize(this.num);
 	}
 
 	updateMainTarget(){
 		let targets = enumMainEnemyObjects();
 		if (targets.length == 0){targets = enumEnemyObjects();}
-		if (this.count == 0 || targets.length == 0){return;}
+//		if (this.count == 0 || targets.length == 0){return;}
 		targets = getRandom(targets, 5);
 		sortByDist(targets, this.pos);
 		this.mainTarget = targets.shift();
-		this.updateSecondTargets();
 	}
 
 	updateSecondTargets(){
-		if (this.count == 0 || !this.mainTarget){return;}
+		if (!this.mainTarget ||
+			!getObject(this.mainTarget.type, this.mainTarget.player, this.mainTarget.id)){
+			this.updateMainTarget();
+			}
 		let targets = enumEnemyObjects(),
 			pos = this.pos,
 			mainTarget = this.mainTarget;
@@ -49,34 +48,29 @@ class Group {
 	}
 
 	get shiftSecondTarget(){
-		if (this.secondTargets.length == 0){this.updateMainTarget();}
+		if (this.secondTargets.length == 0){this.updateSecondTargets();}
 
 		let secondTarget = this.secondTargets.shift();
 		while (!getObject(secondTarget.type, secondTarget.player, secondTarget.id))
 		{
-			if (waves[group].secondTargets.length == 0)
+			if (this.secondTargets.length == 0)
 			{
-				this.updateMainTarget();
-				secondTarget = this.secondTargets.shift();
+				this.updateSecondTargets();
 			}
+			else {secondTarget = this.secondTargets.shift();}
 		}
 	return secondTarget;
 	}
 
 	orderUpdate(){
-//	updateSecondTarget(group);
 		let secondTarget = this.shiftSecondTarget;
-//	this.target = secondTarget;
-//	let mainTarget = waves[group].mainTarget;
 		this.droids.forEach(function(o)
 		{
 			if (o.isVTOL == true) {orderDroidObj(o, DORDER_ATTACK, secondTarget); return;}
 			if (secondTarget.type == DROID){orderDroidLoc(o, DORDER_MOVE, secondTarget.x, secondTarget.y);}
 			else orderDroidObj(o, DORDER_ATTACK, secondTarget);
-//		debug ("target", secondTarget);
-//
 		});
-		debug("target", this.num, secondTarget.name, secondTarget.x, secondTarget.y );
+//		debug("target", this.num, secondTarget.name, secondTarget.x, secondTarget.y );
 	}
 
 /*
@@ -88,15 +82,15 @@ class Group {
 		});
 	}
 */
-//	waves : N,
 }
-
 
 
 function eventGameInit()
 {
-	setTimer("unitsСontrol", 1*100);
-	setTimer("groupsManagement", 1*1000);
+	setTimer("ordersUpdate", 100);
+	setTimer("groupsManagement", 1000);
+	setTimer("seconTargetsUpdate", 10*1000);
+	setTimer("mainTargetsUpdate", 100*1000);
 }
 
 function eventDroidIdle(droid){
@@ -104,10 +98,11 @@ function eventDroidIdle(droid){
 	groupsManagement();
 	let groupNum = droid.group;
 	if (groupNum == null ){return;}
-	groups.groupNum.orderUpdate();
+	let group = groups.filter(function(group) {return group.num == groupNum;}).shift();
+	group.orderUpdate();
 }
 
-function unitsСontrol()
+function ordersUpdate()
 {
 	groups.filter(function(group)
 	{
@@ -130,36 +125,7 @@ function groupsManagement()
 	if (!units.length){return;}
 //разбить на втол, арту, огонь и для каждого создать свою группу
 	groups.push(new Group(units));
-
 }
-/*
-function attack(group)
-{
-//	let group = Math.floor(Math.random()*waves.length)+1;
-	let myWave = enumGroup(group);
-//	debug(group);
-	if (myWave.length == 0)
-	{
-		return;
-	}
-	let myTarget = waves[group].target;
-	if (!myTarget)
-	{
-		debug("fist target", group);
-		target(group);
-		return;
-	}
-	else
-	{
-//		debug (target, getObject(target.type, target.player, target.id));
-		if (!getObject(myTarget.type, myTarget.player, myTarget.id))
-		{
-			debug("force target", group);
-			target(group);
-		}
-	}
-}
-*/
 
 function enumEnemyObjects()
 {
@@ -170,7 +136,6 @@ function enumEnemyObjects()
 		targets = targets.concat(enumStruct(playnum), enumDroid(playnum));
 	}
 	return targets;
-
 }
 
 function enumMainEnemyObjects(){
