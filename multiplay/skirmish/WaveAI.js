@@ -7,8 +7,8 @@ class Group {
 		this.num = num;
 		units.forEach(function(o){groupAdd(num, o);});
 //		this.type = type;
-		this.secondTargets=[];
-		this.mainTarget=null;
+		this.secondTargets = [];
+		this.mainTarget = null;
 	}
 
 	get droids(){
@@ -47,28 +47,25 @@ class Group {
 		this.secondTargets = targets;
 	}
 
-	get shiftSecondTarget(){
-		if (this.secondTargets.length == 0){this.updateSecondTargets();}
-
-		let secondTarget = this.secondTargets.shift();
-		while (!getObject(secondTarget.type, secondTarget.player, secondTarget.id))
+	get secondTarget(){
+		while (!this.secondTargets[0] || !getObject(this.secondTargets[0].type, this.secondTargets[0].player, this.secondTargets[0].id))
 		{
 			if (this.secondTargets.length == 0)
 			{
 				this.updateSecondTargets();
 			}
-			else {secondTarget = this.secondTargets.shift();}
+			else {this.secondTargets.shift();}
 		}
-	return secondTarget;
+		return this.secondTargets[0];
 	}
 
 	orderUpdate(){
-		let secondTarget = this.shiftSecondTarget;
+		let target = this.secondTarget;
 		this.droids.forEach(function(o)
 		{
-			if (o.isVTOL == true) {orderDroidObj(o, DORDER_ATTACK, secondTarget); return;}
-			if (secondTarget.type == DROID){orderDroidLoc(o, DORDER_MOVE, secondTarget.x, secondTarget.y);}
-			else orderDroidObj(o, DORDER_ATTACK, secondTarget);
+			if (o.isVTOL == true) {orderDroidObj(o, DORDER_ATTACK, target); return;}
+			if (target.type == DROID){orderDroidLoc(o, DORDER_MOVE, target.x, target.y);}
+			else orderDroidObj(o, DORDER_ATTACK, target);
 		});
 //		debug("target", this.num, secondTarget.name, secondTarget.x, secondTarget.y );
 	}
@@ -87,10 +84,10 @@ class Group {
 
 function eventGameInit()
 {
-	setTimer("ordersUpdate", 100);
+	setTimer("ordersUpdate", 1000);
 	setTimer("groupsManagement", 1000);
-	setTimer("seconTargetsUpdate", 10*1000);
-	setTimer("mainTargetsUpdate", 100*1000);
+//	setTimer("seconTargetsUpdate", 10*1000);
+//	setTimer("mainTargetsUpdate", 100*1000);
 }
 
 function eventDroidIdle(droid){
