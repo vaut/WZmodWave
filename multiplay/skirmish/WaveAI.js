@@ -3,10 +3,11 @@ var groups = [];
 
 class Group {
 	constructor(units){
-		let num = newGroup();
+		const num = newGroup();
 		this.num = num;
 		units.forEach(function(o){groupAdd(num, o);});
 //		this.type = type;
+		this.notTakeTarget = gameTime;
 		this.secondTargets = [];
 		this.mainTarget = null;
 	}
@@ -16,7 +17,11 @@ class Group {
 	}
 
 	get pos(){
-		return enumGroup(this.num)[0];
+		const arr = this.droids;
+		const sum = arr.reduce(function (acc, obj){
+			return {x: acc.x+obj.x, y: acc.y+obj.y};
+			}, {x:0,y:0});
+		return {x: sum.x/arr.length, y: sum.y/arr.length};
 	}
 
 	get count(){
@@ -60,34 +65,38 @@ class Group {
 	}
 
 	orderUpdate(){
-		let target = this.secondTarget;
+		if (gameTime < this.notTakeOrder){return;}
+		this.notTakeOrder = gameTime + 500 + Math.floor(Math.random()*500);
+		const target = this.secondTarget;
 		this.droids.forEach(function(o)
 		{
 			if (o.isVTOL == true) {orderDroidObj(o, DORDER_ATTACK, target); return;}
 			if (target.type == DROID){orderDroidLoc(o, DORDER_MOVE, target.x, target.y);}
 			else orderDroidObj(o, DORDER_ATTACK, target);
 		});
-//		debug("target", this.num, secondTarget.name, secondTarget.x, secondTarget.y );
 	}
 
-/*
-	clustering()
-	{
-		droids.forEach(function(o)
+
+	clustering(){
+		this.notTakeOrder = gameTime + 6*1000 + Math.floor(Math.random()*1000) - 500;
+
+		const pos = this.pos;
+		this.droids.forEach(function(o)
 		{
-			orderDroidLoc(o, DORDER_SCOUT, this.pos.x, this.pos.y);
+			orderDroidLoc(o, DORDER_MOVE, pos.x, pos.y);
 		});
 	}
-*/
+
 }
 
 
 function eventGameInit()
 {
-	setTimer("ordersUpdate", 1000);
+	setTimer("ordersUpdate", 100);
 	setTimer("groupsManagement", 1000);
-//	setTimer("seconTargetsUpdate", 10*1000);
-//	setTimer("mainTargetsUpdate", 100*1000);
+	setTimer("seconTargetsUpdate", 10*1000);
+	setTimer("mainTargetsUpdate", 100*1000);
+	setTimer("clustering", 45*1000);
 }
 
 function eventDroidIdle(droid){
@@ -122,6 +131,30 @@ function groupsManagement()
 	if (!units.length){return;}
 //разбить на втол, арту, огонь и для каждого создать свою группу
 	groups.push(new Group(units));
+}
+
+function seconTargetsUpdate()
+{
+	groups.forEach(function(group)
+	{
+		group.updateSecondTargets();
+	});
+}
+
+function mainTargetsUpdate()
+{
+	groups.forEach(function(group)
+	{
+		group.updateMainTarget();
+	});
+}
+
+function clustering()
+{
+	groups.forEach(function(group)
+	{
+		group.clustering();
+	});
 }
 
 function enumEnemyObjects()
