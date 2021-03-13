@@ -2,7 +2,7 @@
    "challenge":{
       "alliances":2,
       "allowPositionChange":"true",
-      "bases":"1",
+      "bases":"2",
       "map":"Poli-Eye-W-a-T1",
       "maxPlayers":6,
       "powerLevel":2,
