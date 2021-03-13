@@ -1,0 +1,28 @@
+// Made with FlaME 1.29 Mono 2.10
+// Date: 2021/01/29 13:51:12
+// Author: Vaut. Based on Ismir r3d3s map
+// License: GPL 2+
+
+level   Poli-Eye-W-a-T1
+players 4
+type    14
+dataset MULTI_CAM_3
+game    "multiplay/maps/4c-Poli-Eye-W-a.gam"
+data    "wrf/multi/skirmish4.wrf"
+data    "wrf/multi/fog3.wrf"
+
+level   Poli-Eye-W-a-T2
+players 4
+type    18
+dataset MULTI_T2_C3
+game    "multiplay/maps/4c-Poli-Eye-W-a.gam"
+data    "wrf/multi/t2-skirmish4.wrf"
+data    "wrf/multi/fog3.wrf"
+
+level   Poli-Eye-W-a-T3
+players 4
+type    19
+dataset MULTI_T3_C3
+game    "multiplay/maps/4c-Poli-Eye-W-a.gam"
+data    "wrf/multi/t3-skirmish4.wrf"
+data    "wrf/multi/fog3.wrf"
