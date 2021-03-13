@@ -7,7 +7,9 @@
       "maxPlayers":6,
       "powerLevel":2,
       "scavengers":"false",
-      "version":2
+      "version":2,
+        "name": "Wave defense"
+
    },
    "locked": {
       "power": true,
