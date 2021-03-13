@@ -45,14 +45,13 @@ class Group {
 	}
 
 	updateSecondTargets() {
-		if (
-			!this.mainTarget ||
-      !getObject(
-      	this.mainTarget.type,
-      	this.mainTarget.player,
-      	this.mainTarget.id
-      )
-		) {
+		if (enumMainEnemyObjects().length == 0)
+		{
+			stopGame();
+			return;
+		}
+		if (!this.mainTarget || !getObject(this.mainTarget.type, this.mainTarget.player, this.mainTarget.id))
+		{
 			this.updateMainTarget();
 		}
 		let targets = enumEnemyObjects(),
@@ -66,14 +65,13 @@ class Group {
 	}
 
 	get secondTarget() {
-		while (
-			!this.secondTargets[0] ||
-      !getObject(
-      	this.secondTargets[0].type,
-      	this.secondTargets[0].player,
-      	this.secondTargets[0].id
-      )
-		) {
+		if (enumMainEnemyObjects().length == 0)
+		{
+			stopGame();
+			return(null);
+		}
+		while (	!this.secondTargets[0] || !getObject( this.secondTargets[0].type, this.secondTargets[0].player, this.secondTargets[0].id))
+		  {
 			if (this.secondTargets.length == 0) {
 				this.updateSecondTargets();
 			} else {
@@ -84,10 +82,10 @@ class Group {
 	}
 
 	orderUpdate() {
-		if (gameTime < this.notTakeOrder) {
+/*		if (gameTime < this.notTakeOrder) {
 			return;
-		}
-		this.notTakeOrder = gameTime + 500 + Math.floor(Math.random() * 500);
+		}*/
+//		this.notTakeOrder = gameTime + 500 + Math.floor(Math.random() * 500);
 		const target = this.secondTarget;
 		this.droids.forEach(function (o) {
 			if (o.isVTOL == true) {
@@ -99,7 +97,7 @@ class Group {
 			} else orderDroidObj(o, DORDER_ATTACK, target);
 		});
 	}
-
+/*
 	clustering() {
 		this.notTakeOrder =
       gameTime + 6 * 1000 + Math.floor(Math.random() * 1000) - 500;
@@ -108,7 +106,7 @@ class Group {
 		this.droids.forEach(function (o) {
 			orderDroidLoc(o, DORDER_MOVE, pos.x, pos.y);
 		});
-	}
+	}*/
 }
 
 function eventGameInit() {
@@ -116,7 +114,14 @@ function eventGameInit() {
 	setTimer("groupsManagement", 1000);
 	setTimer("seconTargetsUpdate", 10 * 1000);
 	setTimer("mainTargetsUpdate", 100 * 1000);
-	setTimer("clustering", 45 * 1000);
+//	setTimer("clustering", 45 * 1000);
+}
+
+function stopGame(){
+	removeTimer("ordersUpdate");
+	removeTimer("groupsManagement");
+	removeTimer("seconTargetsUpdate");
+	removeTimer("mainTargetsUpdate");
 }
 
 function eventDroidIdle(droid) {
@@ -176,13 +181,13 @@ function mainTargetsUpdate() {
 		group.updateMainTarget();
 	});
 }
-
+/*
 function clustering() {
 	groups.forEach(function (group) {
 		group.clustering();
 	});
 }
-
+*/
 function enumEnemyObjects() {
 	let targets = [];
 	for (let playnum = 0; playnum < maxPlayers; playnum++) {
