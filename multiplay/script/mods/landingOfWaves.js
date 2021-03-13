@@ -1,4 +1,4 @@
-include ("multiplay/script/templates.js");
+include ("multiplay/script/mods/templates.js");
 include ("multiplay/script/lib.js");
 
 namespace("wa_");
@@ -9,7 +9,7 @@ for (var playnum = 0; playnum < maxPlayers; playnum++)
 {
 	if (playerData[playnum].isAI == true && playerData[playnum].name == "Wave")
 	{
-	AI = playnum;
+		AI = playnum;
 	}
 }
 if (!AI) {console("ERROR \n not found WaveAI");}
@@ -48,7 +48,7 @@ var LZdefoult = {
 	x : Math.ceil(mapWidth/2),
 	y : Math.ceil(mapHeight/2),
 	radius : 5
-	};
+};
 
 function calcBudget()
 {
@@ -102,7 +102,7 @@ var theLanding = {
 	"budget" : 0,
 	"units" : 0,
 	"avalibleTemplate" : []
-	};
+};
 
 
 function landing()
