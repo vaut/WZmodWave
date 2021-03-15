@@ -11,15 +11,6 @@
         "name": "Wave defense"
 
    },
-   "locked": {
-      "power": true,
-      "alliances": true,
-      "teams": true,
-      "difficulty": true,
-      "ai": true,
-      "scavengers": true,
-      "bases": true
-   },
    "player_0":{
       "position":5,
       "team":1
@@ -36,25 +27,29 @@
    "player_2":{
       "position":0,
       "team":0,
+      "ai": "multiplay/skirmish/Cobra.js",
       "difficulty": "Hard",
       "name": "Enemy"
    },
    "player_3":{
       "position":1,
       "team":0,
+      "ai": "multiplay/skirmish/Cobra.js",
       "difficulty": "Hard",
-      "name": "Enemy"
+      "name": "bonya"
    },
    "player_4":{
       "position":2,
       "team":0,
+      "ai": "multiplay/skirmish/Cobra.js",
       "difficulty": "Hard",
       "name": "Enemy"
    },
    "player_5":{
       "position":3,
       "team":0,
+      "ai": "multiplay/skirmish/Cobra.js",
       "difficulty": "Hard",
-      "name": "Enemy"
+      "name": "bonya"
    }
 }

@@ -1,5 +1,6 @@
 include("multiplay/script/mods/templates.js");
 include("multiplay/script/lib.js");
+var research = includeJSON("research.json");
 
 namespace("wa_");
 
@@ -208,10 +209,27 @@ function pushUnits() {
 	queue("landing", PauseTime * 60 * 1000);
 }
 
+var redComponents = [];
+
+
 function giveResearch() {
 	hackNetOff();
 	completeResearchOnTime(gameTime / 1000 + startTime, AI);
 	hackNetOn();
+	redComponents = getRedComponents(gameTime / 1000 + startTime, AI);
+
+}
+
+function getRedComponents(time)
+{
+	for (var tech in allRes)
+	{
+		if ((allRes[tech] <= time) && (getResearch(tech).redComponents))
+		{
+			debug("aaaa");
+			redComponents = redComponents.concat(research.tech.redComponents) ;
+		}
+	}
 }
 
 function getStartTime() {
