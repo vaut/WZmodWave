@@ -1,5 +1,6 @@
 include("multiplay/script/mods/templates.js");
 include("multiplay/script/lib.js");
+var research = includeJSON("research.json");
 
 namespace("wa_");
 
@@ -62,9 +63,8 @@ function calcBudget() {
 
 	let A = K / (40 * 60);
 	let budget = Math.round(
-		((K *game.totalTimeS +A * game.totalTimeS ** 2) / 2) * game.waveDifficulty
+		((K * game.totalTimeS + A * game.totalTimeS ** 2) / 2) * game.waveDifficulty
 	);
-
   //но юнитов на поздних этапах выходит слишком много, по этому вторую часть компенсируем опытом
   //опыт усливает при первом приближении +11% за каждый ранг.
   //опыт для достижения ранга требуется экспоненцициально решив уравнение 2**(k*t)=boost
@@ -134,9 +134,10 @@ function landing() {
 				allTemplates[key].weapons
 			) !== null && //у makeTemplate изменен синтаксис в мастере. Не совместимо с 3.4.1
       allTemplates[key].propulsion != "wheeled01" &&
-      allTemplates[key].propulsion != "hover01" &&
+      //      allTemplates[key].propulsion != "hover01" &&
       allTemplates[key].weapons[0] != "CommandTurret1" &&
-      allTemplates[key].weapons[0] != "MG1Mk1"
+      allTemplates[key].weapons[0] != "MG1Mk1" &&
+      !redComponents.includes(allTemplates[key].weapons[0])
 		) {
 			theLanding.avalibleTemplate.push(key);
 		}
@@ -205,11 +206,22 @@ function pushUnits() {
 	setMissionTime(game.pauseTime);
 	queue("landing", game.pauseTime * 1000);
 }
+var redComponents = [];
 
 function giveResearch() {
 	hackNetOff();
 	completeResearchOnTime(game.totalTimeS, AI);
 	hackNetOn();
+	updateRedComponents();
+}
+
+function updateRedComponents() {
+	redComponents = [];
+	for (var tech in allRes) {
+		if (allRes[tech] <= game.totalTimeS && research[tech].redComponents) {
+			redComponents = redComponents.concat(research[tech].redComponents);
+		}
+	}
 }
 
 const PLACE = "O"; //landing place
