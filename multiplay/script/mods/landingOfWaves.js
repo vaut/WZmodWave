@@ -43,7 +43,7 @@ LZs = labels.map(function(label){
 	return LZ;
 });
 
-//TODO read LZ from map
+//TODO read
 var LZdefoult = {
 	x : Math.ceil(mapWidth/2),
 	y : Math.ceil(mapHeight/2),
@@ -54,17 +54,26 @@ function calcBudget()
 {
 
 	let K = numOil/4;
-	let totalTime = (gameTime+startTime)/1000; //время игры в секудах при старте с 0 базы
+	let totalTime = (gameTime)/1000+startTime; //время игры в секудах при старте с 0 базы
 //	var budget = K*totalTime*waveDifficulty;
+
 	//этого не достаточно, игрок по мере игры получает апы на ген, что проиводит к росуту доступных ресурсов.
-	//при первом приблежении вторая производная энергии по времени прямая с увеличением в два раза за 15 минут.
-	//по этому вот так
+	//при первом приблежении вторая производная энергии по времени прямая с увеличением в два раза за 20 минут.
+	
+	//первый вариант это бюджет зависит от квадрата времени:
+/*
 	let A = K/(20*60);
 	let budget = (K*totalTime + A*totalTime*totalTime/2)*waveDifficulty;
-
-	debug("budget", budget);
+*/
+	//но юнитов на поздних этапах выходит слишком много, по этому пробуем выдавать им опыт
+	//опыт усливает при первом приближении +11% за каждый ранг.
+	//опыт для достижения ранга требуется экспоненцициально решив уравнение 2**(k*t)=boost
+	//получаем k=0.04
+	let experience =  Math.round(2**(0.0045*totalTime));
+	let budget = K*totalTime*waveDifficulty;
+	debug("budget", budget,"experience", experience );
 //	debug ("progressive bonuce", budget - K*totalTime*waveDifficulty );
-	return budget;
+	return {"budget" : budget, "experience": experience} ;
 }
 
 ///further logic of landing
@@ -121,12 +130,11 @@ function landing()
 		}
 	}
 	if (theLanding.avalibleTemplate.length <1){theLanding.avalibleTemplate.push("ViperMG01Wheels");}
-	theLanding.budget = calcBudget();
+	theLanding.budget = calcBudget().budget;
+	theLanding.experience = calcBudget().experience;
 	theLanding.units = 0;
 	theLanding.LZ = LZs[syncRandom(LZs.length)];
 	pushUnits();
-	setMissionTime(PauseTime*60);
-	queue("landing", PauseTime*60*1000);
 }
 
 function pushUnits()
@@ -145,16 +153,18 @@ function pushUnits()
 			pos = borders.shift();
 		}
 
-		addDroid(AI, pos.x, pos.y, droidName, allTemplates[droidName].body, allTemplates[droidName].propulsion , "", "", allTemplates[droidName].weapons );
+		let unit = addDroid(AI, pos.x, pos.y, droidName, allTemplates[droidName].body, allTemplates[droidName].propulsion , "", "", allTemplates[droidName].weapons );
+		setDroidExperience(unit, Math.round(theLanding.experience));
 		theLanding.budget -= makeTemplate(AI, droidName, allTemplates[droidName].body, allTemplates[droidName].propulsion , "", allTemplates[droidName].weapons).power;
 		theLanding.units++;
 //		debug("add", droidName);
 	}
+	playSound("pcv395.ogg", theLanding.LZ.x, theLanding.LZ.y, 0);
 	if (theLanding.budget > 0){queue("pushUnits", 6*1000); return;}
 	debug("wave number", waveNum, "units landed", theLanding.units);
 	console("wave number", waveNum, "units landed", theLanding.units);
-	playSound("pcv395.ogg", theLanding.LZ.x, theLanding.LZ.y, 0);
-
+	setMissionTime(PauseTime*60);
+	queue("landing", PauseTime*60*1000);
 }
 
 
@@ -175,7 +185,7 @@ function getStartTime()
 	var startTime=1;
 	var techLevel = getMultiTechLevel();
 	if (baseType == CAMP_BASE){startTime = timeBaseTech;}
-	if (baseType == CAMP_WALLS){startTime=timeAdvancedBaseTech;}
+	if (baseType == CAMP_WALLS){startTime = timeAdvancedBaseTech;}
 	if (techLevel == 2){startTime=timeT2;}
 	if (techLevel == 3){startTime=timeT3;}
 	if (techLevel == 4){startTime=100*60;}
@@ -200,10 +210,10 @@ function markAvailableTile(tiles)
 			if (tile == PLACE){return;}
 			if (tile == POSS &&
 			(
-			(tiles[x-1] && tiles[x-1][y] ==  PLACE) ||
-			(tiles[x+1] && tiles[x+1][y] ==  PLACE) ||
-			tiles[x][y-1] ==  PLACE ||
-			tiles[x][y+1] ==  PLACE))
+				(tiles[x-1] && tiles[x-1][y] ==  PLACE) ||
+				(tiles[x+1] && tiles[x+1][y] ==  PLACE) ||
+				tiles[x][y-1] ==  PLACE ||
+				tiles[x][y+1] ==  PLACE))
 			{
 				tiles[x][y] = PLACE;
 				addPOSS = true;
