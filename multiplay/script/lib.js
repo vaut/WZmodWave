@@ -41,3 +41,35 @@ function getRandom (arr, n) {
 	}
 	return result;
 }
+
+var game = {
+	get totalTimeS() {
+		return ((gameTime / 1000) + getStartTime());
+	}
+};
+
+function getStartTime() {
+	const cleanTech = 1;
+	const timeBaseTech = 4.5 * 60; // after Power Module
+	const timeAdvancedBaseTech = 7.9 * 60; // after Mortar and Repair Facility
+	const timeT2 = 17 * 60;
+	const timeT3 = 26 * 60; // after Needle Gun and Scourge Missile
+	var startTime = 1;
+	var techLevel = getMultiTechLevel();
+	if (baseType == CAMP_BASE) {
+		startTime = timeBaseTech;
+	}
+	if (baseType == CAMP_WALLS) {
+		startTime = timeAdvancedBaseTech;
+	}
+	if (techLevel == 2) {
+		startTime = timeT2;
+	}
+	if (techLevel == 3) {
+		startTime = timeT3;
+	}
+	if (techLevel == 4) {
+		startTime = 100 * 60;
+	}
+	return startTime;
+}

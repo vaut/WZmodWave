@@ -1,6 +1,5 @@
 include("multiplay/script/mods/templates.js");
 include("multiplay/script/lib.js");
-var research = includeJSON("research.json");
 
 namespace("wa_");
 
@@ -15,13 +14,12 @@ if (!AI) {
 	console("ERROR \n not found WaveAI");
 }
 
-var waveDifficulty = (playerData[AI].difficulty + 1) / 2; //general danger of waves 0.5, 1, 1.5, 2
+game.waveDifficulty = (playerData[AI].difficulty + 2) / 3; //general danger of waves 0.66, 1, 1.33, 1.6
 
-var protectTime = 5 / waveDifficulty; //time to first attack in minutes
-var PauseTime = 2 / waveDifficulty; //pause between attacks in minutes
+game.protectTime = Math.ceil((5 * 60) / game.waveDifficulty); //time to first attack in seconds
+game.pauseTime = Math.ceil((2 * 60) / game.waveDifficulty); //pause between attacks in seconds
 
-var startTime = getStartTime();
-debug("startTime", startTime);
+//debug("startTime", game.totalTimeS);
 
 var numOil = enumFeature(ALL_PLAYERS).filter(function (e) {
 	if (e.stattype == OIL_RESOURCE) return true;
@@ -55,25 +53,24 @@ var LZdefoult = {
 
 function calcBudget() {
 	let K = numOil / 4;
-	let totalTime = gameTime / 1000 + startTime; //время игры в секудах при старте с 0 базы
   //	var budget = K*totalTime*waveDifficulty;
 
   //этого не достаточно, игрок по мере игры получает апы на ген, что проиводит к росуту доступных ресурсов.
   //при первом приблежении вторая производная энергии по времени прямая с увеличением в два раза за 20 минут.
 
-  //первый вариант это бюджет зависит от квадрата времени:
-  /*
-	let A = K/(20*60);
-	let budget = (K*totalTime + A*totalTime*totalTime/2)*waveDifficulty;
-*/
-  //но юнитов на поздних этапах выходит слишком много, по этому пробуем выдавать им опыт
+  // используем два подхода одновременноэто бюджет зависит от квадрата времени:
+
+	let A = K / (40 * 60);
+	let budget = Math.round(
+		((K *game.totalTimeS +A * game.totalTimeS ** 2) / 2) * game.waveDifficulty
+	);
+
+  //но юнитов на поздних этапах выходит слишком много, по этому вторую часть компенсируем опытом
   //опыт усливает при первом приближении +11% за каждый ранг.
   //опыт для достижения ранга требуется экспоненцициально решив уравнение 2**(k*t)=boost
   //получаем k=0.04
-	let experience = Math.round(2 ** (0.0045 * totalTime));
-	let budget = K * totalTime * waveDifficulty;
+	let experience = Math.round(2 ** ((7 / (40 * 60)) * game.totalTimeS));
 	debug("budget", budget, "experience", experience);
-  //	debug ("progressive bonuce", budget - K*totalTime*waveDifficulty );
 	return { budget: budget, experience: experience };
 }
 
@@ -82,14 +79,14 @@ function calcBudget() {
 function wa_eventGameInit() {
 	console(
 		[
-			"difficulty " + difficulty,
-			"protectTime " + protectTime,
-			"PauseTime " + PauseTime,
+			"difficulty " + game.wavedifficulty,
+			"protectTime " + game.protectTime,
+			"PauseTime " + game.PauseTime,
 		].join("\n")
 	);
 	setTimer("giveResearch", 60 * 1000);
-	queue("landing", protectTime * 60 * 1000);
-	setMissionTime(protectTime * 60);
+	queue("landing", game.protectTime * 1000);
+	setMissionTime(game.protectTime);
 	makeComponentAvailable("MG1Mk1", AI);
 	setAlliance(scavengerPlayer, AI, true);
 	let spotter = {
@@ -119,7 +116,7 @@ var theLanding = {
 function landing() {
 	waveNum++;
 	playSound("pcv381.ogg");
-	if (gameTime / 1000 < protectTime * 60) {
+	if (gameTime / 1000 < game.protectTime) {
 		return;
 	}
 	theLanding.avalibleTemplate = [];
@@ -205,57 +202,14 @@ function pushUnits() {
 	}
 	debug("wave number", waveNum, "units landed", theLanding.units);
 	console("wave number", waveNum, "units landed", theLanding.units);
-	setMissionTime(PauseTime * 60);
-	queue("landing", PauseTime * 60 * 1000);
+	setMissionTime(game.pauseTime);
+	queue("landing", game.pauseTime * 1000);
 }
-
-var redComponents = [];
-
 
 function giveResearch() {
 	hackNetOff();
-	completeResearchOnTime(gameTime / 1000 + startTime, AI);
+	completeResearchOnTime(game.totalTimeS, AI);
 	hackNetOn();
-	redComponents = getRedComponents(gameTime / 1000 + startTime, AI);
-
-}
-
-function getRedComponents(time)
-{
-	for (var tech in allRes)
-	{
-		if ((allRes[tech] <= time) && (getResearch(tech).redComponents))
-		{
-			debug("aaaa");
-			redComponents = redComponents.concat(research.tech.redComponents) ;
-		}
-	}
-}
-
-function getStartTime() {
-	const cleanTech = 1;
-	const timeBaseTech = 4.5 * 60; // after Power Module
-	const timeAdvancedBaseTech = 7.9 * 60; // after Mortar and Repair Facility
-	const timeT2 = 17 * 60;
-	const timeT3 = 26 * 60; // after Needle Gun and Scourge Missile
-	var startTime = 1;
-	var techLevel = getMultiTechLevel();
-	if (baseType == CAMP_BASE) {
-		startTime = timeBaseTech;
-	}
-	if (baseType == CAMP_WALLS) {
-		startTime = timeAdvancedBaseTech;
-	}
-	if (techLevel == 2) {
-		startTime = timeT2;
-	}
-	if (techLevel == 3) {
-		startTime = timeT3;
-	}
-	if (techLevel == 4) {
-		startTime = 100 * 60;
-	}
-	return startTime;
 }
 
 const PLACE = "O"; //landing place
