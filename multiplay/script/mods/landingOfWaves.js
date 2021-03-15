@@ -86,7 +86,7 @@ function wa_eventGameInit() {
 			"PauseTime " + PauseTime,
 		].join("\n")
 	);
-	setTimer("getResearch", 60 * 1000);
+	setTimer("giveResearch", 60 * 1000);
 	queue("landing", protectTime * 60 * 1000);
 	setMissionTime(protectTime * 60);
 	makeComponentAvailable("MG1Mk1", AI);
@@ -208,7 +208,7 @@ function pushUnits() {
 	queue("landing", PauseTime * 60 * 1000);
 }
 
-function getResearch() {
+function giveResearch() {
 	hackNetOff();
 	completeResearchOnTime(gameTime / 1000 + startTime, AI);
 	hackNetOn();
