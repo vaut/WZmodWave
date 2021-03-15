@@ -1,0 +1,60 @@
+{
+   "challenge":{
+      "alliances":2,
+      "allowPositionChange":"true",
+      "bases":"2",
+      "map":"Poli-Eye-W-a-T1",
+      "maxPlayers":6,
+      "powerLevel":2,
+      "scavengers":"false",
+      "version":2,
+        "name": "Wave defense"
+
+   },
+   "locked": {
+      "power": true,
+      "alliances": true,
+      "teams": true,
+      "difficulty": true,
+      "ai": true,
+      "scavengers": true,
+      "bases": true
+   },
+   "player_0":{
+      "position":5,
+      "team":1
+
+   },
+   "player_1":{
+      "position":4,
+      "team":1,
+	"name": "Wave",
+	"ai": "multiplay/skirmish/WaveAI.js",
+        "difficulty": "Hard"
+
+   },
+   "player_2":{
+      "position":0,
+      "team":0,
+      "difficulty": "Hard",
+      "name": "Enemy"
+   },
+   "player_3":{
+      "position":1,
+      "team":0,
+      "difficulty": "Hard",
+      "name": "Enemy"
+   },
+   "player_4":{
+      "position":2,
+      "team":0,
+      "difficulty": "Hard",
+      "name": "Enemy"
+   },
+   "player_5":{
+      "position":3,
+      "team":0,
+      "difficulty": "Hard",
+      "name": "Enemy"
+   }
+}
