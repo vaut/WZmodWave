@@ -5,7 +5,6 @@ class Group {
 	constructor(units, mainTarget) {
 		const num = newGroup();
 		this.num = num;
-		debug(num);
 		units.forEach(function (o) {
 			groupAdd(num, o);
 		});
@@ -72,7 +71,7 @@ class Group {
 			pos = this.pos,
 			mainTarget = this.mainTarget;
 		targets = targets.filter(function (p) {
-			return cosPhy(pos, mainTarget, p) > 0.965;
+			return (cosPhy(pos, mainTarget, p) > 0.965  && !p.isVTOL);
 		});
 		sortByDist(targets, pos);
 		this.secondTargets = targets;
@@ -101,17 +100,8 @@ class Group {
 	}
 
 	orderUpdate() {
-    /*		if (gameTime < this.notTakeOrder) {
-			return;
-		}*/
-    //		this.notTakeOrder = gameTime + 500 + Math.floor(Math.random() * 500);
 		const target = this.secondTarget;
 		this.droids.forEach(function (o) {
-			if (o.isVTOL == true) {
-				debug("WTF");
-				orderDroidObj(o, DORDER_ATTACK, target);
-				return;
-			}
 			if (target.type == DROID) {
 				orderDroidLoc(o, DORDER_MOVE, target.x, target.y);
 			} else orderDroidObj(o, DORDER_ATTACK, target);
@@ -130,15 +120,47 @@ class Group {
 }
 
 class Vtol extends Group {
-	constructor(units, mainTarget) {
-		super(units, mainTarget);
-	}
-
 	orderUpdate() {
 		const target = this.secondTarget;
 		this.droids.forEach(function (o) {
 			orderDroidObj(o, DORDER_ATTACK, target);
 			return;
+		});
+	}
+}
+
+class Arty extends Group {
+	updateSecondTargets() {
+		if (enumMainEnemyObjects().length == 0) {
+			stopGame();
+			return;
+		}
+		if (
+			!this.mainTarget ||
+      !getObject(
+      	this.mainTarget.type,
+      	this.mainTarget.player,
+      	this.mainTarget.id
+      )
+		) {
+			this.updateMainTarget();
+		}
+		let targets = enumEnemyObjects(),
+			pos = this.pos,
+			mainTarget = this.mainTarget;
+		targets = targets.filter(function (p) {
+			return (cosPhy(pos, mainTarget, p) > 0.75 && !p.isVTOL);
+		});
+		sortByDist(targets, pos);
+		this.secondTargets = targets;
+	}
+
+	orderUpdate() {
+		const target = this.secondTarget;
+		this.droids.forEach(function (o) {
+			if (target.type == DROID) {
+				orderDroidLoc(o, DORDER_SCOUT, target.x, target.y);
+			} else orderDroidObj(o, DORDER_ATTACK, target);
 		});
 	}
 }
@@ -201,16 +223,23 @@ function groupsManagement() {
 		return;
 	}
 	let ObjMainTarget = { mainTarget: null };
-//разбить на втол, арту, огонь и для каждого создать свою группу
 	groups.push(new Group(units, ObjMainTarget));
 
-	let vtol = units.filter((unit, index, arr) => {
+	let vtol = units.filter((unit) => {
 		return unit.isVTOL;
 	});
 	if (vtol.length > 0) {
-		debug("vtol group");
 		groups.push(new Vtol(vtol, ObjMainTarget));
+	
 	}
+	let arty = units.filter((unit) => {
+		return !Stats.Weapon[unit.weapons[0].fullname].FireOnMove;
+	});
+	if (arty.length > 0) {
+		groups.push(new Arty(arty, ObjMainTarget));
+	
+	}
+
 }
 
 function seconTargetsUpdate() {
