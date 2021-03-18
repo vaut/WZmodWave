@@ -2,16 +2,25 @@ include("multiplay/script/lib.js");
 var groups = [];
 
 class Group {
-	constructor(units) {
+	constructor(units, mainTarget) {
 		const num = newGroup();
 		this.num = num;
+		debug(num);
 		units.forEach(function (o) {
 			groupAdd(num, o);
 		});
     //		this.type = type;
 		this.notTakeTarget = gameTime;
 		this.secondTargets = [];
-		this.mainTarget = null;
+		this.objMainTarget = mainTarget;
+	}
+
+	get mainTarget() {
+		return this.objMainTarget.mainTarget;
+	}
+
+	set mainTarget(mainTarget) {
+		this.objMainTarget.mainTarget = mainTarget;
 	}
 
 	get droids() {
@@ -45,13 +54,18 @@ class Group {
 	}
 
 	updateSecondTargets() {
-		if (enumMainEnemyObjects().length == 0)
-		{
+		if (enumMainEnemyObjects().length == 0) {
 			stopGame();
 			return;
 		}
-		if (!this.mainTarget || !getObject(this.mainTarget.type, this.mainTarget.player, this.mainTarget.id))
-		{
+		if (
+			!this.mainTarget ||
+      !getObject(
+      	this.mainTarget.type,
+      	this.mainTarget.player,
+      	this.mainTarget.id
+      )
+		) {
 			this.updateMainTarget();
 		}
 		let targets = enumEnemyObjects(),
@@ -65,13 +79,18 @@ class Group {
 	}
 
 	get secondTarget() {
-		if (enumMainEnemyObjects().length == 0)
-		{
+		if (enumMainEnemyObjects().length == 0) {
 			stopGame();
-			return(null);
+			return null;
 		}
-		while (	!this.secondTargets[0] || !getObject( this.secondTargets[0].type, this.secondTargets[0].player, this.secondTargets[0].id))
-		  {
+		while (
+			!this.secondTargets[0] ||
+      !getObject(
+      	this.secondTargets[0].type,
+      	this.secondTargets[0].player,
+      	this.secondTargets[0].id
+      )
+		) {
 			if (this.secondTargets.length == 0) {
 				this.updateSecondTargets();
 			} else {
@@ -82,13 +101,14 @@ class Group {
 	}
 
 	orderUpdate() {
-/*		if (gameTime < this.notTakeOrder) {
+    /*		if (gameTime < this.notTakeOrder) {
 			return;
 		}*/
-//		this.notTakeOrder = gameTime + 500 + Math.floor(Math.random() * 500);
+    //		this.notTakeOrder = gameTime + 500 + Math.floor(Math.random() * 500);
 		const target = this.secondTarget;
 		this.droids.forEach(function (o) {
 			if (o.isVTOL == true) {
+				debug("WTF");
 				orderDroidObj(o, DORDER_ATTACK, target);
 				return;
 			}
@@ -97,7 +117,7 @@ class Group {
 			} else orderDroidObj(o, DORDER_ATTACK, target);
 		});
 	}
-/*
+  /*
 	clustering() {
 		this.notTakeOrder =
       gameTime + 6 * 1000 + Math.floor(Math.random() * 1000) - 500;
@@ -109,15 +129,29 @@ class Group {
 	}*/
 }
 
+class Vtol extends Group {
+	constructor(units, mainTarget) {
+		super(units, mainTarget);
+	}
+
+	orderUpdate() {
+		const target = this.secondTarget;
+		this.droids.forEach(function (o) {
+			orderDroidObj(o, DORDER_ATTACK, target);
+			return;
+		});
+	}
+}
+
 function eventGameInit() {
 	setTimer("ordersUpdate", 100);
 	setTimer("groupsManagement", 1000);
 	setTimer("seconTargetsUpdate", 10 * 1000);
 	setTimer("mainTargetsUpdate", 100 * 1000);
-//	setTimer("clustering", 45 * 1000);
+  //	setTimer("clustering", 45 * 1000);
 }
 
-function stopGame(){
+function stopGame() {
 	removeTimer("ordersUpdate");
 	removeTimer("groupsManagement");
 	removeTimer("seconTargetsUpdate");
@@ -166,8 +200,17 @@ function groupsManagement() {
 	if (!units.length) {
 		return;
 	}
-  //разбить на втол, арту, огонь и для каждого создать свою группу
-	groups.push(new Group(units));
+	let ObjMainTarget = { mainTarget: null };
+//разбить на втол, арту, огонь и для каждого создать свою группу
+	groups.push(new Group(units, ObjMainTarget));
+
+	let vtol = units.filter((unit, index, arr) => {
+		return unit.isVTOL;
+	});
+	if (vtol.length > 0) {
+		debug("vtol group");
+		groups.push(new Vtol(vtol, ObjMainTarget));
+	}
 }
 
 function seconTargetsUpdate() {
