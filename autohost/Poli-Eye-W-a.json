@@ -1,7 +1,6 @@
 {
    "challenge":{
       "alliances":2,
-      "allowPositionChange":"true",
       "bases":"2",
       "map":"Poli-Eye-W-a-T1",
       "maxPlayers":6,
@@ -29,7 +28,7 @@
       "team":1,
 	"name": "Wave",
 	"ai": "multiplay/skirmish/WaveAI.js",
-        "difficulty": "Hard"
+        "difficulty": "easy"
 
    },
    "player_2":{

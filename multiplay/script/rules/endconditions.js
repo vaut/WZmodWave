@@ -13,8 +13,7 @@ function enumPlayerObjects() {
 	let objects = [];
 	for (let playnum = 0; playnum < maxPlayers; playnum++) {
 		if (
-			playerData[playnum].isAI == true &&
-      playerData[playnum].name == "Wave"
+			playnum == AI || allianceExistsBetween(playnum, AI)
 		) {
 			continue;
 		}

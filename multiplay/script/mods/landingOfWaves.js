@@ -1,5 +1,7 @@
-include("multiplay/script/mods/templates.js");
+include("multiplay/script/mods/templates.js"); //TODO replace JSON
 include("multiplay/script/lib.js");
+include("multiplay/script/mods/report.js");
+
 var research = includeJSON("research.json");
 
 namespace("wa_");
