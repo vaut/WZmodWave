@@ -1,11 +1,14 @@
 function dumpBattle() {
-	debug("__GAMETIME__", JSON.stringify( {"gameTime": gameTime}));
-	debug("__REPORT__", JSON.stringify(playerData));
-
-//	spam();
-//	queue("spam", 10 * 1000);
+	for (let playnum = 0; playnum < maxPlayers; playnum++) {
+		playerData[playnum].droid = enumDroid(playnum).length;
+		playerData[playnum].struct = enumStruct(playnum).length;
+	}
+	debug(
+		"__REPORT__" +
+      JSON.stringify({ gameTime: gameTime, playerData: playerData }) +
+      "__ENDREPORT__"
+	);
 }
-
 /*
 function spam() {
 	chat(ALLIES, "This is an automatic ranking system.");
@@ -23,19 +26,23 @@ namespace("rp_");
 var attacker = [];
 
 function rp_eventGameInit() {
-	for (var playnum = 0; playnum < maxPlayers; playnum++) {
+	for (let playnum = 0; playnum < maxPlayers; playnum++) {
 		playerData[playnum].droidLost = 0;
 		playerData[playnum].droidLoss = 0;
 		playerData[playnum].structureLost = 0;
 		playerData[playnum].kills = 0;
+		playerData[playnum].droidBuilt = 0;
+		playerData[playnum].structBuilt = 0;
+		playerData[playnum].droid = 0;
+		playerData[playnum].struct = 0;
 		attacker[playnum] = [];
 		attacker[playnum].droid = [];
 	}
 	attacker[scavengerPlayer] = [];
 	attacker[scavengerPlayer].droid = [];
 	setTimer("dumpBattle", 20000);
-//	spam();
-//	queue("spam", 30 * 1000);
+  //	spam();
+  //	queue("spam", 30 * 1000);
 }
 
 function rp_eventDestroyed(victim) {
@@ -63,4 +70,12 @@ function rp_eventAttacked(victimObj, attackerObj) {
 			attacker[victimObj.player].droid[victimObj.id] = attackerObj.player;
 		}
 	}
+}
+
+function rp_eventDroidBuilt(droid) {
+	playerData[droid.player].droidBuilt++;
+}
+
+function rp_eventStructureBuilt(struct) {
+	playerData[struct.player].structBuilt++;
 }
