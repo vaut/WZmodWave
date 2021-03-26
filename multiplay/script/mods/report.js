@@ -2,10 +2,15 @@ function dumpBattle() {
 	for (let playnum = 0; playnum < maxPlayers; playnum++) {
 		playerData[playnum].droid = enumDroid(playnum).length;
 		playerData[playnum].struct = enumStruct(playnum).length;
+		playerData[playnum].power = playerPower(playnum);
 	}
 	debug(
 		"__REPORT__" +
-      JSON.stringify({ gameTime: gameTime, playerData: playerData }) +
+      JSON.stringify({
+      	gameTime: gameTime,
+      	playerData: playerData,
+      	game: game,
+      }) +
       "__ENDREPORT__"
 	);
 }
@@ -35,12 +40,20 @@ function rp_eventGameInit() {
 		playerData[playnum].structBuilt = 0;
 		playerData[playnum].droid = 0;
 		playerData[playnum].struct = 0;
+		playerData[playnum].researchComplite = [];
+		playerData[playnum].power = 0;
 		attacker[playnum] = [];
 		attacker[playnum].droid = [];
 	}
 	attacker[scavengerPlayer] = [];
 	attacker[scavengerPlayer].droid = [];
 	setTimer("dumpBattle", 20000);
+	game.version = version;
+	game.mapName = mapName;
+	game.baseType = baseType;
+	game.alliancesType = alliancesType;
+	game.powerType = powerType;
+	game.scavengers = scavengers;
   //	spam();
   //	queue("spam", 30 * 1000);
 }
@@ -78,4 +91,8 @@ function rp_eventDroidBuilt(droid) {
 
 function rp_eventStructureBuilt(struct) {
 	playerData[struct.player].structBuilt++;
+}
+
+function eventResearched(research, structure, player) {
+	playerData[player].researchComplite.push(research.name);
 }

@@ -72,7 +72,9 @@ function calcBudget() {
   //опыт для достижения ранга требуется экспоненцициально решив уравнение 2**(k*t)=boost
   //получаем k=0.04
 	let experience = Math.round(2 ** ((7 / (40 * 60)) * game.totalTimeS));
-	debug("budget", budget, "experience", experience);
+  //	debug("budget", budget, "experience", experience);
+	game.lastWaveBudget = budget;
+	game.lastWaveExperience = experience;
 	return { budget: budget, experience: experience };
 }
 
@@ -107,7 +109,7 @@ function wa_eventGameInit() {
 	});
 }
 
-var waveNum = 0;
+game.waveNum = 0;
 var theLanding = {
 	LZ: false,
 	budget: 0,
@@ -116,7 +118,7 @@ var theLanding = {
 };
 
 function landing() {
-	waveNum++;
+	game.waveNum++;
 	playSound("pcv381.ogg");
 	if (gameTime / 1000 < game.protectTime) {
 		return;
@@ -203,8 +205,8 @@ function pushUnits() {
 		queue("pushUnits", 6 * 1000);
 		return;
 	}
-	debug("wave number", waveNum, "units landed", theLanding.units);
-	console("wave number", waveNum, "units landed", theLanding.units);
+	debug("wave number", game.waveNum, "units landed", theLanding.units);
+	console("wave number", game.waveNum, "units landed", theLanding.units);
 	setMissionTime(game.pauseTime);
 	queue("landing", game.pauseTime * 1000);
 }
