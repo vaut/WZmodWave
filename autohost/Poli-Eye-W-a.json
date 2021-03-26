@@ -7,7 +7,8 @@
       "powerLevel":2,
       "scavengers":"false",
       "version":2,
-        "name": "Wave defense"
+        "name": "Wave defense",
+        "allowPositionChange": "false"
 
    },
    "locked": {
