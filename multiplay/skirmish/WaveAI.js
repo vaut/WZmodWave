@@ -71,7 +71,7 @@ class Group {
 			pos = this.pos,
 			mainTarget = this.mainTarget;
 		targets = targets.filter(function (p) {
-			return (cosPhy(pos, mainTarget, p) > 0.965  && !p.isVTOL);
+			return cosPhy(pos, mainTarget, p) > 0.965 && !p.isVTOL;
 		});
 		sortByDist(targets, pos);
 		this.secondTargets = targets;
@@ -149,7 +149,7 @@ class Arty extends Group {
 			pos = this.pos,
 			mainTarget = this.mainTarget;
 		targets = targets.filter(function (p) {
-			return (cosPhy(pos, mainTarget, p) > 0.75 && !p.isVTOL);
+			return cosPhy(pos, mainTarget, p) > 0.75 && !p.isVTOL;
 		});
 		sortByDist(targets, pos);
 		this.secondTargets = targets;
@@ -225,21 +225,29 @@ function groupsManagement() {
 	let ObjMainTarget = { mainTarget: null };
 	groups.push(new Group(units, ObjMainTarget));
 
+	let hover = units.filter((unit) => {
+		return (
+			unit.propulsion == "wheeled01" ||
+      unit.propulsion == "hover01" ||
+      unit.propulsion == "CyborgLegs"
+		);
+	});
+	if (hover.length > 0) {
+		groups.push(new Group(hover, ObjMainTarget));
+	}
+
 	let vtol = units.filter((unit) => {
 		return unit.isVTOL;
 	});
 	if (vtol.length > 0) {
 		groups.push(new Vtol(vtol, ObjMainTarget));
-	
 	}
 	let arty = units.filter((unit) => {
 		return !Stats.Weapon[unit.weapons[0].fullname].FireOnMove;
 	});
 	if (arty.length > 0) {
 		groups.push(new Arty(arty, ObjMainTarget));
-	
 	}
-
 }
 
 function seconTargetsUpdate() {
