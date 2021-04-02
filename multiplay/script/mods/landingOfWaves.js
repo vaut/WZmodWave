@@ -1,8 +1,9 @@
-include("multiplay/script/mods/templates.js"); //TODO replace JSON
+const allTemplates = includeJSON("templates.json");
 include("multiplay/script/lib.js");
 include("multiplay/script/mods/report.js");
+const settings = includeJSON("settings.json");
 
-var research = includeJSON("research.json");
+const research = includeJSON("research.json");
 
 namespace("wa_");
 
@@ -19,8 +20,8 @@ if (!AI) {
 
 game.waveDifficulty = (playerData[AI].difficulty + 2) / 3; //general danger of waves 0.66, 1, 1.33, 1.6
 
-game.protectTime = Math.ceil((5 * 60) / game.waveDifficulty); //time to first attack in seconds
-game.pauseTime = Math.ceil((2 * 60) / game.waveDifficulty); //pause between attacks in seconds
+game.protectTime = Math.ceil(( settings.protectTimeM * 60)); //time to first attack in seconds
+game.pauseTime = Math.ceil((settings.pauseTime * 60) / game.waveDifficulty); //pause between attacks in seconds
 
 //debug("startTime", game.totalTimeS);
 
@@ -55,7 +56,7 @@ var LZdefoult = {
 };
 
 function calcBudget() {
-	let K = numOil / 4;
+	let K = numOil * settings.Kpower;
   //	var budget = K*totalTime*waveDifficulty;
 
   //этого не достаточно, игрок по мере игры получает апы на ген, что проиводит к росуту доступных ресурсов.
@@ -63,7 +64,7 @@ function calcBudget() {
 
   // используем два подхода одновременноэто бюджет зависит от квадрата времени:
 
-	let A = K / (40 * 60);
+	let A = K / (settings.doublePowerM * 60);
 	let budget = Math.round(
 		((K * game.totalTimeS + A * game.totalTimeS ** 2) / 2) * game.waveDifficulty
 	);
@@ -71,7 +72,7 @@ function calcBudget() {
   //опыт усливает при первом приближении +11% за каждый ранг.
   //опыт для достижения ранга требуется экспоненцициально решив уравнение 2**(k*t)=boost
   //получаем k=0.04
-	let experience = Math.round(2 ** ((7 / (40 * 60)) * game.totalTimeS));
+	let experience = Math.round(2 ** ((7 / (settings.doubleEXPM * 60)) * game.totalTimeS));
   //	debug("budget", budget, "experience", experience);
 	game.lastWaveBudget = budget;
 	game.lastWaveExperience = experience;

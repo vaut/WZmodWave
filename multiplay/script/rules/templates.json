@@ -1,4 +1,3 @@
-var allTemplates=
 {
     "A-Cobra-Hover-HMG": {
         "body": "Body5REC",
@@ -2764,4 +2763,4 @@ var allTemplates=
             "Missile-A-T"
         ]
     }
-};
+}
