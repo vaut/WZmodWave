@@ -1,4 +1,5 @@
 include("multiplay/script/lib.js");
+include("multiplay/script/astar.js");
 var groups = [];
 
 class Group {
@@ -36,6 +37,15 @@ class Group {
 		);
 		return { x: sum.x / arr.length, y: sum.y / arr.length };
 	}
+	get maxRande() {
+		let range = 0;
+		this.droids.forEach((droid) => {
+			if (Stats.Weapon[droid.weapons[0].fullname].MaxRange > range) {
+				range = Stats.Weapon[droid.weapons[0].fullname].MaxRange;
+			}
+		});
+		return range / 128;
+	}
 
 	get count() {
 		return groupSize(this.num);
@@ -67,12 +77,28 @@ class Group {
 		) {
 			this.updateMainTarget();
 		}
-		let targets = enumEnemyObjects(),
-			pos = this.pos,
-			mainTarget = this.mainTarget;
-		targets = targets.filter(function (p) {
-			return cosPhy(pos, mainTarget, p) > 0.965 && !p.isVTOL;
-		});
+		let targets = enumEnemyObjects();
+		let pos = this.pos;
+		let mainTarget = this.mainTarget;
+		let poins = aStarDist(pos, mainTarget, false);
+    //		let vector = [poins.shift(), points[0]];
+    //		let vertor = { x: (vector[0].x - vector[1].x)*10, y: (vector[0].y - vector[1].y)*10 };
+		if (poins.length > 1) {
+			targets = targets.filter((p) => {
+				return (
+					cosPhy(this.pos, poins[1], p) > 0.1 &&
+          !p.isVTOL &&
+          propulsionCanReach("wheeled01", pos.x, pos.y, p.x, p.y) &&
+          dist(this.pos, p) < this.maxRande + 5
+				);
+			});
+		}
+		if (targets.length == 0) {
+			targets = poins.map((p) => {
+				p.type = "land";
+				return p;
+			});
+		}
 		sortByDist(targets, pos);
 		this.secondTargets = targets;
 	}
@@ -83,12 +109,15 @@ class Group {
 			return null;
 		}
 		while (
-			!this.secondTargets[0] ||
-      !getObject(
-      	this.secondTargets[0].type,
-      	this.secondTargets[0].player,
-      	this.secondTargets[0].id
-      )
+			!(
+				this.secondTargets[0] &&
+        (this.secondTargets[0].type == "land" ||
+          getObject(
+          	this.secondTargets[0].type,
+          	this.secondTargets[0].player,
+          	this.secondTargets[0].id
+          ))
+			)
 		) {
 			if (this.secondTargets.length == 0) {
 				this.updateSecondTargets();
@@ -100,11 +129,27 @@ class Group {
 	}
 
 	orderUpdate() {
-		const target = this.secondTarget;
-		this.droids.forEach(function (o) {
+		let target = this.secondTarget;
+		this.droids.forEach((o) => {
+			if (target.type == "land") {
+				orderDroidLoc(o, DORDER_MOVE, this.mainTarget.x, this.mainTarget.y);
+				return;
+			}
 			if (target.type == DROID) {
+				let V = { x: target.x - o.x, y: target.y - o.y };
+				debug(V.x, V.y);
+				let modV = Math.sqrt(V.x * V.x + V.y * V.y);
+				let range = Stats.Weapon[o.weapons[0].fullname].MaxRange/128;
+				V = { x: (V.x / modV) * range, y: (V.y / modV) * range };
+				let movePos = { x: target.x - V.x, y: target.y - V.y };
+				debug(target.x, target.y, movePos.x, movePos.y);
+				if (droidCanReach(o, movePos.x, movePos.y)) {
+					target = movePos;
+				}
 				orderDroidLoc(o, DORDER_MOVE, target.x, target.y);
-			} else orderDroidObj(o, DORDER_ATTACK, target);
+				return;
+			}
+			orderDroidObj(o, DORDER_ATTACK, target);
 		});
 	}
   /*
@@ -120,6 +165,31 @@ class Group {
 }
 
 class Vtol extends Group {
+	updateSecondTargets() {
+		if (enumMainEnemyObjects().length == 0) {
+			stopGame();
+			return;
+		}
+		if (
+			!this.mainTarget ||
+      !getObject(
+      	this.mainTarget.type,
+      	this.mainTarget.player,
+      	this.mainTarget.id
+      )
+		) {
+			this.updateMainTarget();
+		}
+		let targets = enumEnemyObjects(),
+			pos = this.pos,
+			mainTarget = this.mainTarget;
+		targets = targets.filter(function (p) {
+			return cosPhy(pos, mainTarget, p) > 0.65 && !p.isVTOL;
+		});
+		sortByDist(targets, pos);
+		this.secondTargets = targets;
+	}
+
 	orderUpdate() {
 		const target = this.secondTarget;
 		this.droids.forEach(function (o) {
