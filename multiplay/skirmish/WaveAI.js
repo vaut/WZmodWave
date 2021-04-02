@@ -129,7 +129,7 @@ class Group {
 	}
 
 	orderUpdate() {
-		let target = this.secondTarget;
+		const target = this.secondTarget;
 		this.droids.forEach((o) => {
 			if (target.type == "land") {
 				orderDroidLoc(o, DORDER_MOVE, this.mainTarget.x, this.mainTarget.y);
@@ -137,17 +137,18 @@ class Group {
 			}
 			if (target.type == DROID) {
 				let V = { x: target.x - o.x, y: target.y - o.y };
-				debug(V.x, V.y);
 				let modV = Math.sqrt(V.x * V.x + V.y * V.y);
-				let range = Stats.Weapon[o.weapons[0].fullname].MaxRange/128;
+				let range = Stats.Weapon[o.weapons[0].fullname].MaxRange / 128 - 1;
 				V = { x: (V.x / modV) * range, y: (V.y / modV) * range };
-				let movePos = { x: target.x - V.x, y: target.y - V.y };
-				debug(target.x, target.y, movePos.x, movePos.y);
+				let movePos = { x: Math.ceil(target.x - V.x), y: Math.ceil(target.y - V.y) };
 				if (droidCanReach(o, movePos.x, movePos.y)) {
-					target = movePos;
+					debug(o.x, o.y, target.x, target.y, movePos.x, movePos.y);
+					orderDroidLoc(o, DORDER_MOVE, movePos.x, movePos.y);
+					return;
+				} else {
+					orderDroidLoc(o, DORDER_MOVE, target.x, target.y);
+					return;
 				}
-				orderDroidLoc(o, DORDER_MOVE, target.x, target.y);
-				return;
 			}
 			orderDroidObj(o, DORDER_ATTACK, target);
 		});
