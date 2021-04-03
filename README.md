@@ -38,5 +38,4 @@ Tuning
 If there are no marked areas in the map, landings are made to the center of the map.
 The script considers any marked zones as drop-off points.
 NOTE The game accepts zones only in the jcion format. The FLAME card editor saves them in ini.
-You can change variables `game.protectTime` and `game.pauseTime` to change pauses.
-`K` to change the number of opponents. 
+You can change some parameters in this file: `/multiplay/script/rules/settings.json`
