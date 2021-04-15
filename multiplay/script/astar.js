@@ -411,7 +411,7 @@ function aStarInit() {
 				pic += "░";
 			}
 		}
-    //	debug(pic);
+    		debug(pic);
 		pic = "";
 	}
 	a_land = new Graph(landTiles);
@@ -433,7 +433,6 @@ function aStarDist(start, finish, water = false) {
 	let begin = a_land.grid[start.x][start.y];
 	let end = a_land.grid[finish.x][finish.y];
 	let path = astar.search(a_land, begin, end);
-	road(path, 5);
 	return path;
 }
 aStarInit();
@@ -454,13 +453,15 @@ function road(path, dist, water = false) {
 		let tile = path[i];
 		road[tile.x][tile.y] = i;
 		let NewMark = true;
+		let  j = 0;
 
-		while (NewMark) {
+		while (NewMark && j < dist) {
 			NewMark = false;
-			for (let dx = (0 - dist); dx < dist; dx++) {
-				for (let dy = (0 - dist); dy < dist; dy++) {
-					if (availability(tile.x+dx, tile.y+dy, road)) {
-						road[tile.x+dx][tile.y+dy] = i;
+			j++;
+			for (let x = (tile.x - dist); x  < (tile.x +dist); x++) {
+				for (let y = (tile.y - dist); y < (tile.y + dist); y++) {
+					if (availability(x, y, road)) {
+						road[x][y] = i;
 						NewMark = true;
 					}
 				}
@@ -470,12 +471,13 @@ function road(path, dist, water = false) {
 
 
 //	debug(JSON.stringify(road));
-	dumpMap(road);
+//	dumpMap(road);
   //	a_land.grid[x][y];
 	return road;
 }
 
 function availability(x, y, road) {
+	if (x <= 0 || y <= 0 || x >= mapWidth || y >= mapHeight) {return false;}
 	if (
 		!road[x][y] && landTiles[x][y] !== 0 &&
     (road[x - 1][y] || road[x][y - 1] || road[x + 1][y] || road[x][y + 1])
@@ -487,9 +489,10 @@ function availability(x, y, road) {
 function dumpMap(arr){
 //	debug(JSON.stringify(arr));
 	let pic ='';
-	for (let x = 0; x <= mapWidth; x++) {
-		for (let y = 0; y <= mapHeight; y++) {
-			pic+=(arr[x][y]%10);
+	for (let y = 0; y <= mapHeight; y++) {
+		for (let x = 0; x <= mapWidth; x++) {
+			if (arr[x][y] == 0){pic+="▓";}
+			else {pic+=(arr[x][y]%10);}
 		}
 		pic+="\n";
 	}
