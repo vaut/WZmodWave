@@ -1,9 +1,16 @@
 function dumpBattle() {
+	if (playerData[selectedPlayer].position < maxPlayers - 1) {
+		return;
+	}
 	for (let playnum = 0; playnum < maxPlayers; playnum++) {
+		if (playnum === selectedPlayer || playerData[playnum].name === "") {
+			continue;
+		}
 		playerData[playnum].droid = enumDroid(playnum).length;
 		playerData[playnum].struct = enumStruct(playnum).length;
 		playerData[playnum].power = playerPower(playnum);
-	}	debug(
+	}
+	debug(
 		"__REPORT__" +
       JSON.stringify({
       	gameTime: gameTime,
@@ -12,7 +19,6 @@ function dumpBattle() {
       }) +
       "__ENDREPORT__"
 	);
-
 }
 /*
 function spam() {
