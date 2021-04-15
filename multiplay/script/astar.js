@@ -6,8 +6,8 @@
 // http://eloquentjavascript.net/appendix2.html
 
 function pathTo(node) {
-	var curr = node;
-	var path = [];
+	let curr = node;
+	let path = [];
 	while (curr.parent) {
 		path.unshift(curr);
 		curr = curr.parent;
@@ -16,7 +16,7 @@ function pathTo(node) {
 }
 
 function getHeap() {
-	return new BinaryHeap(function(node) {
+	return new BinaryHeap(function (node) {
 		return node.f;
 	});
 }
@@ -33,14 +33,14 @@ var astar = {
   * @param {Function} [options.heuristic] Heuristic function (see
   *          astar.heuristics).
   */
-	search: function(graph, start, end, options) {
+	search: function (graph, start, end, options) {
 		graph.cleanDirty();
 		options = options || {};
-		var heuristic = options.heuristic || astar.heuristics.manhattan;
-		var closest = options.closest || false;
+		let heuristic = options.heuristic || astar.heuristics.manhattan;
+		let closest = options.closest || false;
 
-		var openHeap = getHeap();
-		var closestNode = start; // set the start node to be the closest if required
+		let openHeap = getHeap();
+		let closestNode = start; // set the start node to be the closest if required
 
 		start.h = heuristic(start, end);
 		graph.markDirty(start);
@@ -48,37 +48,35 @@ var astar = {
 		openHeap.push(start);
 
 		while (openHeap.size() > 0) {
+      // Grab the lowest f(x) to process next.  Heap keeps this sorted for us.
+			let currentNode = openHeap.pop();
 
-			// Grab the lowest f(x) to process next.  Heap keeps this sorted for us.
-			var currentNode = openHeap.pop();
-
-			// End case -- result has been found, return the traced path.
+      // End case -- result has been found, return the traced path.
 			if (currentNode === end) {
 				return pathTo(currentNode);
 			}
 
-			// Normal case -- move currentNode from open to closed, process each of its neighbors.
+      // Normal case -- move currentNode from open to closed, process each of its neighbors.
 			currentNode.closed = true;
 
-			// Find all neighbors for the current node.
-			var neighbors = graph.neighbors(currentNode);
+      // Find all neighbors for the current node.
+			let neighbors = graph.neighbors(currentNode);
 
-			for (var i = 0, il = neighbors.length; i < il; ++i) {
-				var neighbor = neighbors[i];
+			for (let i = 0, il = neighbors.length; i < il; ++i) {
+				let neighbor = neighbors[i];
 
 				if (neighbor.closed || neighbor.isWall()) {
-					// Not a valid node to process, skip to next neighbor.
+          // Not a valid node to process, skip to next neighbor.
 					continue;
 				}
 
-				// The g score is the shortest distance from start to current node.
-				// We need to check if the path we have arrived at this neighbor is the shortest one we have seen yet.
-				var gScore = currentNode.g + neighbor.getCost(currentNode);
-				var beenVisited = neighbor.visited;
+        // The g score is the shortest distance from start to current node.
+        // We need to check if the path we have arrived at this neighbor is the shortest one we have seen yet.
+				let gScore = currentNode.g + neighbor.getCost(currentNode);
+				let beenVisited = neighbor.visited;
 
 				if (!beenVisited || gScore < neighbor.g) {
-
-					// Found an optimal (so far) path to this node.  Take score for node to see how good it is.
+          // Found an optimal (so far) path to this node.  Take score for node to see how good it is.
 					neighbor.visited = true;
 					neighbor.parent = currentNode;
 					neighbor.h = neighbor.h || heuristic(neighbor, end);
@@ -86,18 +84,21 @@ var astar = {
 					neighbor.f = neighbor.g + neighbor.h;
 					graph.markDirty(neighbor);
 					if (closest) {
-						// If the neighbour is closer than the current closestNode or if it's equally close but has
-						// a cheaper path than the current closest node then it becomes the closest node
-						if (neighbor.h < closestNode.h || (neighbor.h === closestNode.h && neighbor.g < closestNode.g)) {
+            // If the neighbour is closer than the current closestNode or if it's equally close but has
+            // a cheaper path than the current closest node then it becomes the closest node
+						if (
+							neighbor.h < closestNode.h ||
+              (neighbor.h === closestNode.h && neighbor.g < closestNode.g)
+						) {
 							closestNode = neighbor;
 						}
 					}
 
 					if (!beenVisited) {
-						// Pushing to heap will put it in proper place based on the 'f' value.
+            // Pushing to heap will put it in proper place based on the 'f' value.
 						openHeap.push(neighbor);
 					} else {
-						// Already seen the node, but since it has been rescored we need to reorder it in the heap
+            // Already seen the node, but since it has been rescored we need to reorder it in the heap
 						openHeap.rescoreElement(neighbor);
 					}
 				}
@@ -108,32 +109,32 @@ var astar = {
 			return pathTo(closestNode);
 		}
 
-		// No result was found - empty array signifies failure to find path.
+    // No result was found - empty array signifies failure to find path.
 		return [];
 	},
-	// See list of heuristics: http://theory.stanford.edu/~amitp/GameProgramming/Heuristics.html
+  // See list of heuristics: http://theory.stanford.edu/~amitp/GameProgramming/Heuristics.html
 	heuristics: {
-		manhattan: function(pos0, pos1) {
-			var d1 = Math.abs(pos1.x - pos0.x);
-			var d2 = Math.abs(pos1.y - pos0.y);
+		manhattan: function (pos0, pos1) {
+			let d1 = Math.abs(pos1.x - pos0.x);
+			let d2 = Math.abs(pos1.y - pos0.y);
 			return d1 + d2;
 		},
-		diagonal: function(pos0, pos1) {
-			var D = 1;
-			var D2 = Math.sqrt(2);
-			var d1 = Math.abs(pos1.x - pos0.x);
-			var d2 = Math.abs(pos1.y - pos0.y);
-			return (D * (d1 + d2)) + ((D2 - (2 * D)) * Math.min(d1, d2));
-		}
+		diagonal: function (pos0, pos1) {
+			let D = 1;
+			let D2 = Math.sqrt(2);
+			let d1 = Math.abs(pos1.x - pos0.x);
+			let d2 = Math.abs(pos1.y - pos0.y);
+			return D * (d1 + d2) + (D2 - 2 * D) * Math.min(d1, d2);
+		},
 	},
-	cleanNode: function(node) {
+	cleanNode: function (node) {
 		node.f = 0;
 		node.g = 0;
 		node.h = 0;
 		node.visited = false;
 		node.closed = false;
 		node.parent = null;
-	}
+	},
 };
 
 /**
@@ -147,11 +148,11 @@ function Graph(gridIn, options) {
 	this.nodes = [];
 	this.diagonal = !!options.diagonal;
 	this.grid = [];
-	for (var x = 0; x < gridIn.length; x++) {
+	for (let x = 0; x < gridIn.length; x++) {
 		this.grid[x] = [];
 
-		for (var y = 0, row = gridIn[x]; y < row.length; y++) {
-			var node = new GridNode(x, y, row[y]);
+		for (let y = 0, row = gridIn[x]; y < row.length; y++) {
+			let node = new GridNode(x, y, row[y]);
 			this.grid[x][y] = node;
 			this.nodes.push(node);
 		}
@@ -159,67 +160,67 @@ function Graph(gridIn, options) {
 	this.init();
 }
 
-Graph.prototype.init = function() {
+Graph.prototype.init = function () {
 	this.dirtyNodes = [];
-	for (var i = 0; i < this.nodes.length; i++) {
+	for (let i = 0; i < this.nodes.length; i++) {
 		astar.cleanNode(this.nodes[i]);
 	}
 };
 
-Graph.prototype.cleanDirty = function() {
-	for (var i = 0; i < this.dirtyNodes.length; i++) {
+Graph.prototype.cleanDirty = function () {
+	for (let i = 0; i < this.dirtyNodes.length; i++) {
 		astar.cleanNode(this.dirtyNodes[i]);
 	}
 	this.dirtyNodes = [];
 };
 
-Graph.prototype.markDirty = function(node) {
+Graph.prototype.markDirty = function (node) {
 	this.dirtyNodes.push(node);
 };
 
-Graph.prototype.neighbors = function(node) {
-	var ret = [];
-	var x = node.x;
-	var y = node.y;
-	var grid = this.grid;
+Graph.prototype.neighbors = function (node) {
+	let ret = [];
+	let x = node.x;
+	let y = node.y;
+	let grid = this.grid;
 
-	// West
+  // West
 	if (grid[x - 1] && grid[x - 1][y]) {
 		ret.push(grid[x - 1][y]);
 	}
 
-	// East
+  // East
 	if (grid[x + 1] && grid[x + 1][y]) {
 		ret.push(grid[x + 1][y]);
 	}
 
-	// South
+  // South
 	if (grid[x] && grid[x][y - 1]) {
 		ret.push(grid[x][y - 1]);
 	}
 
-	// North
+  // North
 	if (grid[x] && grid[x][y + 1]) {
 		ret.push(grid[x][y + 1]);
 	}
 
 	if (this.diagonal) {
-		// Southwest
+    // Southwest
 		if (grid[x - 1] && grid[x - 1][y - 1]) {
 			ret.push(grid[x - 1][y - 1]);
 		}
 
-		// Southeast
+    // Southeast
 		if (grid[x + 1] && grid[x + 1][y - 1]) {
 			ret.push(grid[x + 1][y - 1]);
 		}
 
-		// Northwest
+    // Northwest
 		if (grid[x - 1] && grid[x - 1][y + 1]) {
 			ret.push(grid[x - 1][y + 1]);
 		}
 
-		// Northeast
+    // Northeast
 		if (grid[x + 1] && grid[x + 1][y + 1]) {
 			ret.push(grid[x + 1][y + 1]);
 		}
@@ -228,13 +229,13 @@ Graph.prototype.neighbors = function(node) {
 	return ret;
 };
 
-Graph.prototype.toString = function() {
-	var graphString = [];
-	var nodes = this.grid;
-	for (var x = 0; x < nodes.length; x++) {
-		var rowDebug = [];
-		var row = nodes[x];
-		for (var y = 0; y < row.length; y++) {
+Graph.prototype.toString = function () {
+	let graphString = [];
+	let nodes = this.grid;
+	for (let x = 0; x < nodes.length; x++) {
+		let rowDebug = [];
+		let row = nodes[x];
+		for (let y = 0; y < row.length; y++) {
 			rowDebug.push(row[y].weight);
 		}
 		graphString.push(rowDebug.join(" "));
@@ -248,19 +249,19 @@ function GridNode(x, y, weight) {
 	this.weight = weight;
 }
 
-GridNode.prototype.toString = function() {
+GridNode.prototype.toString = function () {
 	return "[" + this.x + " " + this.y + "]";
 };
 
-GridNode.prototype.getCost = function(fromNeighbor) {
-	// Take diagonal weight into consideration.
+GridNode.prototype.getCost = function (fromNeighbor) {
+  // Take diagonal weight into consideration.
 	if (fromNeighbor && fromNeighbor.x != this.x && fromNeighbor.y != this.y) {
 		return this.weight * 1.41421;
 	}
 	return this.weight;
 };
 
-GridNode.prototype.isWall = function() {
+GridNode.prototype.isWall = function () {
 	return this.weight === 0;
 };
 
@@ -270,32 +271,32 @@ function BinaryHeap(scoreFunction) {
 }
 
 BinaryHeap.prototype = {
-	push: function(element) {
-		// Add the new element to the end of the array.
+	push: function (element) {
+    // Add the new element to the end of the array.
 		this.content.push(element);
 
-		// Allow it to sink down.
+    // Allow it to sink down.
 		this.sinkDown(this.content.length - 1);
 	},
-	pop: function() {
-		// Store the first element so we can return it later.
-		var result = this.content[0];
-		// Get the element at the end of the array.
-		var end = this.content.pop();
-		// If there are any elements left, put the end element at the
-		// start, and let it bubble up.
+	pop: function () {
+    // Store the first element so we can return it later.
+		let result = this.content[0];
+    // Get the element at the end of the array.
+		let end = this.content.pop();
+    // If there are any elements left, put the end element at the
+    // start, and let it bubble up.
 		if (this.content.length > 0) {
 			this.content[0] = end;
 			this.bubbleUp(0);
 		}
 		return result;
 	},
-	remove: function(node) {
-		var i = this.content.indexOf(node);
+	remove: function (node) {
+		let i = this.content.indexOf(node);
 
-		// When it is found, the process seen in 'pop' is repeated
-		// to fill up the hole.
-		var end = this.content.pop();
+    // When it is found, the process seen in 'pop' is repeated
+    // to fill up the hole.
+		let end = this.content.pop();
 
 		if (i !== this.content.length - 1) {
 			this.content[i] = end;
@@ -307,130 +308,191 @@ BinaryHeap.prototype = {
 			}
 		}
 	},
-	size: function() {
+	size: function () {
 		return this.content.length;
 	},
-	rescoreElement: function(node) {
+	rescoreElement: function (node) {
 		this.sinkDown(this.content.indexOf(node));
 	},
-	sinkDown: function(n) {
-		// Fetch the element that has to be sunk.
-		var element = this.content[n];
+	sinkDown: function (n) {
+    // Fetch the element that has to be sunk.
+		let element = this.content[n];
 
-		// When at 0, an element can not sink any further.
+    // When at 0, an element can not sink any further.
 		while (n > 0) {
-
-			// Compute the parent element's index, and fetch it.
-			var parentN = ((n + 1) >> 1) - 1;
-			var parent = this.content[parentN];
-			// Swap the elements if the parent is greater.
+      // Compute the parent element's index, and fetch it.
+			let parentN = ((n + 1) >> 1) - 1;
+			let parent = this.content[parentN];
+      // Swap the elements if the parent is greater.
 			if (this.scoreFunction(element) < this.scoreFunction(parent)) {
 				this.content[parentN] = element;
 				this.content[n] = parent;
-				// Update 'n' to continue at the new position.
+        // Update 'n' to continue at the new position.
 				n = parentN;
 			}
-			// Found a parent that is less, no need to sink any further.
+      // Found a parent that is less, no need to sink any further.
 			else {
 				break;
 			}
 		}
 	},
-	bubbleUp: function(n) {
-		// Look up the target element and its score.
-		var length = this.content.length;
-		var element = this.content[n];
-		var elemScore = this.scoreFunction(element);
+	bubbleUp: function (n) {
+    // Look up the target element and its score.
+		let length = this.content.length;
+		let element = this.content[n];
+		let elemScore = this.scoreFunction(element);
 
 		while (true) {
-			// Compute the indices of the child elements.
-			var child2N = (n + 1) << 1;
-			var child1N = child2N - 1;
-			// This is used to store the new position of the element, if any.
-			var swap = null;
-			var child1Score;
-			// If the first child exists (is inside the array)...
+      // Compute the indices of the child elements.
+			let child2N = (n + 1) << 1;
+			let child1N = child2N - 1;
+      // This is used to store the new position of the element, if any.
+			let swap = null;
+			let child1Score;
+      // If the first child exists (is inside the array)...
 			if (child1N < length) {
-				// Look it up and compute its score.
-				var child1 = this.content[child1N];
+        // Look it up and compute its score.
+				let child1 = this.content[child1N];
 				child1Score = this.scoreFunction(child1);
 
-				// If the score is less than our element's, we need to swap.
+        // If the score is less than our element's, we need to swap.
 				if (child1Score < elemScore) {
-				swap = child1N;
+					swap = child1N;
 				}
 			}
 
-			// Do the same checks for the other child.
+      // Do the same checks for the other child.
 			if (child2N < length) {
-				var child2 = this.content[child2N];
-				var child2Score = this.scoreFunction(child2);
+				let child2 = this.content[child2N];
+				let child2Score = this.scoreFunction(child2);
 				if (child2Score < (swap === null ? elemScore : child1Score)) {
-				swap = child2N;
+					swap = child2N;
 				}
 			}
 
-			// If the element needs to be moved, swap it, and continue.
+      // If the element needs to be moved, swap it, and continue.
 			if (swap !== null) {
 				this.content[n] = this.content[swap];
 				this.content[swap] = element;
 				n = swap;
 			}
-			// Otherwise, we are done.
+      // Otherwise, we are done.
 			else {
 				break;
 			}
 		}
-	}
+	},
 };
 
 var a_land, a_water;
-function aStarInit(){
-	var landTiles = [];
-	var waterTiles = [];
-	var pic = '';
-	for(var ty in MapTiles){
-		for(var tx in MapTiles[ty]){
-			if (typeof landTiles[tx] === 'undefined') landTiles[tx] = [];
-			if (typeof waterTiles[tx] === 'undefined') waterTiles[tx] = [];
-			switch(MapTiles[ty][tx]['terrainType']) {
-				case 7:
-					landTiles[tx][ty] = 0;
-					waterTiles[tx][ty] = 1;
-					pic += '▒';
-					break;
-				case 8:
-					landTiles[tx][ty] = 0;
-					waterTiles[tx][ty] = 0;
-					pic += '▓';
-					break;
-				default: 
-					landTiles[tx][ty] = 1;
-					waterTiles[tx][ty] = 1;
-					pic += '░';
+var landTiles, waterTiles;
+function aStarInit() {
+	landTiles = [];
+	waterTiles = [];
+	let pic = "";
+	for (let ty in MapTiles) {
+		for (let tx in MapTiles[ty]) {
+			if (typeof landTiles[tx] === "undefined") landTiles[tx] = [];
+			if (typeof waterTiles[tx] === "undefined") waterTiles[tx] = [];
+			switch (MapTiles[ty][tx].terrainType) {
+			case 7:
+				landTiles[tx][ty] = 0;
+				waterTiles[tx][ty] = 1;
+				pic += "▒";
+				break;
+			case 8:
+				landTiles[tx][ty] = 0;
+				waterTiles[tx][ty] = 0;
+				pic += "▓";
+				break;
+			default:
+				landTiles[tx][ty] = 1;
+				waterTiles[tx][ty] = 1;
+				pic += "░";
 			}
 		}
-//		debug(pic);
-		pic='';
+    //	debug(pic);
+		pic = "";
 	}
 	a_land = new Graph(landTiles);
 	a_water = new Graph(waterTiles);
 	debug("MOD: aStar");
 }
 
-function aStarDist(start, finish, water=false){
+function aStarDist(start, finish, water = false) {
 	start.x = Math.round(start.x);
 	start.y = Math.round(start.y);
 	finish.x = Math.round(finish.x);
 	finish.y = Math.round(finish.y);
 
-	if(water){
-		var begin = a_water.grid[start.x][start.y];
-		var end = a_water.grid[finish.x][finish.y];
+	if (water) {
+		let begin = a_water.grid[start.x][start.y];
+		let end = a_water.grid[finish.x][finish.y];
 		return astar.search(a_water, begin, end);
 	}
-	var begin = a_land.grid[start.x][start.y];
-	var end = a_land.grid[finish.x][finish.y];
-	return astar.search(a_land, begin, end);
+	let begin = a_land.grid[start.x][start.y];
+	let end = a_land.grid[finish.x][finish.y];
+	let path = astar.search(a_land, begin, end);
+	road(path, 5);
+	return path;
 }
 aStarInit();
+
+function road(path, dist, water = false) {
+	let road = [];
+	for (let x = 0; x <= mapWidth; x++) {
+		road[x] = [];
+		for (let y = 0; y <= mapHeight; y++) {
+			road[x][y] = 0;
+		}
+	}
+//	debug(JSON.stringify(road));
+//	dumpMap(road);
+  //	debug(JSON.stringify(path);
+	for (let i = 1; i < path.length; i++){
+//	path.foreach(function (tile, i){
+		let tile = path[i];
+		road[tile.x][tile.y] = i;
+		let NewMark = true;
+
+		while (NewMark) {
+			NewMark = false;
+			for (let dx = (0 - dist); dx < dist; dx++) {
+				for (let dy = (0 - dist); dy < dist; dy++) {
+					if (availability(tile.x+dx, tile.y+dy, road)) {
+						road[tile.x+dx][tile.y+dy] = i;
+						NewMark = true;
+					}
+				}
+			}
+		}
+	}
+
+
+//	debug(JSON.stringify(road));
+	dumpMap(road);
+  //	a_land.grid[x][y];
+	return road;
+}
+
+function availability(x, y, road) {
+	if (
+		!road[x][y] && landTiles[x][y] !== 0 &&
+    (road[x - 1][y] || road[x][y - 1] || road[x + 1][y] || road[x][y + 1])
+	) {
+		return true;
+	}
+}
+
+function dumpMap(arr){
+//	debug(JSON.stringify(arr));
+	let pic ='';
+	for (let x = 0; x <= mapWidth; x++) {
+		for (let y = 0; y <= mapHeight; y++) {
+			pic+=(arr[x][y]%10);
+		}
+		pic+="\n";
+	}
+	debug (pic);
+
+}
