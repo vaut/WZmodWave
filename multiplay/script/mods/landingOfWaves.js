@@ -72,11 +72,12 @@ function calcBudget() {
   //опыт усливает при первом приближении +11% за каждый ранг.
   //опыт для достижения ранга требуется экспоненцициально решив уравнение 2**(k*t)=boost
   //получаем k=0.04
-	let experience = Math.round(2 ** ((7 / (settings.doubleEXPM * 60)) * game.totalTimeS));
+	let experienceRang = Math.round((7 / (settings.doubleEXPM * 60)) * game.totalTimeS);
+	if (experienceRang > 10){ experienceRang = 10;}
   //	debug("budget", budget, "experience", experience);
 	game.lastWaveBudget = budget;
-	game.lastWaveExperience = experience;
-	return { budget: budget, experience: experience };
+	game.lastWaveExperience = experienceRang;
+	return { budget: budget, rang: experienceRang };
 }
 
 ///further logic of landing
@@ -151,7 +152,7 @@ function landing() {
 		theLanding.avalibleTemplate.push("ViperMG01Wheels");
 	}
 	theLanding.budget = calcBudget().budget;
-	theLanding.experience = calcBudget().experience;
+	theLanding.experience = Math.round(2**calcBudget().rang);
 	theLanding.units = 0;
 	theLanding.LZ = LZs[syncRandom(LZs.length)];
 	pushUnits();
