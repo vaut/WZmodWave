@@ -28,15 +28,32 @@ class Group {
 	}
 
 	get pos() {
-		const arr = this.droids;
+		let arr = this.droids;
 		const sum = arr.reduce(
 			function (acc, obj) {
 				return { x: acc.x + obj.x, y: acc.y + obj.y };
 			},
 			{ x: 0, y: 0 }
 		);
-		return { x: sum.x / arr.length, y: sum.y / arr.length };
+		let cent = { x: sum.x / arr.length, y: sum.y / arr.length };
+		sortByDist(arr, cent);
+		return arr[0];
 	}
+
+	get leadPos() {
+		let droids = this.droids;
+		let minARG = aStarDist(droids[0], this.mainTarget, false).length;
+		let lead = droids.shift();
+		droids.forEach((droid) => {
+			let A = aStarDist(droid, this.mainTarget, false);
+			if (A.length < minARG) {
+				lead = droid;
+				minARG = A.length; 
+			}
+		});
+		return lead;
+	}
+
 	get maxRande() {
 		let range = 0;
 		this.droids.forEach((droid) => {
@@ -78,18 +95,18 @@ class Group {
 			this.updateMainTarget();
 		}
 		let targets = enumEnemyObjects();
-		let pos = this.pos;
+		let pos = this.leadPos;
 		let mainTarget = this.mainTarget;
 		let poins = aStarDist(pos, mainTarget, false);
     //		let vector = [poins.shift(), points[0]];
     //		let vertor = { x: (vector[0].x - vector[1].x)*10, y: (vector[0].y - vector[1].y)*10 };
-		if (poins.length > 1) {
+		if (poins.length > 10) {
 			targets = targets.filter((p) => {
 				return (
-					cosPhy(this.pos, poins[1], p) > 0.1 &&
+					cosPhy(this.pos, poins[9], p) > 0.1 &&
           !p.isVTOL &&
           propulsionCanReach("wheeled01", pos.x, pos.y, p.x, p.y) &&
-          dist(this.pos, p) < this.maxRande + 5
+          dist(pos, p) < this.maxRande + 5
 				);
 			});
 		}
@@ -140,9 +157,12 @@ class Group {
 				let modV = Math.sqrt(V.x * V.x + V.y * V.y);
 				let range = Stats.Weapon[o.weapons[0].fullname].MaxRange / 128 - 1;
 				V = { x: (V.x / modV) * range, y: (V.y / modV) * range };
-				let movePos = { x: Math.ceil(target.x - V.x), y: Math.ceil(target.y - V.y) };
+				let movePos = {
+					x: Math.ceil(target.x - V.x),
+					y: Math.ceil(target.y - V.y),
+				};
 				if (droidCanReach(o, movePos.x, movePos.y)) {
-					debug(o.x, o.y, target.x, target.y, movePos.x, movePos.y);
+          //					debug(o.x, o.y, target.x, target.y, movePos.x, movePos.y);
 					orderDroidLoc(o, DORDER_MOVE, movePos.x, movePos.y);
 					return;
 				} else {
