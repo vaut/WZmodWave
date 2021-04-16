@@ -411,12 +411,12 @@ function aStarInit() {
 				pic += "░";
 			}
 		}
-    		debug(pic);
+//		debug(pic);
 		pic = "";
 	}
 	a_land = new Graph(landTiles);
 	a_water = new Graph(waterTiles);
-	debug("MOD: aStar");
+//	debug("MOD: aStar");
 }
 
 function aStarDist(start, finish, water = false) {
@@ -442,60 +442,75 @@ function road(path, dist, water = false) {
 	for (let x = 0; x <= mapWidth; x++) {
 		road[x] = [];
 		for (let y = 0; y <= mapHeight; y++) {
-			road[x][y] = 0;
+			road[x][y] = false;
 		}
 	}
-//	debug(JSON.stringify(road));
-//	dumpMap(road);
+  //	debug(JSON.stringify(road));
+  //	dumpMap(road);
   //	debug(JSON.stringify(path);
-	for (let i = 1; i < path.length; i++){
-//	path.foreach(function (tile, i){
+	for (let i = 0; i < path.length; i++) {
+    //	path.foreach(function (tile, i){
 		let tile = path[i];
 		road[tile.x][tile.y] = i;
 		let NewMark = true;
-		let  j = 0;
+		let j = 0;
 
 		while (NewMark && j < dist) {
 			NewMark = false;
 			j++;
-			for (let x = (tile.x - dist); x  < (tile.x +dist); x++) {
-				for (let y = (tile.y - dist); y < (tile.y + dist); y++) {
-					if (availability(x, y, road)) {
-						road[x][y] = i;
-						NewMark = true;
+			for (let x = tile.x - dist; x < tile.x + dist; x++) {
+				for (let y = tile.y - dist; y < tile.y + dist; y++) {
+					let a = availability(x, y, road);
+					if (a) {
+						if (road[x][y] == false || road[x][y] > road[a.x][a.y] + 1) {
+							road[x][y] = road[a.x][a.y] + 1;
+							NewMark = true;
+						}
 					}
 				}
 			}
 		}
 	}
 
-
-//	debug(JSON.stringify(road));
+  //	debug(JSON.stringify(road));
 //	dumpMap(road);
   //	a_land.grid[x][y];
 	return road;
 }
 
 function availability(x, y, road) {
-	if (x <= 0 || y <= 0 || x >= mapWidth || y >= mapHeight) {return false;}
-	if (
-		!road[x][y] && landTiles[x][y] !== 0 &&
-    (road[x - 1][y] || road[x][y - 1] || road[x + 1][y] || road[x][y + 1])
-	) {
-		return true;
+	if (x <= 0 || y <= 0 || x >= mapWidth || y >= mapHeight) {
+		return false;
 	}
+	if (!road[x][y] && landTiles[x][y] !== 0) {
+		if (road[x - 1][y]) {
+			return { x: x - 1, y: y };
+		}
+		if (road[x][y - 1]) {
+			return { x: x, y: y - 1 };
+		}
+		if (road[x + 1][y]) {
+			return { x: x + 1, y: y };
+		}
+		if (road[x][y + 1]) {
+			return { x: x, y: y + 1 };
+		}
+	}
+	return false;
 }
 
-function dumpMap(arr){
-//	debug(JSON.stringify(arr));
-	let pic ='';
+function dumpMap(arr) {
+  //	debug(JSON.stringify(arr));
+	let pic = "";
 	for (let y = 0; y <= mapHeight; y++) {
 		for (let x = 0; x <= mapWidth; x++) {
-			if (arr[x][y] == 0){pic+="▓";}
-			else {pic+=(arr[x][y]%10);}
+			if (arr[x][y] == false) {
+				pic += "▓";
+			} else {
+				pic += arr[x][y] % 10;
+			}
 		}
-		pic+="\n";
+		pic += "\n";
 	}
-	debug (pic);
-
+	debug(pic);
 }
