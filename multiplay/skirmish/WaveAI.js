@@ -3,25 +3,32 @@ include("multiplay/script/astar.js");
 var groups = [];
 
 class Group {
-	constructor(units, mainTarget) {
+	constructor(units, obj) {
 		const num = newGroup();
 		this.num = num;
 		units.forEach(function (o) {
 			groupAdd(num, o);
 		});
-    //		this.type = type;
 		this.notTakeTarget = gameTime;
 		this.secondTargets = [];
-		this.objMainTarget = mainTarget;
+		this.obj = obj;
 		this.road = [];
 	}
 
 	get mainTarget() {
-		return this.objMainTarget.mainTarget;
+		return this.obj.mainTarget;
 	}
 
 	set mainTarget(mainTarget) {
-		this.objMainTarget.mainTarget = mainTarget;
+		this.obj.mainTarget = mainTarget;
+	}
+
+	get road() {
+		return this.obj.road;
+	}
+
+	set road(road) {
+		this.obj.road = road;
 	}
 
 	get droids() {
@@ -77,19 +84,15 @@ class Group {
 		targets = getRandom(targets, 5);
 		sortByDist(targets, this.pos);
 		this.mainTarget = targets.shift();
-//		debug(this.maxRange);
+    //		debug(this.maxRange);
 		this.road = road(
 			aStarDist(this.pos, this.mainTarget, false),
 			this.maxRange
 		);
-//		dumpMap(this.road);
+    //		dumpMap(this.road);
 	}
 
 	updateSecondTargets() {
-		if (enumMainEnemyObjects().length == 0) {
-			stopGame();
-			return;
-		}
 		if (
 			!this.mainTarget ||
       !getObject(
@@ -98,11 +101,23 @@ class Group {
       	this.mainTarget.id
       )
 		) {
+			if (enumMainEnemyObjects().length == 0) {
+				stopGame();
+				return;
+			}
+
 			this.updateMainTarget();
 		}
+
 		let targets = enumEnemyObjects();
+		let numPos = this.road[this.pos.x][this.pos.y];
 		targets = targets.filter((p) => {
-			return this.road[p.x] && this.road[p.x][p.y] !== 0 && !p.isVTOL;
+			return (
+				this.road[p.x] &&
+        this.road[p.x][p.y] !== 0 &&
+        this.road[p.x][p.y] >= numPos &&
+        !p.isVTOL
+			);
 		});
 
 		if (targets.length == 0) {
@@ -122,12 +137,11 @@ class Group {
 		while (
 			!(
 				this.secondTargets[0] &&
-        (this.secondTargets[0].type == "land" ||
-          getObject(
-          	this.secondTargets[0].type,
-          	this.secondTargets[0].player,
-          	this.secondTargets[0].id
-          ))
+        getObject(
+        	this.secondTargets[0].type,
+        	this.secondTargets[0].player,
+        	this.secondTargets[0].id
+        )
 			)
 		) {
 			if (this.secondTargets.length == 0) {
@@ -141,11 +155,11 @@ class Group {
 
 	orderUpdate() {
 		const target = this.secondTarget;
-//		debug (target.x, target.y, this.pos.x, this.pos.y);
+    //		debug (target.x, target.y, this.pos.x, this.pos.y);
 		this.droids.forEach((o) => {
 			let V = { x: target.x - o.x, y: target.y - o.y };
 			let modV = Math.sqrt(V.x * V.x + V.y * V.y);
-			let range = Stats.Weapon[o.weapons[0].fullname].MaxRange / 128 - 2;
+			let range = Stats.Weapon[o.weapons[0].fullname].MaxRange / 128 - 3;
 			V = { x: (V.x / modV) * range, y: (V.y / modV) * range };
 			let movePos = {
 				x: Math.ceil(target.x - V.x),
@@ -199,14 +213,24 @@ class Vtol extends Group {
 }
 
 class Arty extends Group {
-
 	orderUpdate() {
 		const target = this.secondTarget;
-//		debug (this.secondTarget);
-		this.droids.forEach( (o) => {
+    //		debug (this.secondTarget);
+		this.droids.forEach((o) => {
 			if (target.type == DROID) {
 				orderDroidLoc(o, DORDER_SCOUT, target.x, target.y);
 			} else orderDroidObj(o, DORDER_ATTACK, target);
+		});
+	}
+}
+
+class Speed extends Group {
+	orderUpdate() {
+		const target = this.mainTarget;
+    //		debug (target.x, target.y, this.pos.x, this.pos.y);
+		this.droids.forEach((o) => {
+			orderDroidLoc(o, DORDER_MOVE, target.x, target.y);
+			return;
 		});
 	}
 }
@@ -277,7 +301,7 @@ function groupsManagement() {
 		);
 	});
 	if (hover.length > 0) {
-		groups.push(new Group(hover, ObjMainTarget));
+		groups.push(new Speed(hover, ObjMainTarget));
 	}
 
 	let vtol = units.filter((unit) => {
