@@ -205,7 +205,7 @@ class Vtol extends Group {
 
 	orderUpdate() {
 		const target = this.secondTarget;
-		this.droids.forEach((o) => {
+		this.droids.filter((d) => {return (d.weapons[0].armed >= 1);}).forEach((o) => {
 			orderDroidObj(o, DORDER_ATTACK, target);
 			return;
 		});
@@ -268,8 +268,8 @@ function eventDroidIdle(droid) {
 
 function ordersUpdate() {
 	groups
-		.filter(function (group) {
-			return true;
+		.filter((group) => {
+			return group.count != 0;
       //		return (Math.abs((group.grupnum % 10) - (gametime % 1000)/100) < 1); //обязательно проверить как работает
 		})
 		.forEach(function (group) {
@@ -319,23 +319,25 @@ function groupsManagement() {
 }
 
 function seconTargetsUpdate() {
-	groups.forEach(function (group) {
-		group.updateSecondTargets();
-	});
+	groups
+		.filter((group) => {
+			return group.count != 0;
+		})
+		.forEach((group) => {
+			group.updateSecondTargets();
+		});
 }
 
 function mainTargetsUpdate() {
-	groups.forEach(function (group) {
-		group.updateMainTarget();
-	});
+	groups	
+		.filter((group) => {
+			return group.count != 0;
+		})
+		.forEach((group) => {
+			group.updateMainTarget();
+		});
 }
-/*
-function clustering() {
-	groups.forEach(function (group) {
-		group.clustering();
-	});
-}
-*/
+
 function enumEnemyObjects() {
 	let targets = [];
 	for (let playnum = 0; playnum < maxPlayers; playnum++) {

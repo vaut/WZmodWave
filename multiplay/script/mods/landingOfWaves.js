@@ -233,9 +233,41 @@ function wa_eventGameInit() {
 	);
 	setTimer("giveResearch", 60 * 1000);
 	setTimer("schedulerLanding", 6 * 1000);
+	setTimer("removeVtol", 11 * 1000);
+	updateTimer();
 	setMissionTime(game.protectTime);
 	makeComponentAvailable("MG1Mk1", AI);
 	setAlliance(scavengerPlayer, AI, true);
+}
+
+function removeVtol() {
+  /*
+	game.listWaves
+		.filter((wave) => {
+			return wave.budget <= 0;
+		})
+		.forEach((wave) => {
+      			debug("прибераем втол"); //TODO
+		});
+*/
+	enumDroid(AI, "DROID_WEAPON")
+		.filter((d) => {
+			return d.isVTOL && d.weapons[0].armed < 1;
+		})
+		.forEach((v) => {
+			removeObject(v);
+		});
+}
+
+function updateTimer() {
+	if (game.listWaves[0].time - gameTime / 1000 <= 0) {
+		queue("updateTimer", 1000);
+		return;
+	}
+  //	debug(getMissionTime(), game.listWaves[0].time - gameTime / 1000);
+	setMissionTime(game.listWaves[0].time - gameTime / 1000);
+	queue("updateTimer", game.listWaves[0].time * 1000 - gameTime);
+	console("next wave", game.listWaves[0].type);
 }
 
 function schedulerLanding() {
@@ -243,20 +275,14 @@ function schedulerLanding() {
 	if (game.listWaves.length == 0) {
 		return;
 	}
-	setMissionTime(game.listWaves[0].time - gameTime / 1000);
 	if (
 		game.listWaves[0].budget <= 0
     //&& game.listWaves[0].droids.length == 0
 	) {
 		game.listWaves.shift();
+		console("waves left ", game.listWaves.length);
+		debug("waves left ", game.listWaves.length);
 	}
-	game.listWaves
-		.filter((wave) => {
-			return wave.budget <= 0;
-		})
-		.forEach((wave) => {
-      //			debug("прибераем втол"); //TODO
-		});
 	let queueLading = game.listWaves.filter((wave) => {
 		return wave.time <= gameTime / 1000 && !wave.war;
 	});
@@ -281,18 +307,8 @@ function schedulerLanding() {
 	nowLading.LZ = LZs[syncRandom(LZs.length)];
 	pushUnits(nowLading);
 
-	debug(
-		"waves left ",
-		game.listWaves.length,
-		"units landed",
-		nowLading.droids.length
-	);
-	console(
-		"waves left ",
-		game.listWaves.length,
-		"units landed",
-		nowLading.droids.length
-	);
+	debug("units landed", nowLading.droids.length, nowLading.type);
+	console("units landed", nowLading.droids.length, nowLading.type);
 
 	function getTemplates(timeS, type) {
 		avalibleTemplate = [];
@@ -339,7 +355,6 @@ function schedulerLanding() {
 
 	function pushUnits(theLanding) {
     //		debug(JSON.stringify(theLanding));
-		playSound("pcv381.ogg");
 		let tiles = Object.assign([], theLanding.LZ.tiles);
     //debug(JSON.stringify(tiles));
 		while (theLanding.budget > 0 && tiles.length > 0) {
