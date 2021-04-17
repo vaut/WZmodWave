@@ -219,6 +219,7 @@ function calcBudget(timeS) {
 	return { budget: budget, rang: rang, experience: Math.round(2 ** rang) };
 }
 function wa_eventGameInit() {
+	addSpoter();
 	setNumOil();
 	setWaveAI();
 	setLZs();

@@ -1,4 +1,8 @@
-function dumpBattle() {
+namespace("rp_");
+var extendedPlayerData = [];
+var attacker = [];
+
+function dumpBattle(full = false) {
 	if (playerData[selectedPlayer].position < maxPlayers - 1) {
 		return;
 	}
@@ -10,15 +14,28 @@ function dumpBattle() {
 		playerData[playnum].struct = enumStruct(playnum).length;
 		playerData[playnum].power = playerPower(playnum);
 	}
-	debug(
-		"__REPORT__" +
-      JSON.stringify({
-      	gameTime: gameTime,
-      	playerData: playerData,
-      	game: game,
-      }) +
-      "__ENDREPORT__"
-	);
+	if (full === false) {
+		debug(
+			"__REPORT__" +
+        JSON.stringify({
+        	gameTime: gameTime,
+        	playerData: playerData,
+        	game: game,
+        }) +
+        "__ENDREPORT__"
+		);
+	} else {
+		debug(
+			"__REPORT__" +
+        JSON.stringify({
+        	gameTime: gameTime,
+        	playerData: playerData,
+        	extendedPlayerData: extendedPlayerData,
+        	game: game,
+        }) +
+        "__ENDREPORT__"
+		);
+	}
 }
 /*
 function spam() {
@@ -32,9 +49,6 @@ function spam() {
 	chat(ALLIES, "Feel free to contact us, all feedback is welcomed.");
 }
 */
-namespace("rp_");
-
-var attacker = [];
 
 function rp_eventGameInit() {
 	for (let playnum = 0; playnum < maxPlayers; playnum++) {
@@ -46,12 +60,16 @@ function rp_eventGameInit() {
 		playerData[playnum].structBuilt = 0;
 		playerData[playnum].droid = 0;
 		playerData[playnum].struct = 0;
-		playerData[playnum].researchComplite = [];
+		playerData[playnum].researchComplite = 0;
 		playerData[playnum].power = 0;
+		playerData[playnum].playnum = playnum;
+		extendedPlayerData[playnum] = {
+			researchComplite: [],
+			droidBuilt: [],
+			structBuilt: [],
+		};
 		attacker[playnum] = [];
 		attacker[playnum].droid = [];
-		game.lastWaveBudget = 0;
-		game.lastWaveExperience = 0;
 	}
 	attacker[scavengerPlayer] = [];
 	attacker[scavengerPlayer].droid = [];
@@ -62,6 +80,7 @@ function rp_eventGameInit() {
 	game.alliancesType = alliancesType;
 	game.powerType = powerType;
 	game.scavengers = scavengers;
+	game.multiTechLevel = getMultiTechLevel();
   //	spam();
   //	queue("spam", 30 * 1000);
 }
@@ -95,12 +114,39 @@ function rp_eventAttacked(victimObj, attackerObj) {
 
 function rp_eventDroidBuilt(droid) {
 	playerData[droid.player].droidBuilt++;
+	extendedPlayerData[droid.player].droidBuilt.push({
+		droidType: droid.droidType,
+		body: droid.body,
+		propulsion: droid.propulsion,
+		weapons: droid.weapons,
+		time: gameTime,
+		player: droid.player,
+		playerName: playerData[droid.player].name,
+		position: playerData[droid.player].position
+	});
 }
 
 function rp_eventStructureBuilt(struct) {
 	playerData[struct.player].structBuilt++;
+	extendedPlayerData[struct.player].structBuilt.push({
+		name: struct.name,
+		time: gameTime,
+		player: struct.player,
+		pos: {x: struct.x, y:struct.y},
+		playerName: playerData[struct.player].name,
+		position: playerData[struct.player].position
+
+	});
 }
 
 function rp_eventResearched(research, structure, player) {
-	playerData[player].researchComplite.push(research.name);
+	playerData[player].researchComplite++;
+	extendedPlayerData[player].researchComplite.push({
+		name: research.name,
+		time: gameTime,
+		player: player,
+		playerName: playerData[player].name,
+		position: playerData[player].position
+
+	});
 }
