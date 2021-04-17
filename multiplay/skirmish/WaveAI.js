@@ -80,16 +80,16 @@ class Group {
 		if (targets.length == 0) {
 			targets = enumEnemyObjects();
 		}
-    //		if (this.count == 0 || targets.length == 0){return;}
+		targets.filter((obj) => {return droidCanReach(this.pos, obj.x, obj.y);});
+		if ( targets == 0 ){ return false;}
 		targets = getRandom(targets, 5);
 		sortByDist(targets, this.pos);
 		this.mainTarget = targets.shift();
-    //		debug(this.maxRange);
 		this.road = road(
 			aStarDist(this.pos, this.mainTarget, false),
 			this.maxRange
 		);
-    //		dumpMap(this.road);
+		return true;
 	}
 
 	updateSecondTargets() {
@@ -101,12 +101,9 @@ class Group {
       	this.mainTarget.id
       )
 		) {
-			if (enumMainEnemyObjects().length == 0) {
-				stopGame();
-				return;
+			if (this.updateMainTarget() === false) {
+				return false;
 			}
-
-			this.updateMainTarget();
 		}
 
 		let targets = enumEnemyObjects();
@@ -191,7 +188,9 @@ class Vtol extends Group {
       	this.mainTarget.id
       )
 		) {
-			this.updateMainTarget();
+			if ( this.updateMainTarget() === false) {
+				return false;
+			}
 		}
 		let targets = enumEnemyObjects(),
 			pos = this.pos,
@@ -308,7 +307,7 @@ function groupsManagement() {
 		return unit.isVTOL;
 	});
 	if (vtol.length > 0) {
-		groups.push(new Vtol(vtol, ObjMainTarget));
+		groups.push(new Vtol(vtol, { mainTarget: null }));
 	}
 	let arty = units.filter((unit) => {
 		return !Stats.Weapon[unit.weapons[0].fullname].FireOnMove;
