@@ -13,7 +13,8 @@
    },
    "player_0":{
       "position":5,
-      "team":1
+      "team":1,
+      "name": "Wave"
 
    },
    "player_1":{
