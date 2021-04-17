@@ -1,5 +1,5 @@
 function checkEndConditions() {
-	if (gameTime >= 2 * 60 * 60 * 1000) {
+	if (game.listWaves == 0 ) {
 		gameOverMessage(true);
 		removeTimer("checkEndConditions");
 	}

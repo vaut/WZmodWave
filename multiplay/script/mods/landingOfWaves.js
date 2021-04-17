@@ -189,13 +189,14 @@ function createWave() {
 				type: type,
 				budget: budget.budget,
 				rang: budget.rang,
+				droids: [],
 			});
 		}
 	});
 	waves.sort((a, b) => {
 		return a.time - b.time;
 	});
-	debug(JSON.stringify(waves));
+  //	debug(JSON.stringify(waves));
 	return waves;
   //	return ([{time:360, type: ROYALTANK, {...}])//example output
 }
@@ -242,27 +243,56 @@ function schedulerLanding() {
 	if (game.listWaves.length == 0) {
 		return;
 	}
-	if (game.listWaves[0].war && game.listWaves[0].droids.length == 0) {
-    //TODO удаляем отбитые волны
+	setMissionTime(game.listWaves[0].time - gameTime / 1000);
+	if (
+		game.listWaves[0].budget <= 0
+    //&& game.listWaves[0].droids.length == 0
+	) {
+		game.listWaves.shift();
 	}
 	game.listWaves
 		.filter((wave) => {
-			return wave.war;
+			return wave.budget <= 0;
 		})
 		.forEach((wave) => {
-			debug("прибераем втол");//TODO
-		}); 
+      //			debug("прибераем втол"); //TODO
+		});
 	let queueLading = game.listWaves.filter((wave) => {
 		return wave.time <= gameTime / 1000 && !wave.war;
 	});
-	if (queueLading.length == 0) { return;}
-    // делаем высадку
+	if (queueLading.length == 0) {
+		return;
+	}
+  // делаем высадку
 	let nowLading = queueLading[0];
-	nowLading.templates = getTemplates(gameTime/1000 + getStartTime(), nowLading.type);
+
+	let extractor = 0;
+	for (let playnum = 0; playnum < maxPlayers; playnum++) {
+		extractor += enumStruct(playnum, RESOURCE_EXTRACTOR).length;
+	}
+	if (extractor == 0) {
+		nowLading.type = "ROYALVTOL";
+	}
+
+	nowLading.templates = getTemplates(
+		gameTime / 1000 + getStartTime(),
+		nowLading.type
+	);
 	nowLading.LZ = LZs[syncRandom(LZs.length)];
 	pushUnits(nowLading);
-	
 
+	debug(
+		"waves left ",
+		game.listWaves.length,
+		"units landed",
+		nowLading.droids.length
+	);
+	console(
+		"waves left ",
+		game.listWaves.length,
+		"units landed",
+		nowLading.droids.length
+	);
 
 	function getTemplates(timeS, type) {
 		avalibleTemplate = [];
@@ -281,6 +311,9 @@ function schedulerLanding() {
 					allTemplates[key].weapons
 				) !== null && //у makeTemplate изменен синтаксис в мастере. Не совместимо с 3.4.1
         allTemplates[key].propulsion != "wheeled01" &&
+        ((type == "ROYALTANK" && allTemplates[key].propulsion == "tracked01") ||
+          (type == "ROYALVTOL" && allTemplates[key].propulsion == "V-Tol") ||
+          type == "NORMAL") &&
         allTemplates[key].weapons[0] != "CommandTurret1" &&
         allTemplates[key].weapons[0] != "MG1Mk1" &&
         !redComponents.includes(allTemplates[key].weapons[0])
@@ -303,76 +336,53 @@ function schedulerLanding() {
 			return redComponents;
 		}
 	}
-}
-/*
-function landing(theLanding) {
-  //	game.waveNum++;
-  //	if (gameTime / 1000 < game.protectTime) {
-  //		return;
-  //	}
-	theLanding.templates = [];
-	theLanding.budget = calcBudget().budget;
-	theLanding.experience = Math.round(2 ** calcBudget().rang);
-	debug(theLanding.budget, theLanding.experience);
-	theLanding.units = 0;
-	theLanding.LZ = LZs[syncRandom(LZs.length)];
-	pushUnits();
-}
-*/
-function pushUnits(theLanding) {
-	debug(JSON.stringify(theLanding));
-	playSound("pcv381.ogg");
-	let tiles = Object.assign([], theLanding.LZ.tiles);
-  //debug(JSON.stringify(tiles));
-	while (theLanding.budget > 0 && tiles.length > 0) {
-		var droidName =
-      theLanding.templates[
-      	syncRandom(theLanding.templates.length)
-      ];
-		let pos = tiles.shift();
-		if (allTemplates[droidName].propulsion == "V-Tol") {
-			let borders = [
-				{ x: 2, y: pos.y },
-				{ x: pos.x, y: 2 },
-				{ x: mapWidth - 2, y: pos.y },
-				{ x: pos.x, y: mapHeight - 2 },
-			];
-			sortBymDist(borders, pos);
-      //			debug (pos.x, pos.y);
-			pos = borders.shift();
-		}
 
-		let unit = addDroid(
-			AI,
-			pos.x,
-			pos.y,
-			droidName,
-			allTemplates[droidName].body,
-			allTemplates[droidName].propulsion,
-			"",
-			"",
-			allTemplates[droidName].weapons
-		);
-		setDroidExperience(unit, Math.round(theLanding.experience));
-		theLanding.budget -= makeTemplate(
-			AI,
-			droidName,
-			allTemplates[droidName].body,
-			allTemplates[droidName].propulsion,
-			"",
-			allTemplates[droidName].weapons
-		).power;
-		theLanding.units++;
-    		debug("add", droidName);
+	function pushUnits(theLanding) {
+    //		debug(JSON.stringify(theLanding));
+		playSound("pcv381.ogg");
+		let tiles = Object.assign([], theLanding.LZ.tiles);
+    //debug(JSON.stringify(tiles));
+		while (theLanding.budget > 0 && tiles.length > 0) {
+			var droidName =
+        theLanding.templates[syncRandom(theLanding.templates.length)];
+			let pos = tiles.shift();
+			if (allTemplates[droidName].propulsion == "V-Tol") {
+				let borders = [
+					{ x: 2, y: pos.y },
+					{ x: pos.x, y: 2 },
+					{ x: mapWidth - 2, y: pos.y },
+					{ x: pos.x, y: mapHeight - 2 },
+				];
+				sortBymDist(borders, pos);
+        //			debug (pos.x, pos.y);
+				pos = borders.shift();
+			}
+
+			let unit = addDroid(
+				AI,
+				pos.x,
+				pos.y,
+				droidName,
+				allTemplates[droidName].body,
+				allTemplates[droidName].propulsion,
+				"",
+				"",
+				allTemplates[droidName].weapons
+			);
+			setDroidExperience(unit, theLanding.experience);
+			theLanding.budget -= makeTemplate(
+				AI,
+				droidName,
+				allTemplates[droidName].body,
+				allTemplates[droidName].propulsion,
+				"",
+				allTemplates[droidName].weapons
+			).power;
+			theLanding.droids.push(unit);
+      //			debug("add", droidName);
+		}
+		playSound("pcv395.ogg", theLanding.LZ.x, theLanding.LZ.y, 0);
 	}
-	playSound("pcv395.ogg", theLanding.LZ.x, theLanding.LZ.y, 0);
-	if (theLanding.budget > 0) {
-		queue("pushUnits", 6 * 1000);
-		return;
-	}
-	debug("waves left ", game.listWaves.length, "units landed", theLanding.units);
-	console("waves left ", game.listWaves.length, "units landed", theLanding.units);
-	setMissionTime(game.pauseTime);
 }
 
 function giveResearch() {
