@@ -1,23 +1,26 @@
 function checkEndConditions() {
-	if (game.listWaves == 0 ) {
+	if (game.listWaves.length === 0 && enumDroid(AI).length === 0) {
 		gameOverMessage(true);
 		removeTimer("checkEndConditions");
 	}
-	if (enumPlayerObjects().length == 0) {
+	if (playerHaveObjects()) {
 		gameOverMessage(false);
 		removeTimer("checkEndConditions");
 	}
 }
 
-function enumPlayerObjects() {
+function playerHaveObjects() {
 	let objects = [];
 	for (let playnum = 0; playnum < maxPlayers; playnum++) {
-		if (
-			playnum == AI || allianceExistsBetween(playnum, AI)
-		) {
+		if (playnum == AI || allianceExistsBetween(playnum, AI)) {
 			continue;
 		}
-		objects = objects.concat(enumStruct(playnum), enumDroid(playnum));
+		if (enumStruct(playnum).length !== 0) {
+			return true;
+		}
+		if (enumDroid(playnum).length !== 0) {
+			return true;
+		}
 	}
-	return objects;
+	return false;
 }
