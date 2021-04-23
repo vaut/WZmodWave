@@ -306,6 +306,7 @@ function schedulerLanding() {
 		nowLading.type
 	);
 	nowLading.LZ = LZs[syncRandom(LZs.length)];
+	setDroidsName(nowLading);
 	pushUnits(nowLading);
 
 	debug("units landed", nowLading.droids.length, nowLading.type);
@@ -353,14 +354,23 @@ function schedulerLanding() {
 			return redComponents;
 		}
 	}
+	function setDroidsName(nowLanding) {
+		nowLading.droidsName = [];
+
+		for (let i = 0; i < nowLading.LZ.tiles.length; i++) {
+			let droidName =
+        nowLanding.templates[syncRandom(nowLanding.templates.length)];
+			nowLading.droidsName.push(droidName);
+		}
+	}
 
 	function pushUnits(theLanding) {
     //		debug(JSON.stringify(theLanding));
 		let tiles = Object.assign([], theLanding.LZ.tiles);
     //debug(JSON.stringify(tiles));
+		hackNetOff();
 		while (theLanding.budget > 0 && tiles.length > 0) {
-			var droidName =
-        theLanding.templates[syncRandom(theLanding.templates.length)];
+			let droidName = theLanding.droidsName.shift();
 			let pos = tiles.shift();
 			if (allTemplates[droidName].propulsion == "V-Tol") {
 				let borders = [
@@ -397,6 +407,7 @@ function schedulerLanding() {
 			theLanding.droids.push(unit);
       //			debug("add", droidName);
 		}
+		hackNetOn();
 		playSound("pcv395.ogg", theLanding.LZ.x, theLanding.LZ.y, 0);
 	}
 }
