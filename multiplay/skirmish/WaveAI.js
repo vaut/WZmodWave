@@ -176,10 +176,6 @@ class Group {
 
 class Vtol extends Group {
 	updateSecondTargets() {
-		if (enumMainEnemyObjects().length == 0) {
-			stopGame();
-			return;
-		}
 		if (
 			!this.mainTarget ||
       !getObject(
