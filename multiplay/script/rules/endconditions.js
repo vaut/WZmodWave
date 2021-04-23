@@ -3,7 +3,7 @@ function checkEndConditions() {
 		gameOverMessage(true);
 		removeTimer("checkEndConditions");
 	}
-	if (playerHaveObjects()) {
+	if (!playerHaveObjects()) {
 		gameOverMessage(false);
 		removeTimer("checkEndConditions");
 	}
