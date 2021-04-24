@@ -189,6 +189,7 @@ function createWave() {
 				type: type,
 				budget: budget.budget,
 				rang: budget.rang,
+				experience: budget.experience,
 				droids: [],
 			});
 		}
