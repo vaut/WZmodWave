@@ -181,8 +181,11 @@ function createWave() {
 				continue;
 			}
 			let budget = calcBudget(timeS + getStartTime());
-			if (type == "ROYALTANK" || type == "ROYALVTOL") {
+			if (type == "ROYALTANK") {
 				budget.budget *= 2;
+			}
+			if (type == "ROYALVTOL"){
+				budget.budget *= 1.5;
 			}
 			waves.push({
 				time: timeS,

@@ -201,7 +201,7 @@ class Vtol extends Group {
 	orderUpdate() {
 		const target = this.secondTarget;
 		this.droids.filter((d) => {return (d.weapons[0].armed >= 1);}).forEach((o) => {
-			orderDroidObj(o, DORDER_ATTACK, target);
+			orderDroidLoc(o, DORDER_SCOUT, target.x, target.y);
 			return;
 		});
 	}
