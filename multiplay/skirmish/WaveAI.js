@@ -2,11 +2,14 @@ include("multiplay/script/lib.js");
 include("multiplay/script/astar.js");
 var groups = [];
 
-class Group {
-	constructor(units, obj) {
+class Group
+{
+	constructor(units, obj)
+	{
 		const num = newGroup();
 		this.num = num;
-		units.forEach(function (o) {
+		units.forEach(function (o)
+		{
 			groupAdd(num, o);
 		});
 		this.notTakeTarget = gameTime;
@@ -15,30 +18,37 @@ class Group {
 		this.road = [];
 	}
 
-	get mainTarget() {
+	get mainTarget()
+	{
 		return this.obj.mainTarget;
 	}
 
-	set mainTarget(mainTarget) {
+	set mainTarget(mainTarget)
+	{
 		this.obj.mainTarget = mainTarget;
 	}
 
-	get road() {
+	get road()
+	{
 		return this.obj.road;
 	}
 
-	set road(road) {
+	set road(road)
+	{
 		this.obj.road = road;
 	}
 
-	get droids() {
+	get droids()
+	{
 		return enumGroup(this.num);
 	}
 
-	get pos() {
+	get pos()
+	{
 		let arr = this.droids;
 		const sum = arr.reduce(
-			function (acc, obj) {
+			function (acc, obj)
+			{
 				return { x: acc.x + obj.x, y: acc.y + obj.y };
 			},
 			{ x: 0, y: 0 }
@@ -47,7 +57,7 @@ class Group {
 		sortByDist(arr, cent);
 		return arr[0];
 	}
-  /*
+	/*
 	get leadPos() {
 		let droids = this.droids;
 		let lead = droids.shift();
@@ -61,23 +71,29 @@ class Group {
 		return lead;
 	}
 */
-	get maxRange() {
+	get maxRange()
+	{
 		let range = 0;
-		this.droids.forEach((droid) => {
-			if (Stats.Weapon[droid.weapons[0].fullname].MaxRange > range) {
+		this.droids.forEach((droid) =>
+		{
+			if (Stats.Weapon[droid.weapons[0].fullname].MaxRange > range)
+			{
 				range = Stats.Weapon[droid.weapons[0].fullname].MaxRange;
 			}
 		});
 		return Math.round(range / 128);
 	}
 
-	get count() {
+	get count()
+	{
 		return groupSize(this.num);
 	}
 
-	updateMainTarget() {
+	updateMainTarget()
+	{
 		let targets = enumMainEnemyObjects();
-		if (targets.length == 0) {
+		if (targets.length == 0)
+		{
 			targets = enumEnemyObjects();
 		}
 		targets.filter((obj) => {return droidCanReach(this.pos, obj.x, obj.y);});
@@ -92,7 +108,8 @@ class Group {
 		return true;
 	}
 
-	updateSecondTargets() {
+	updateSecondTargets()
+	{
 		if (
 			!this.mainTarget ||
       !getObject(
@@ -100,15 +117,18 @@ class Group {
       	this.mainTarget.player,
       	this.mainTarget.id
       )
-		) {
-			if (this.updateMainTarget() === false) {
+		)
+		{
+			if (this.updateMainTarget() === false)
+			{
 				return false;
 			}
 		}
 
 		let targets = enumEnemyObjects();
 		let numPos = this.road[this.pos.x][this.pos.y];
-		targets = targets.filter((p) => {
+		targets = targets.filter((p) =>
+		{
 			return (
 				this.road[p.x] &&
         this.road[p.x][p.y] !== 0 &&
@@ -117,17 +137,21 @@ class Group {
 			);
 		});
 
-		if (targets.length == 0) {
+		if (targets.length == 0)
+		{
 			targets = [this.mainTarget];
 		}
-		targets.sort((a, b) => {
+		targets.sort((a, b) =>
+		{
 			return this.road[a.x][a.y] - this.road[b.x][b.y];
 		});
 		this.secondTargets = targets;
 	}
 
-	get secondTarget() {
-		if (enumMainEnemyObjects().length == 0) {
+	get secondTarget()
+	{
+		if (enumMainEnemyObjects().length == 0)
+		{
 			stopGame();
 			return null;
 		}
@@ -140,20 +164,26 @@ class Group {
         	this.secondTargets[0].id
         )
 			)
-		) {
-			if (this.secondTargets.length == 0) {
+		)
+		{
+			if (this.secondTargets.length == 0)
+			{
 				this.updateSecondTargets();
-			} else {
+			}
+			else
+			{
 				this.secondTargets.shift();
 			}
 		}
 		return this.secondTargets[0];
 	}
 
-	orderUpdate() {
+	orderUpdate()
+	{
 		const target = this.secondTarget;
-    //		debug (target.x, target.y, this.pos.x, this.pos.y);
-		this.droids.forEach((o) => {
+		//		debug (target.x, target.y, this.pos.x, this.pos.y);
+		this.droids.forEach((o) =>
+		{
 			let V = { x: target.x - o.x, y: target.y - o.y };
 			let modV = Math.sqrt(V.x * V.x + V.y * V.y);
 			let range = Stats.Weapon[o.weapons[0].fullname].MaxRange / 128 - 3;
@@ -162,11 +192,14 @@ class Group {
 				x: Math.ceil(target.x - V.x),
 				y: Math.ceil(target.y - V.y),
 			};
-			if (droidCanReach(o, movePos.x, movePos.y)) {
-        //					debug(o.x, o.y, target.x, target.y, movePos.x, movePos.y);
+			if (droidCanReach(o, movePos.x, movePos.y))
+			{
+				//					debug(o.x, o.y, target.x, target.y, movePos.x, movePos.y);
 				orderDroidLoc(o, DORDER_MOVE, movePos.x, movePos.y);
 				return;
-			} else {
+			}
+			else
+			{
 				orderDroidLoc(o, DORDER_MOVE, target.x, target.y);
 				return;
 			}
@@ -174,8 +207,10 @@ class Group {
 	}
 }
 
-class Vtol extends Group {
-	updateSecondTargets() {
+class Vtol extends Group
+{
+	updateSecondTargets()
+	{
 		if (
 			!this.mainTarget ||
       !getObject(
@@ -183,160 +218,201 @@ class Vtol extends Group {
       	this.mainTarget.player,
       	this.mainTarget.id
       )
-		) {
-			if ( this.updateMainTarget() === false) {
+		)
+		{
+			if ( this.updateMainTarget() === false)
+			{
 				return false;
 			}
 		}
 		let targets = enumEnemyObjects(),
 			pos = this.pos,
 			mainTarget = this.mainTarget;
-		targets = targets.filter(function (p) {
+		targets = targets.filter(function (p)
+		{
 			return cosPhy(pos, mainTarget, p) > 0.65 && !p.isVTOL;
 		});
 		sortByDist(targets, pos);
 		this.secondTargets = targets;
 	}
 
-	orderUpdate() {
+	orderUpdate()
+	{
 		const target = this.secondTarget;
-		this.droids.filter((d) => {return (d.weapons[0].armed >= 1);}).forEach((o) => {
+		this.droids.filter((d) => {return (d.weapons[0].armed >= 1);}).forEach((o) =>
+		{
 			orderDroidLoc(o, DORDER_SCOUT, target.x, target.y);
 			return;
 		});
 	}
 }
 
-class Arty extends Group {
-	orderUpdate() {
+class Arty extends Group
+{
+	orderUpdate()
+	{
 		const target = this.secondTarget;
-    //		debug (this.secondTarget);
-		this.droids.forEach((o) => {
-			if (target.type == DROID) {
+		//		debug (this.secondTarget);
+		this.droids.forEach((o) =>
+		{
+			if (target.type == DROID)
+			{
 				orderDroidLoc(o, DORDER_SCOUT, target.x, target.y);
-			} else orderDroidObj(o, DORDER_ATTACK, target);
+			}
+			else {orderDroidObj(o, DORDER_ATTACK, target);}
 		});
 	}
 }
 
-class Speed extends Group {
-	orderUpdate() {
+class Speed extends Group
+{
+	orderUpdate()
+	{
 		const target = this.mainTarget;
-    //		debug (target.x, target.y, this.pos.x, this.pos.y);
-		this.droids.forEach((o) => {
+		//		debug (target.x, target.y, this.pos.x, this.pos.y);
+		this.droids.forEach((o) =>
+		{
 			orderDroidLoc(o, DORDER_MOVE, target.x, target.y);
 			return;
 		});
 	}
 }
 
-function eventGameInit() {
+function eventGameInit()
+{
 	setTimer("ordersUpdate", 100);
 	setTimer("groupsManagement", 1000);
 	setTimer("seconTargetsUpdate", 5 * 1000);
 	setTimer("mainTargetsUpdate", 100 * 1000);
 }
 
-function stopGame() {
+function stopGame()
+{
 	removeTimer("ordersUpdate");
 	removeTimer("groupsManagement");
 	removeTimer("seconTargetsUpdate");
 	removeTimer("mainTargetsUpdate");
 }
 
-function eventDroidIdle(droid) {
-	if (droid.player !== me) {
+function eventDroidIdle(droid)
+{
+	if (droid.player !== me)
+	{
 		return;
 	}
 	groupsManagement();
 	let groupNum = droid.group;
-	if (groupNum == null) {
+	if (groupNum == null)
+	{
 		return;
 	}
 	let group = groups
-		.filter(function (group) {
+		.filter(function (group)
+		{
 			return group.num == groupNum;
 		})
 		.shift();
 	group.orderUpdate();
 }
 
-function ordersUpdate() {
+function ordersUpdate()
+{
 	groups
-		.filter((group) => {
+		.filter((group) =>
+		{
 			return group.count != 0;
-      //		return (Math.abs((group.grupnum % 10) - (gametime % 1000)/100) < 1); //обязательно проверить как работает
+			//		return (Math.abs((group.grupnum % 10) - (gametime % 1000)/100) < 1); //обязательно проверить как работает
 		})
-		.forEach(function (group) {
+		.forEach(function (group)
+		{
 			group.orderUpdate();
 		});
 }
 
-function groupsManagement() {
-	groups = groups.filter(function (group) {
+function groupsManagement()
+{
+	groups = groups.filter(function (group)
+	{
 		return group.count != 0;
 	});
 	let units = [].concat(
 		enumDroid(me, DROID_CYBORG),
 		enumDroid(me, DROID_WEAPON)
 	);
-	units = units.filter(function (obj) {
+	units = units.filter(function (obj)
+	{
 		return !obj.group;
 	});
-	if (!units.length) {
+	if (!units.length)
+	{
 		return;
 	}
 	let ObjMainTarget = { mainTarget: null };
 	groups.push(new Group(units, ObjMainTarget));
-	let hover = units.filter((unit) => {
+	let hover = units.filter((unit) =>
+	{
 		return (
 			unit.propulsion == "wheeled01" ||
       unit.propulsion == "hover01" ||
       unit.propulsion == "CyborgLegs"
 		);
 	});
-	if (hover.length > 0) {
+	if (hover.length > 0)
+	{
 		groups.push(new Speed(hover, ObjMainTarget));
 	}
 
-	let vtol = units.filter((unit) => {
+	let vtol = units.filter((unit) =>
+	{
 		return unit.isVTOL;
 	});
-	if (vtol.length > 0) {
+	if (vtol.length > 0)
+	{
 		groups.push(new Vtol(vtol, { mainTarget: null }));
 	}
-	let arty = units.filter((unit) => {
+	let arty = units.filter((unit) =>
+	{
 		return !Stats.Weapon[unit.weapons[0].fullname].FireOnMove;
 	});
-	if (arty.length > 0) {
+	if (arty.length > 0)
+	{
 		groups.push(new Arty(arty, ObjMainTarget));
 	}
 }
 
-function seconTargetsUpdate() {
+function seconTargetsUpdate()
+{
 	groups
-		.filter((group) => {
+		.filter((group) =>
+		{
 			return group.count != 0;
 		})
-		.forEach((group) => {
+		.forEach((group) =>
+		{
 			group.updateSecondTargets();
 		});
 }
 
-function mainTargetsUpdate() {
-	groups	
-		.filter((group) => {
+function mainTargetsUpdate()
+{
+	groups
+		.filter((group) =>
+		{
 			return group.count != 0;
 		})
-		.forEach((group) => {
+		.forEach((group) =>
+		{
 			group.updateMainTarget();
 		});
 }
 
-function enumEnemyObjects() {
+function enumEnemyObjects()
+{
 	let targets = [];
-	for (let playnum = 0; playnum < maxPlayers; playnum++) {
-		if (playnum == me || allianceExistsBetween(me, playnum)) {
+	for (let playnum = 0; playnum < maxPlayers; playnum++)
+	{
+		if (playnum == me || allianceExistsBetween(me, playnum))
+		{
 			continue;
 		}
 		targets = targets.concat(enumStruct(playnum), enumDroid(playnum));
@@ -344,7 +420,8 @@ function enumEnemyObjects() {
 	return targets;
 }
 
-function enumMainEnemyObjects() {
+function enumMainEnemyObjects()
+{
 	let targets = [];
 	let structs = [
 		HQ,
@@ -360,16 +437,20 @@ function enumMainEnemyObjects() {
 		SAT_UPLINK,
 		COMMAND_CONTROL,
 	];
-	for (let playnum = 0; playnum < maxPlayers; playnum++) {
-		if (playnum == me || allianceExistsBetween(me, playnum)) {
+	for (let playnum = 0; playnum < maxPlayers; playnum++)
+	{
+		if (playnum == me || allianceExistsBetween(me, playnum))
+		{
 			continue;
 		}
-		for (let i = 0; i < structs.length; ++i) {
+		for (let i = 0; i < structs.length; ++i)
+		{
 			targets = targets.concat(enumStruct(playnum, structs[i]));
 		}
-    //		targets = targets.concat(enumDroid(playnum), DROID_CONSTRUCT);
+		//		targets = targets.concat(enumDroid(playnum), DROID_CONSTRUCT);
 	}
-	if (targets.length == 0) {
+	if (targets.length == 0)
+	{
 		targets = enumEnemyObjects();
 	}
 	return targets;
