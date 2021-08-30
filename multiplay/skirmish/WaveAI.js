@@ -110,11 +110,11 @@ class Group
 
 	updateSecondTargets()
 	{
-		if (!this.mainTarget ||  mDist(this.pos, this.mainTarget) < 5)
-		{
-			this.updateMainTarget();
-		}
 		let targets = enumEnemyObjects();
+		this.road = road(
+			aStarDist(this.pos, this.mainTarget, false),
+			this.maxRange
+		);
 		let numPos = this.road[this.pos.x][this.pos.y];
 		targets = targets.filter((p) =>
 		{
@@ -125,11 +125,6 @@ class Group
         !p.isVTOL
 			);
 		});
-
-		if (targets.length == 0)
-		{
-			targets = [this.mainTarget];
-		}
 		targets.sort((a, b) =>
 		{
 			return this.road[a.x][a.y] - this.road[b.x][b.y];
@@ -139,29 +134,15 @@ class Group
 
 	get secondTarget()
 	{
-		while (
-			!(
-				this.secondTargets[0] &&
-        (getObject(
-        	this.secondTargets[0].type,
-        	this.secondTargets[0].player,
-        	this.secondTargets[0].id
-        ) ||
-	this.secondTargets[0].type == "tile"
-        )
-			)
-		)
+		this.updateSecondTargets();
+		if (this.secondTargets.length == 0)
 		{
-			if (this.secondTargets.length == 0)
-			{
-				this.updateSecondTargets();
-			}
-			else
-			{
-				this.secondTargets.shift();
-			}
+			return this.mainTarget;
 		}
-		return this.secondTargets[0];
+		else
+		{
+			return this.secondTargets[0];
+		}
 	}
 
 	orderUpdate()
@@ -193,37 +174,6 @@ class Group
 	}
 }
 
-class Vtol extends Group
-{
-	updateSecondTargets()
-	{
-		if (!this.mainTarget)
-		{
-			this.updateMainTarget();
-		}
-
-		let targets = enumEnemyObjects(),
-			pos = this.pos,
-			mainTarget = this.mainTarget;
-		targets = targets.filter(function (p)
-		{
-			return cosPhy(pos, mainTarget, p) > 0.65 && !p.isVTOL;
-		});
-		sortByDist(targets, pos);
-		this.secondTargets = targets;
-	}
-
-	orderUpdate()
-	{
-		const target = this.secondTarget;
-		this.droids.filter((d) => {return (d.weapons[0].armed >= 1);}).forEach((o) =>
-		{
-			orderDroidLoc(o, DORDER_SCOUT, target.x, target.y);
-			return;
-		});
-	}
-}
-
 class Arty extends Group
 {
 	orderUpdate()
@@ -249,38 +199,16 @@ function eventGameInit()
 {
 	setTimer("ordersUpdate", 100);
 	setTimer("groupsManagement", 1000);
-	setTimer("seconTargetsUpdate", 5 * 1000);
-	setTimer("mainTargetsUpdate", 100 * 1000);
+	setTimer("mainTargetsUpdate", 6 * 60 * 1000);
 }
 
 function stopGame()
 {
 	removeTimer("ordersUpdate");
 	removeTimer("groupsManagement");
-	removeTimer("seconTargetsUpdate");
 	removeTimer("mainTargetsUpdate");
 }
 
-function eventDroidIdle(droid)
-{
-	if (droid.player !== me)
-	{
-		return;
-	}
-	groupsManagement();
-	let groupNum = droid.group;
-	if (groupNum == null)
-	{
-		return;
-	}
-	let group = groups
-		.filter(function (group)
-		{
-			return group.num == groupNum;
-		})
-		.shift();
-	group.orderUpdate();
-}
 
 function ordersUpdate()
 {
@@ -328,15 +256,6 @@ function groupsManagement()
 	{
 		groups.push(new Group(hover, ObjMainTarget));
 	}
-
-	let vtol = units.filter((unit) =>
-	{
-		return unit.isVTOL;
-	});
-	if (vtol.length > 0)
-	{
-		groups.push(new Vtol(vtol, { mainTarget: null }));
-	}
 	let arty = units.filter((unit) =>
 	{
 		return !Stats.Weapon[unit.weapons[0].fullname].FireOnMove;
@@ -345,19 +264,6 @@ function groupsManagement()
 	{
 		groups.push(new Arty(arty, ObjMainTarget));
 	}
-}
-
-function seconTargetsUpdate()
-{
-	groups
-		.filter((group) =>
-		{
-			return group.count != 0;
-		})
-		.forEach((group) =>
-		{
-			group.updateSecondTargets();
-		});
 }
 
 function mainTargetsUpdate()
@@ -386,5 +292,3 @@ function enumEnemyObjects()
 	}
 	return targets;
 }
-
-

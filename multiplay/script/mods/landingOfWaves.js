@@ -5,7 +5,7 @@ const settings = includeJSON("settings.json");
 
 const research = includeJSON("research.json");
 // константы типы волн
-const WAVETYPE = ["NORMAL", "ROYALTANK", "ROYALVTOL"];
+const WAVETYPE = ["NORMAL"];
 var AI; //num wawe AI
 var redComponents = [];
 
@@ -391,7 +391,7 @@ function schedulerLanding()
 					"",
 					allTemplates[key].weapons
 				) !== null && //у makeTemplate изменен синтаксис в мастере. Не совместимо с 3.4.1
-        allTemplates[key].propulsion != "wheeled01" &&
+        (allTemplates[key].propulsion != "wheeled01" && allTemplates[key].propulsion != "V-Tol") &&
         ((type == "ROYALTANK" && allTemplates[key].propulsion == "tracked01") ||
           (type == "ROYALVTOL" && allTemplates[key].propulsion == "V-Tol") ||
           type == "NORMAL") &&
