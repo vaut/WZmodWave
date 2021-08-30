@@ -1,9 +1,9 @@
 {
-	"protectTimeM": 3.5,
+	"protectTimeM": 0.001,
 	"totalGameTime": 90,
 	"Kpower" : 0.12,
 	"doublePowerM": 45,
 	"NORMAL":{"pauseTime": 2},
-	"ROYALTANK":{"pauseTime": 15},
-	"ROYALVTOL":{"pauseTime": 9}
+	"ROYALTANK":{"pauseTime": 90},
+	"ROYALVTOL":{"pauseTime": 90}
 }

@@ -16,6 +16,7 @@ class Group
 		this.secondTargets = [];
 		this.obj = obj;
 		this.road = [];
+		this.updateMainTarget();
 	}
 
 	get mainTarget()
@@ -91,40 +92,28 @@ class Group
 
 	updateMainTarget()
 	{
-		let targets = enumMainEnemyObjects();
-		if (targets.length == 0)
+		while (!(
+			this.mainTarget &&
+			dist(this.pos, this.mainTarget) > ((mapWidth+mapHeight)/6) &&
+			droidCanReach(this.pos, this.mainTarget.x, this.mainTarget.y)
+		))
 		{
-			targets = enumEnemyObjects();
+			this.mainTarget = {x: Math.floor(Math.random() * mapWidth), y: Math.floor(Math.random() * mapHeight), type: "tile"};
 		}
-		targets.filter((obj) => {return droidCanReach(this.pos, obj.x, obj.y);});
-		if ( targets == 0 ){ return false;}
-		targets = getRandom(targets, 5);
-		sortByDist(targets, this.pos);
-		this.mainTarget = targets.shift();
+		debug(1111, this.mainTarget.x, this.mainTarget.y);
 		this.road = road(
 			aStarDist(this.pos, this.mainTarget, false),
 			this.maxRange
 		);
-		return true;
 	}
+
 
 	updateSecondTargets()
 	{
-		if (
-			!this.mainTarget ||
-      !getObject(
-      	this.mainTarget.type,
-      	this.mainTarget.player,
-      	this.mainTarget.id
-      )
-		)
+		if (!this.mainTarget ||  mDist(this.pos, this.mainTarget) < 5)
 		{
-			if (this.updateMainTarget() === false)
-			{
-				return false;
-			}
+			this.updateMainTarget();
 		}
-
 		let targets = enumEnemyObjects();
 		let numPos = this.road[this.pos.x][this.pos.y];
 		targets = targets.filter((p) =>
@@ -150,18 +139,15 @@ class Group
 
 	get secondTarget()
 	{
-		if (enumMainEnemyObjects().length == 0)
-		{
-			stopGame();
-			return null;
-		}
 		while (
 			!(
 				this.secondTargets[0] &&
-        getObject(
+        (getObject(
         	this.secondTargets[0].type,
         	this.secondTargets[0].player,
         	this.secondTargets[0].id
+        ) ||
+	this.secondTargets[0].type == "tile"
         )
 			)
 		)
@@ -181,7 +167,7 @@ class Group
 	orderUpdate()
 	{
 		const target = this.secondTarget;
-		//		debug (target.x, target.y, this.pos.x, this.pos.y);
+		//debug (target.x, target.y, this.pos.x, this.pos.y);
 		this.droids.forEach((o) =>
 		{
 			let V = { x: target.x - o.x, y: target.y - o.y };
@@ -194,7 +180,7 @@ class Group
 			};
 			if (droidCanReach(o, movePos.x, movePos.y))
 			{
-				//					debug(o.x, o.y, target.x, target.y, movePos.x, movePos.y);
+				//debug(o.x, o.y, target.x, target.y, movePos.x, movePos.y);
 				orderDroidLoc(o, DORDER_MOVE, movePos.x, movePos.y);
 				return;
 			}
@@ -211,20 +197,11 @@ class Vtol extends Group
 {
 	updateSecondTargets()
 	{
-		if (
-			!this.mainTarget ||
-      !getObject(
-      	this.mainTarget.type,
-      	this.mainTarget.player,
-      	this.mainTarget.id
-      )
-		)
+		if (!this.mainTarget)
 		{
-			if ( this.updateMainTarget() === false)
-			{
-				return false;
-			}
+			this.updateMainTarget();
 		}
+
 		let targets = enumEnemyObjects(),
 			pos = this.pos,
 			mainTarget = this.mainTarget;
@@ -252,6 +229,10 @@ class Arty extends Group
 	orderUpdate()
 	{
 		const target = this.secondTarget;
+		if (target.type != "tile" )
+		{
+			return;
+		}
 		//		debug (this.secondTarget);
 		this.droids.forEach((o) =>
 		{
@@ -260,20 +241,6 @@ class Arty extends Group
 				orderDroidLoc(o, DORDER_SCOUT, target.x, target.y);
 			}
 			else {orderDroidObj(o, DORDER_ATTACK, target);}
-		});
-	}
-}
-
-class Speed extends Group
-{
-	orderUpdate()
-	{
-		const target = this.mainTarget;
-		//		debug (target.x, target.y, this.pos.x, this.pos.y);
-		this.droids.forEach((o) =>
-		{
-			orderDroidLoc(o, DORDER_MOVE, target.x, target.y);
-			return;
 		});
 	}
 }
@@ -359,7 +326,7 @@ function groupsManagement()
 	});
 	if (hover.length > 0)
 	{
-		groups.push(new Speed(hover, ObjMainTarget));
+		groups.push(new Group(hover, ObjMainTarget));
 	}
 
 	let vtol = units.filter((unit) =>
@@ -420,38 +387,4 @@ function enumEnemyObjects()
 	return targets;
 }
 
-function enumMainEnemyObjects()
-{
-	let targets = [];
-	let structs = [
-		HQ,
-		FACTORY,
-		POWER_GEN,
-		RESOURCE_EXTRACTOR,
-		LASSAT,
-		RESEARCH_LAB,
-		REPAIR_FACILITY,
-		CYBORG_FACTORY,
-		VTOL_FACTORY,
-		REARM_PAD,
-		SAT_UPLINK,
-		COMMAND_CONTROL,
-	];
-	for (let playnum = 0; playnum < maxPlayers; playnum++)
-	{
-		if (playnum == me || allianceExistsBetween(me, playnum))
-		{
-			continue;
-		}
-		for (let i = 0; i < structs.length; ++i)
-		{
-			targets = targets.concat(enumStruct(playnum, structs[i]));
-		}
-		//		targets = targets.concat(enumDroid(playnum), DROID_CONSTRUCT);
-	}
-	if (targets.length == 0)
-	{
-		targets = enumEnemyObjects();
-	}
-	return targets;
-}
+
