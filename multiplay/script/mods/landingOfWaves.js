@@ -1,37 +1,19 @@
 const allTemplates = includeJSON("templates.json");
 include("multiplay/script/lib.js");
-include("multiplay/script/mods/report.js");
 const settings = includeJSON("settings.json");
 
 const research = includeJSON("research.json");
 // константы типы волн
 const WAVETYPE = ["NORMAL", "ROYALTANK", "ROYALVTOL"];
-var AI; //num wawe AI
+const AI = scavengerPlayer; //num wawe AI
 var redComponents = [];
 
 namespace("wa_");
 
-function setWaveAI()
-{
-	// Defining script variables
-	for (var playnum = 0; playnum < maxPlayers; playnum++)
-	{
-		if (
-			playerData[playnum].isAI == true &&
-      playerData[playnum].name == "Wave"
-		)
-		{
-			AI = playnum;
-		}
-	}
-	if (!AI)
-	{
-		console("ERROR \n not found WaveAI");
-	}
-}
+
 function setWaveDifficulty()
 {
-	game.waveDifficulty = (playerData[AI].difficulty + 2) / 3; //general danger of waves 0.66, 1, 1.33, 1.6
+	game.waveDifficulty = (scavengers + 2) / 3; //general danger of waves 1, 1.33
 }
 
 //TODO remove
@@ -269,7 +251,6 @@ function wa_eventGameInit()
 {
 	addSpoter();
 	setNumOil();
-	setWaveAI();
 	setLZs();
 	setWaveDifficulty();
 	game.listWaves = createWave();

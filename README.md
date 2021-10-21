@@ -2,27 +2,23 @@ Wave Defeance MOD
 =================
 
 Mod changes skirmish mode to wave protection mode. Supports multiplayer.
-The mod is compatible with Warzone2100 version 4.0.0. Older versions of the game are not supported.
+The mod is compatible with Warzone2100 version 4.2.0. Older versions of the game are not supported.
 
 Installation
 ------------
 
 Pack catalog `multiplay` into a zip archive and put them in `autoload`.
-Put the map `4c-Poli-Eye-W-a.wz` in the catalog `maps` 
+Put the maps `4c-Poli-Eye-W-a.wz` in the catalog `maps` 
 Read more https://github.com/Warzone2100/warzone2100/blob/master/README.md#configuration
 
 Launch
 ------
 
-It is necessary to install one "wave" bot in the room. It can occupy any slot. The bot does not need base structures. The difficulty of the bot changes the number of enemies and the pause between attacks.
-You can use a preset challenge or autoplay to create fake slots.
-See examples in files: `./autohost/Poli-Eye-W-a.json` and `./autohost/TestStart.json`
+Waves replace standard scavengers.
+Ultimate ones are more dangerous than normal ones.
+With scavengers turned off, waves will appear, but the AI does not control these units. 
 
 Only the host needs to enable the mod.
-The launch of the game on the prepared map is arranged as follows:
-```
-$ warzone2100 --autohost=Poli-Eye-W-a.json
-```
 
 The fight
 ---------

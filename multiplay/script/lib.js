@@ -1,4 +1,7 @@
-/*jshint esversion: 7 */
+if ( typeof timeBaseTech == "undefined")
+{
+	include("multiplay/script/rules/variables.js");
+}
 
 function dist(a,b)
 {
@@ -51,13 +54,10 @@ var game = {
 	}
 };
 
+
 function getStartTime()
 {
-	const cleanTech = 1;
-	const timeBaseTech = 4.5 * 60; // after Power Module
-	const timeAdvancedBaseTech = 7.9 * 60; // after Mortar and Repair Facility
-	const timeT2 = 17 * 60;
-	const timeT3 = 26 * 60; // after Needle Gun and Scourge Missile
+
 	var startTime = 1;
 	var techLevel = getMultiTechLevel();
 	if (baseType == CAMP_BASE)
