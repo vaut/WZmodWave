@@ -349,7 +349,7 @@ function groupsManagement()
 	}
 	let ObjMainTarget = { mainTarget: null };
 	groups.push(new Group(units, ObjMainTarget));
-	let hover = units.filter((unit) =>
+/*	let hover = units.filter((unit) =>
 	{
 		return (
 			unit.propulsion == "wheeled01" ||
@@ -361,7 +361,7 @@ function groupsManagement()
 	{
 		groups.push(new Speed(hover, ObjMainTarget));
 	}
-
+*/
 	let vtol = units.filter((unit) =>
 	{
 		return unit.isVTOL;

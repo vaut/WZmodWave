@@ -1,7 +1,6 @@
 // registrate events conditions_eventGameInit, conditions_eventDroidBuilt, conditions_eventStructureBuil, conditions_eventResearched, conditions_eventAttacked
 namespace("conditions_");
 
-
 const STATE_contender = "contender";
 const STATE_winner = "winner";
 const STATE_loser = "loser";
@@ -9,14 +8,14 @@ const STATE_spectator = "spectator";
 const STRUCTS = [FACTORY, CYBORG_FACTORY, VTOL_FACTORY]; // structures in which you can continue to play
 
 
+// Uses global var: ```idleTime```
 // The time that the player's inactivity is allowed. Actions are considered
 // - unit building
 // - completion of the research
 // - construction of base structures (factories, power plants, laboratories, modules and oil rigs)
 // - dealing damage
-const IDLETIME = 4 * 60 * 1000;
 const BASESTRUCTS = [FACTORY, CYBORG_FACTORY, VTOL_FACTORY, HQ, RESOURCE_EXTRACTOR, POWER_GEN, RESEARCH_LAB];
-const ENABLE_activity = (challenge != true && isMultiplayer === true); //The prohibition on passive play can interfere when playing against bots. There is no reason to end a fight earlier in PVE.
+const ENABLE_activity = (challenge != true && isMultiplayer === true && idleTime > 0); //The prohibition on passive play can interfere when playing against bots. There is no reason to end a fight earlier in PVE.
 //const ENABLE_activity = true; //debug
 
 var teams; // array class instance Team
@@ -137,7 +136,7 @@ class Team
 
 	activeGame()
 	{
-		if (this.lastActivity + IDLETIME >= gameTime)
+		if (this.lastActivity + idleTime >= gameTime)
 		{
 			return true;
 		}
@@ -249,7 +248,7 @@ function checkEndConditions()
 	{
 		return team.isContender();
 	});
-	if (contenderTeams.length === 0 || gameTime > settings.totalGameTime*1000*60 ) // game end
+	if (contenderTeams.length === 1) // game end
 	{
 		contenderTeams.forEach((team) =>
 		{
@@ -354,11 +353,6 @@ function conditions_eventGameInit()
 {
 	createTeams();
 	//find old type spectators
-	if  (ENABLE_activity && !isSpectator(-1))
-	{
-		setTimer("activityAlert", 10*1000);
-	}
-	setTimer("checkEndConditions", 3000);
 }
 
 function conditions_eventGameLoaded()
@@ -370,75 +364,4 @@ function conditions_eventGameLoaded()
 //Logging for active actions and displaying warnings during passive play.//
 ///////////////////////////////////////////////////////////////////////////
 
-function activityAlert()
-{
-	// avoid using selectedPlayer to access playersTeam array if it's a spectator (as it may be beyond the bounds of playersTeam.length for spectator-only slots)
-	if (isSpectator(-1) || (playersTeam[selectedPlayer].state != STATE_contender))
-	{
-		setMissionTime(-1);
-		removeTimer("activityAlert");
-		return;
-	}
-	if (playersTeam[selectedPlayer].lastActivity + IDLETIME / 2 < gameTime)
-	{
-		console(
-			_("Playing passively will lead to defeat. Actions that are considered:")
-		);
-		console(
-			_("- unit building - research completion - construction of base structures (factories, power plants, laboratories, modules and oil derricks) - dealing damage")
-		);
-		if (getMissionTime() > IDLETIME)
-		{
-			setMissionTime(
-				(playersTeam[selectedPlayer].lastActivity + IDLETIME - gameTime) / 1000);
-		}
-	}
-	if (playersTeam[selectedPlayer].lastActivity + IDLETIME / 2 > gameTime)
-	{
-		setMissionTime(-1); // remove timer widget
-	}
-}
-function conditions_eventDroidBuilt(droid)
-{
-	if (droid.player === scavengerPlayer || !ENABLE_activity)
-	{
-		return;
-	}
-	if (playersTeam[droid.player])
-	{
-		playersTeam[droid.player].lastActivity = gameTime;
-	}
-}
-function conditions_eventStructureBuilt(structure)
-{
-	if (structure.player === scavengerPlayer || !ENABLE_activity)
-	{
-		return;
-	}
-	if (BASESTRUCTS.includes(structure.stattype) === true && playersTeam[structure.player])
-	{
-		playersTeam[structure.player].lastActivity = gameTime;
-	}
-}
-function conditions_eventResearched(research, structure, player)
-{
-	if (player === scavengerPlayer || !ENABLE_activity)
-	{
-		return;
-	}
-	if (playersTeam[player])
-	{
-		playersTeam[player].lastActivity = gameTime;
-	}
-}
-function conditions_eventAttacked(victim, attacker)
-{
-	if (attacker.player === scavengerPlayer || !ENABLE_activity)
-	{
-		return;
-	}
-	if (playersTeam[attacker.player] && playersTeam[attacker.player] != playersTeam[victim.player])
-	{
-		playersTeam[attacker.player].lastActivity = gameTime;
-	}
-}
+

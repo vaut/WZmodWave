@@ -5,11 +5,12 @@ const settings = includeJSON("settings.json");
 const research = includeJSON("research.json");
 // константы типы волн
 const WAVETYPE = ["NORMAL", "ROYALTANK", "ROYALVTOL"];
+var wave = {time:0, active: false };
 const AI = scavengerPlayer; //num wawe AI
 var redComponents = [];
 
 const scroll = {
-zone: {x1:0 ,y1:mapHeight-35 ,x2:mapWidth ,y2:mapHeight },
+zone: {x:0 ,y:mapHeight-35 ,x2:mapWidth ,y2:mapHeight },
 incriment:10
 }
 
@@ -24,9 +25,18 @@ function setWaveDifficulty()
 
 //TODO remove
 game.protectTime = settings.protectTimeM * 60; //time to first attack in seconds
-game.pauseTime = settings.pauseTime * 60; //pause between attacks in seconds
+game.pauseTime = settings.pauseM * 60; //pause between attacks in seconds
 
-function setNumOil()
+function inScrollLimits(obj,limits)
+{
+	if (obj.x > limits.x+4 && obj.x < limits.x2-4 && obj.y > limits.y+4 && obj.y < limits.y2-4)
+	{
+		return true;
+	}
+	return false;
+}
+
+function getNumOil()
 {
 	game.playnum = 0;
 	for (let playnum = 0; playnum < maxPlayers; playnum++)
@@ -40,54 +50,37 @@ function setNumOil()
 			game.playnum++;
 		}
 	}
-	game.numOil = enumFeature(ALL_PLAYERS).filter(function (e)
+	limits =  getScrollLimits();
+	numOil = enumFeature(ALL_PLAYERS).filter(function (e)
 	{
-		if (e.stattype == OIL_RESOURCE) {return true;}
+		if (e.stattype == OIL_RESOURCE && inScrollLimits(e,limits)) {return true;}
 		return false;
 	}).length;
-	game.numOil += enumStruct(scavengerPlayer, RESOURCE_EXTRACTOR).length;
+	numOil += enumStruct(scavengerPlayer, RESOURCE_EXTRACTOR).length;
 	for (let playnum = 0; playnum < maxPlayers; playnum++)
 	{
-		game.numOil += enumStruct(playnum, RESOURCE_EXTRACTOR).length;
+		numOil += enumStruct(playnum, RESOURCE_EXTRACTOR).length;
 	}
-	if (game.numOil > 40 * game.playnum)
+	if (numOil > 40 * game.playnum)
 	{
-		game.numOil = 40 * game.playnum;
+		numOil = 40 * game.playnum;
 	}
+	debug  (numOil);
+	return numOil;
 	//	debug("oil on map", game.numOil, "players", game.playnum);
 }
 
-var LZs = [];
-function setLZs()
+function getLZ()
 {
-	let LZdefoult = {
-		x: Math.ceil(mapWidth / 2),
-		y: Math.ceil(mapHeight / 2),
-		radius: 5,
-	};
-
-	let labels = enumLabels().map(function (label)
-	{
-		return getObject(label);
-	});
-	LZs = labels.map(function (label)
-	{
-		LZ = {
-			x: Math.ceil((label.x + label.x2) / 2),
-			y: Math.ceil((label.y + label.y2) / 2),
-			radius: Math.ceil(Math.abs(label.x - label.x2) / 2),
-		};
-		return LZ;
-	});
-
-	if (LZs.length == 0)
-	{
-		LZs.push(LZdefoult);
-	}
-	LZs.forEach(function (LZ)
-	{
-		LZ.tiles = LZtile(LZ);
-	});
+	let limits = getScrollLimits();
+	let LZ= {
+		x: syncRandom(limits.x2-16)+8,
+		y: limits.y + 8,
+		radius: 4,
+		}
+	debug(LZ.x, LZ.y);
+	LZ.tiles = LZtile(LZ);
+	return LZ;
 }
 
 function LZtile(LZ)
@@ -209,8 +202,8 @@ function addSpoter()
 		addSpotter(spotter.x, spotter.y, playnum, spotter.radius, 0, 1000);
 	}
 }
-
-function createWave()
+/*
+function createWaves()
 {
 	let waves = [];
 	WAVETYPE.forEach(function (type)
@@ -251,15 +244,37 @@ function createWave()
 	return waves;
 	//	return ([{time:360, type: ROYALTANK, {...}])//example output
 }
+*/
+
+function newWave()
+{
+	let zone =  scroll.zone;
+	zone.y -= 10; //TODO убрать константу в настройки
+	setScrollLimits(zone.x, zone.y, zone.x2, zone.y2);
+
+	let budget = calcBudget(gameTime/1000 + getStartTime());
+	wave= {
+		type: "NORMAL",
+		budget: budget.budget,
+		rang: budget.rang,
+		experience: budget.experience,
+		droids: [],
+		active:true,
+		time:0
+	}
+			
+}
+
 
 function calcBudget(timeS)
 {
-	let K = game.numOil * settings.Kpower;
+	timeS = timeS - settings.protectTimeM*60/3;
+	let K = getNumOil() * settings.Kpower;
 	// Игрок по мере игры получает апы на ген, что проиводит к росуту доступных ресурсов.
 	// При первом приблежении вторая производная энергии по времени прямая с увеличением в два раза за 20 минут.
 	// Используем два способа компенсиовать одновременно.
 	// Первый: бюджет зависит от квадрата времени
-
+	debug(getNumOil());
 	let A = K / (settings.doublePowerM * 60);
 	let budget = Math.round(
 		((K * timeS + A * timeS ** 2) / 2) * game.waveDifficulty
@@ -267,7 +282,6 @@ function calcBudget(timeS)
 	//Второй: опытом. При первом приближении юниты усиливаются +11% за каждый ранг.
 	//Опыт ограничен 16 рангом, вероятно. По этому делаем что бы к концу юниты были максимально злые.
 	let rang = Math.round((14 / (settings.totalGameTime * 60)) * timeS);
-
 	return { budget: budget, rang: rang, experience: Math.round(2 ** rang) };
 }
 
@@ -275,11 +289,8 @@ function wa_eventGameInit()
 {
 	addSpoter();
         const zone =  scroll.zone;
-	setScrollLimits(zone.x1, zone.y1, zone.x2, zone.y2);
-	setNumOil();
-	setLZs();
+	setScrollLimits(zone.x, zone.y, zone.x2, zone.y2);
 	setWaveDifficulty();
-	game.listWaves = createWave();
 	console(
 		[
 			"difficulty " + game.wavedifficulty,
@@ -288,12 +299,11 @@ function wa_eventGameInit()
 		].join("\n")
 	);
 	setTimer("giveResearch", 60 * 1000);
-	setTimer("schedulerLanding", 6 * 1000);
+	setTimer("scheduler", 6 * 1000);
+	scheduler();
 	setTimer("removeVtol", 11 * 1000);
-	updateTimer();
 	setMissionTime(game.protectTime);
 	makeComponentAvailable("MG1Mk1", AI);
-	setAlliance(scavengerPlayer, AI, true);
 }
 
 function removeVtol()
@@ -318,75 +328,45 @@ function removeVtol()
 		});
 }
 
-function updateTimer()
+function scheduler()
 {
-	if (game.listWaves[0].time - gameTime / 1000 <= 0)
-	{
-		queue("updateTimer", 1000);
+	if (settings.protectTimeM *60 > gameTime / 1000){
 		return;
 	}
-	//	debug(getMissionTime(), game.listWaves[0].time - gameTime / 1000);
-	setMissionTime(game.listWaves[0].time - gameTime / 1000);
-	queue("updateTimer", game.listWaves[0].time * 1000 - gameTime);
-	console("next wave", game.listWaves[0].type);
+	wave.droids = enumDroid(AI, "DROID_WEAPON");
+	if (wave.droids.length == 0 && wave.active == true)
+	{
+		wave.time = gameTime/1000 + settings.pauseM * 60
+		setMissionTime(settings.pauseM*60)
+		wave.active = false
+	}
+ 	if (wave.time <= gameTime/1000)
+	{
+		if (wave.active == false)
+		{
+			newWave();
+		}
+	landing();
+	}
 }
 
-function schedulerLanding()
+function landing()
 {
-	game.notProtectedWaves = game.listWaves.length;
-	if (game.listWaves.length == 0)
-	{
-		return;
-	}
-	if (
-		game.listWaves[0].budget <= 0
-	//&& game.listWaves[0].droids.length == 0
-	)
-	{
-		game.listWaves.shift();
-		console("waves left ", game.listWaves.length);
-		debug("waves left ", game.listWaves.length);
-	}
-	let queueLading = game.listWaves.filter((wave) =>
-	{
-		return wave.time <= gameTime / 1000 && !wave.war;
-	});
-	if (queueLading.length == 0)
+	if (wave.budget <= 0)
 	{
 		return;
 	}
 	// делаем высадку
-	if (!queueLading[0].active)
-	{
-		queueLading[0].active=true;
-		let zone =  scroll.zone;
-		zone.y1 -= 10;
-		setScrollLimits(zone.x1, zone.y1, zone.x2, zone.y2);
-
-	}
-	let nowLading = queueLading[0];
-
-
-	let extractor = 0;
-	for (let playnum = 0; playnum < maxPlayers; playnum++)
-	{
-		extractor += enumStruct(playnum, RESOURCE_EXTRACTOR).length;
-	}
-	if (extractor == 0)
-	{
-		nowLading.type = "ROYALVTOL";
-	}
-
-	nowLading.templates = getTemplates(
+	wave.templates = getTemplates(
 		gameTime / 1000 + getStartTime(),
-		nowLading.type
+		wave.type
 	);
-	nowLading.LZ = LZs[syncRandom(LZs.length)];
-	setDroidsName(nowLading);
-	pushUnits(nowLading);
+	wave.LZ = getLZ();
+	setDroidsName();
+	pushUnits();
 
-	debug("units landed", nowLading.droids.length, nowLading.type);
-	console("units landed", nowLading.droids.length, nowLading.type);
+	debug("units landed", wave.droids.length, wave.type);
+	console("units landed", wave.droids.length, wave.type);
 
 	function getTemplates(timeS, type)
 	{
@@ -438,28 +418,29 @@ function schedulerLanding()
 			return redComponents;
 		}
 	}
-	function setDroidsName(nowLanding)
+	function setDroidsName()
 	{
-		nowLading.droidsName = [];
+		wave.droidsName = [];
 
-		for (let i = 0; i < nowLading.LZ.tiles.length; i++)
+		for (let i = 0; i < wave.LZ.tiles.length; i++)
 		{
 			let droidName =
-        nowLanding.templates[syncRandom(nowLanding.templates.length)];
-			nowLading.droidsName.push(droidName);
+        wave.templates[syncRandom(wave.templates.length)];
+			wave.droidsName.push(droidName);
 		}
 	}
 
-	function pushUnits(theLanding)
+	function pushUnits()
 	{
-		//		debug(JSON.stringify(theLanding));
-		let tiles = Object.assign([], theLanding.LZ.tiles);
+		//		debug(JSON.stringify(wave));
+		let tiles = Object.assign([], wave.LZ.tiles);
 		//debug(JSON.stringify(tiles));
 		hackNetOff();
-		while (theLanding.budget > 0 && tiles.length > 0)
+		while (wave.budget > 0 && tiles.length > 0)
 		{
-			let droidName = theLanding.droidsName.shift();
+			let droidName = wave.droidsName.shift();
 			let pos = tiles.shift();
+/*
 			if (allTemplates[droidName].propulsion == "V-Tol")
 			{
 				let borders = [
@@ -472,7 +453,7 @@ function schedulerLanding()
 				//			debug (pos.x, pos.y);
 				pos = borders.shift();
 			}
-
+*/
 			let unit = addDroid(
 				AI,
 				pos.x,
@@ -484,8 +465,8 @@ function schedulerLanding()
 				"",
 				allTemplates[droidName].weapons
 			);
-			setDroidExperience(unit, theLanding.experience);
-			theLanding.budget -= makeTemplate(
+			setDroidExperience(unit, wave.experience);
+			wave.budget -= makeTemplate(
 				AI,
 				droidName,
 				allTemplates[droidName].body,
@@ -493,11 +474,11 @@ function schedulerLanding()
 				"",
 				allTemplates[droidName].weapons
 			).power;
-			theLanding.droids.push(unit);
+			wave.droids.push(unit);
 			//			debug("add", droidName);
 		}
 		hackNetOn();
-		playSound("pcv395.ogg", theLanding.LZ.x, theLanding.LZ.y, 0);
+		playSound("pcv395.ogg", wave.LZ.x, wave.LZ.y, 0);
 	}
 }
 

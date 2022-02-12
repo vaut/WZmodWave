@@ -1,0 +1,56 @@
+{
+   "challenge":{
+    "alliances":2,
+    "bases":"1",
+    "map":"ntw_trail10pro2",
+    "maxPlayers":6,
+    "powerLevel":2,
+    "scavengers":1,
+    "version":2,
+    "name": "Wave defance",
+    "openSpectatorSlots": 10,
+    "allowPositionChange": "true"
+   },
+   "player_0":{
+      "position":0,
+      "team":0,
+      "name": "Wave"
+
+   },
+   "player_1":{
+      "position":5,
+      "team":1,
+	"name": "Wave",
+	"ai": "multiplay/skirmish/Cobra.js",
+        "difficulty": "Hard"
+   },
+   "player_2":{
+      "position":1,
+      "team":0,
+      "ai": "multiplay/skirmish/Cobra.js",
+      "difficulty": "Hard",
+      "name": "Enemy"
+   },
+   "player_3":{
+      "position":2,
+      "team":0,
+      "ai": "multiplay/skirmish/Cobra.js",
+      "difficulty": "Hard",
+      "name": "bonya"
+   },
+   "player_4":{
+      "position":3,
+      "team":0,
+      "ai": "multiplay/skirmish/Cobra.js",
+      "difficulty": "Hard",
+      "name": "Enemy2"
+   },
+   "player_5":{
+      "position":4,
+      "team":0,
+      "ai": "multiplay/skirmish/Cobra.js",
+      "difficulty": "Hard",
+      "name": "bonya"
+   }
+
+}
