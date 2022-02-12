@@ -8,7 +8,13 @@ const WAVETYPE = ["NORMAL", "ROYALTANK", "ROYALVTOL"];
 const AI = scavengerPlayer; //num wawe AI
 var redComponents = [];
 
+const scroll = {
+zone: {x1:0 ,y1:mapHeight-35 ,x2:mapWidth ,y2:mapHeight },
+incriment:10
+}
+
 namespace("wa_");
+
 
 
 function setWaveDifficulty()
@@ -264,9 +270,12 @@ function calcBudget(timeS)
 
 	return { budget: budget, rang: rang, experience: Math.round(2 ** rang) };
 }
+
 function wa_eventGameInit()
 {
 	addSpoter();
+        const zone =  scroll.zone;
+	setScrollLimits(zone.x1, zone.y1, zone.x2, zone.y2);
 	setNumOil();
 	setLZs();
 	setWaveDifficulty();
@@ -347,7 +356,16 @@ function schedulerLanding()
 		return;
 	}
 	// делаем высадку
+	if (!queueLading[0].active)
+	{
+		queueLading[0].active=true;
+		let zone =  scroll.zone;
+		zone.y1 -= 10;
+		setScrollLimits(zone.x1, zone.y1, zone.x2, zone.y2);
+
+	}
 	let nowLading = queueLading[0];
+
 
 	let extractor = 0;
 	for (let playnum = 0; playnum < maxPlayers; playnum++)
