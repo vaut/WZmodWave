@@ -133,10 +133,6 @@ function LZtile(LZ)
 		} // TODO заменить на цикл
 	}
 
-	if (!isPassable(LZ.x, LZ.y))
-	{
-		return false;
-	} // incorrect LZ
 	let tiles = [];
 	for (let x = LZ.x - LZ.radius; x <= LZ.x + LZ.radius; x++)
 	{
@@ -153,7 +149,28 @@ function LZtile(LZ)
 			}
 		}
 	}
-	tiles[LZ.x][LZ.y] = PLACE;
+	if (isPassable(LZ.x, LZ.y))
+	{
+		tiles[LZ.x][LZ.y] = PLACE;
+	}
+	else
+	{
+		var naruto = [];
+		tiles.forEach((Xs, x) =>
+		{
+			Xs.forEach((Ys,y) =>
+			{
+				if (isPassable(x, y)) {
+					let sq = {x: x, y:y};
+					naruto.push(sq);
+				}
+			});
+		});
+		sortBymDist(naruto, LZ);
+		const first = naruto.shift();
+		tiles[first.x][first.y] = PLACE;
+	}
+
 	markAvailableTile(tiles);
 	//	debug(JSON.stringify(tiles));
 
