@@ -269,6 +269,10 @@ function newWave()
 {
 	let zone =  scroll.zone;
 	zone.y -= 10; //TODO убрать константу в настройки
+	if (zone.y <0)
+	{
+		zone.y =0;
+	}
 	setScrollLimits(zone.x, zone.y, zone.x2, zone.y2);
 	giveResearch();
 	let budget = calcBudget(gameTime/1000 + getStartTime());
@@ -283,7 +287,6 @@ function newWave()
 	};
 
 }
-
 
 function calcBudget(timeS)
 {
@@ -449,7 +452,6 @@ function landing()
 
 	function pushUnits()
 	{
-		//		debug(JSON.stringify(wave));
 		let tiles = Object.assign([], wave.LZ.tiles);
 		hackNetOff();
 		while (wave.budget > 0 && tiles.length > 0)
@@ -490,7 +492,6 @@ function landing()
 				allTemplates[droidName].weapons
 			).power;
 			wave.droids.push(unit);
-			//			debug("add", droidName);
 		}
 		hackNetOn();
 		playSound("pcv395.ogg", wave.LZ.x, wave.LZ.y, 0);

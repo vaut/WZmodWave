@@ -22,7 +22,7 @@
       "team":1,
 	"name": "Wave",
 	"ai": "multiplay/skirmish/WaveAI.js",
-        "difficulty": "Insane"
+        "difficulty": "Medium"
    },
    "player_2":{
       "position":1,
