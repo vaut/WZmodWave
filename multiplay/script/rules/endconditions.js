@@ -208,7 +208,7 @@ class Team
 			this.players.forEach(
 				(player) =>
 				{
-//					debug("Setting player " + player.playNum + " to state: " + this.state);
+					//					debug("Setting player " + player.playNum + " to state: " + this.state);
 					player.finalizeGame(this.state);
 				}
 			);
@@ -248,7 +248,7 @@ function checkEndConditions()
 	{
 		return team.isContender();
 	});
-	if (contenderTeams.length === 1) // game end
+	if (isMapFullyOpen()) // custum end game
 	{
 		contenderTeams.forEach((team) =>
 		{
@@ -263,6 +263,26 @@ function checkEndConditions()
 		{
 			gameOverMessage(false);
 		}
+	}
+}
+
+function isMapFullyOpen()
+{
+	let limits = getScrollLimits();
+	const mapSize = {
+		"type": 5,
+		"x": 0,
+		"x2": mapWidth,
+		"y": 0,
+		"y2": mapHeight
+	};
+	if (limits.y === 0)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
 	}
 }
 
@@ -353,6 +373,11 @@ function conditions_eventGameInit()
 {
 	createTeams();
 	//find old type spectators
+	if  (ENABLE_activity && !isSpectator(-1))
+	{
+		setTimer("activityAlert", 10*1000);
+	}
+	setTimer("checkEndConditions", 3000);
 }
 
 function conditions_eventGameLoaded()
@@ -364,4 +389,79 @@ function conditions_eventGameLoaded()
 //Logging for active actions and displaying warnings during passive play.//
 ///////////////////////////////////////////////////////////////////////////
 
-
+function activityAlert()
+{
+	// avoid using selectedPlayer to access playersTeam array if it's a spectator (as it may be beyond the bounds of playersTeam.length for spectator-only slots)
+	if (isSpectator(-1) || (playersTeam[selectedPlayer].state != STATE_contender))
+	{
+		setMissionTime(-1);
+		removeTimer("activityAlert");
+		return;
+	}
+	if (playersTeam[selectedPlayer].lastActivity + idleTime / 2 < gameTime)
+	{
+		console(
+			_("Playing passively will lead to defeat. Actions that are considered:")
+		);
+		console(
+			_("- unit building - research completion - construction of base structures (factories, power plants, laboratories, modules and oil derricks) - dealing damage")
+		);
+		/*
+		if (getMissionTime() > idleTime)
+		{
+			setMissionTime(
+				(playersTeam[selectedPlayer].lastActivity + idleTime - gameTime) / 1000);
+		}
+		*/
+	}
+	/*
+	if (playersTeam[selectedPlayer].lastActivity + idleTime / 2 > gameTime)
+	{
+		setMissionTime(-1); // remove timer widget
+	}
+	*/
+}
+function conditions_eventDroidBuilt(droid)
+{
+	if (droid.player === scavengerPlayer || !ENABLE_activity)
+	{
+		return;
+	}
+	if (playersTeam[droid.player])
+	{
+		playersTeam[droid.player].lastActivity = gameTime;
+	}
+}
+function conditions_eventStructureBuilt(structure)
+{
+	if (structure.player === scavengerPlayer || !ENABLE_activity)
+	{
+		return;
+	}
+	if (BASESTRUCTS.includes(structure.stattype) === true && playersTeam[structure.player])
+	{
+		playersTeam[structure.player].lastActivity = gameTime;
+	}
+}
+function conditions_eventResearched(research, structure, player)
+{
+	if (player === scavengerPlayer || !ENABLE_activity)
+	{
+		return;
+	}
+	if (playersTeam[player])
+	{
+		playersTeam[player].lastActivity = gameTime;
+	}
+}
+function conditions_eventAttacked(victim, attacker)
+{
+	if (attacker.player === scavengerPlayer || !ENABLE_activity)
+	{
+		return;
+	}
+	if (playersTeam[attacker.player] && playersTeam[attacker.player] != playersTeam[victim.player])
+	{
+		playersTeam[attacker.player].lastActivity = gameTime;
+	}
+}
