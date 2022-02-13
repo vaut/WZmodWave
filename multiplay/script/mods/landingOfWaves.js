@@ -6,21 +6,44 @@ const research = includeJSON("research.json");
 // константы типы волн
 const WAVETYPE = ["NORMAL", "ROYALTANK", "ROYALVTOL"];
 var wave = {time:0, active: false };
-const AI = scavengerPlayer; //num wawe AI
-var redComponents = [];
 
+
+const {waveDifficulty, AI} =  getWaveAI(); //num wawe AI
+game.waveDifficulty = waveDifficulty;
+var redComponents = [];
 const scroll = {
-zone: {x:0 ,y:mapHeight-35 ,x2:mapWidth ,y2:mapHeight },
-incriment:10
-}
+	zone: {x:0 ,y:mapHeight-35 ,x2:mapWidth ,y2:mapHeight },
+	incriment:10
+};
 
 namespace("wa_");
 
-
-
-function setWaveDifficulty()
+function getWaveAI()
 {
-	game.waveDifficulty = (scavengers + 2) / 3; //general danger of waves 1, 1.33
+	let AI = false;
+	let waveDifficulty = 1;
+	// Defining script variables
+	if (scavengers != 0)
+	{
+		AI = scavengerPlayer;
+		waveDifficulty = (scavengers + 2) / 3; //general danger of waves 1, 1.33
+
+	}
+	else
+	{
+		for (var playnum = 0; playnum < maxPlayers; playnum++)
+		{
+			if (
+				playerData[playnum].isAI == true &&
+      playerData[playnum].name == "Wave"
+			)
+			{
+				AI = playnum;
+				waveDifficulty = (playerData[AI].difficulty + 2) / 3; //general danger of waves 0.66, 1, 1.33, 1.6
+			}
+		}
+	}
+	return {AI:AI, waveDifficulty: waveDifficulty};
 }
 
 //TODO remove
@@ -77,7 +100,7 @@ function getLZ()
 		x: syncRandom(limits.x2-16)+8,
 		y: limits.y + 8,
 		radius: 4,
-		}
+	};
 	debug(LZ.x, LZ.y);
 	LZ.tiles = LZtile(LZ);
 	return LZ;
@@ -159,7 +182,8 @@ function LZtile(LZ)
 		{
 			Xs.forEach((Ys,y) =>
 			{
-				if (isPassable(x, y)) {
+				if (isPassable(x, y))
+				{
 					let sq = {x: x, y:y};
 					naruto.push(sq);
 				}
@@ -251,7 +275,7 @@ function newWave()
 	let zone =  scroll.zone;
 	zone.y -= 10; //TODO убрать константу в настройки
 	setScrollLimits(zone.x, zone.y, zone.x2, zone.y2);
-
+	giveResearch();
 	let budget = calcBudget(gameTime/1000 + getStartTime());
 	wave= {
 		type: "NORMAL",
@@ -261,8 +285,8 @@ function newWave()
 		droids: [],
 		active:true,
 		time:0
-	}
-			
+	};
+
 }
 
 
@@ -288,9 +312,8 @@ function calcBudget(timeS)
 function wa_eventGameInit()
 {
 	addSpoter();
-        const zone =  scroll.zone;
+	const zone =  scroll.zone;
 	setScrollLimits(zone.x, zone.y, zone.x2, zone.y2);
-	setWaveDifficulty();
 	console(
 		[
 			"difficulty " + game.wavedifficulty,
@@ -298,7 +321,6 @@ function wa_eventGameInit()
 			"PauseTime " + game.PauseTime,
 		].join("\n")
 	);
-	setTimer("giveResearch", 60 * 1000);
 	setTimer("scheduler", 6 * 1000);
 	scheduler();
 	setTimer("removeVtol", 11 * 1000);
@@ -330,15 +352,16 @@ function removeVtol()
 
 function scheduler()
 {
-	if (settings.protectTimeM *60 > gameTime / 1000){
+	if (settings.protectTimeM *60 > gameTime / 1000)
+	{
 		return;
 	}
 	wave.droids = enumDroid(AI, "DROID_WEAPON");
 	if (wave.droids.length == 0 && wave.active == true)
 	{
-		wave.time = gameTime/1000 + settings.pauseM * 60
-		setMissionTime(settings.pauseM*60)
-		wave.active = false
+		wave.time = gameTime/1000 + settings.pauseM * 60;
+		setMissionTime(settings.pauseM*60);
+		wave.active = false;
 	}
  	if (wave.time <= gameTime/1000)
 	{
@@ -346,7 +369,7 @@ function scheduler()
 		{
 			newWave();
 		}
-	landing();
+		landing();
 	}
 }
 
@@ -440,7 +463,7 @@ function landing()
 		{
 			let droidName = wave.droidsName.shift();
 			let pos = tiles.shift();
-/*
+			/*
 			if (allTemplates[droidName].propulsion == "V-Tol")
 			{
 				let borders = [
