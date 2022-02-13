@@ -88,7 +88,6 @@ function getNumOil()
 	{
 		numOil = 40 * game.playnum;
 	}
-	debug  (numOil);
 	return numOil;
 	//	debug("oil on map", game.numOil, "players", game.playnum);
 }
@@ -101,7 +100,6 @@ function getLZ()
 		y: limits.y + 8,
 		radius: 4,
 	};
-	debug(LZ.x, LZ.y);
 	LZ.tiles = LZtile(LZ);
 	return LZ;
 }
@@ -148,7 +146,6 @@ function LZtile(LZ)
 				}
 			});
 		});
-		//	debug(JSON.stringify(tiles));
 		if (addPOSS)
 		{
 			markAvailableTile(tiles);
@@ -195,7 +192,6 @@ function LZtile(LZ)
 	}
 
 	markAvailableTile(tiles);
-	//	debug(JSON.stringify(tiles));
 
 	let LZtile = [];
 	for (let x = LZ.x - LZ.radius; x <= LZ.x + LZ.radius; x++)
@@ -209,7 +205,6 @@ function LZtile(LZ)
 		}
 	}
 	sortBymDist(LZtile, LZ);
-	//	debug(JSON.stringify(LZtile));
 	//TODO добавить фильтр занятых объектами клеток
 	return LZtile;
 }
@@ -298,7 +293,6 @@ function calcBudget(timeS)
 	// При первом приблежении вторая производная энергии по времени прямая с увеличением в два раза за 20 минут.
 	// Используем два способа компенсиовать одновременно.
 	// Первый: бюджет зависит от квадрата времени
-	debug(getNumOil());
 	let A = K / (settings.doublePowerM * 60);
 	let budget = Math.round(
 		((K * timeS + A * timeS ** 2) / 2) * game.waveDifficulty
@@ -457,7 +451,6 @@ function landing()
 	{
 		//		debug(JSON.stringify(wave));
 		let tiles = Object.assign([], wave.LZ.tiles);
-		//debug(JSON.stringify(tiles));
 		hackNetOff();
 		while (wave.budget > 0 && tiles.length > 0)
 		{
@@ -473,7 +466,6 @@ function landing()
 					{ x: pos.x, y: mapHeight - 2 },
 				];
 				sortBymDist(borders, pos);
-				//			debug (pos.x, pos.y);
 				pos = borders.shift();
 			}
 */
