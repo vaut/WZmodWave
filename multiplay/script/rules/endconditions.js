@@ -248,7 +248,7 @@ function checkEndConditions()
 	{
 		return team.isContender();
 	});
-	if (isMapFullyOpen()) // custum end game
+	if (isMapFullyOpen() || contenderTeams.length === 0) // custum end game
 	{
 		contenderTeams.forEach((team) =>
 		{
@@ -319,7 +319,7 @@ function createTeams()
 	const inTeamPlayNums = new Array(maxPlayers).fill(false);
 	for (let playNum = 0; playNum < maxPlayers; playNum++)
 	{
-		if (isSpectator(playNum))
+		if (isSpectator(playNum)|| playerData[playNum].name == "Wave")
 		{
 			continue; // skip slots that start as spectators
 		}
