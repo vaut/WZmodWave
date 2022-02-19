@@ -1,8 +1,8 @@
 const defoultUnitsLimits =
 {
-	"DROID_ANY": 150,
-	"DROID_COMMAND": 10,
-	"DROID_CONSTRUCT": 15
+	[DROID_ANY]: 150,
+	[DROID_COMMAND]: 10,
+	[DROID_CONSTRUCT]: 15
 };
 
 const defoultsStructLimit =
@@ -45,6 +45,15 @@ function pushUnitsAndStruct()
 	{
 		if (playnum == AI){continue;}
 		players.push(playnum);
+		if (isSpectator(playnum))
+		{
+			continue; // skip slots that start as spectators
+		}
+		if (!playerData[playnum].isHuman && !playerData[playnum].isAI)
+		{
+			// not an allocated slot (is closed or no player / AI)
+			continue;
+		}
 	}
 	const scrollLimits = getScrollLimits();
 	const y = scrollLimits.y2-(scrollLimits.y2-scrollLimits.y)/2;
@@ -68,7 +77,15 @@ function pushUnitsAndStruct()
 			addStructure(s, p, tile.x*128, tile.y*128);
 		});
 	});
+	if (!isSpectator(-1))
+	{
 
+
+		queue("reticuleManufactureCheck");
+		queue("reticuleResearchCheck");
+		queue("reticuleBuildCheck");
+		queue("reticuleDesignCheck");
+	}
 }
 
 
@@ -79,9 +96,20 @@ function recalcLimits()
 	{
 		if (playnum == AI){continue;}
 		players.push(playnum);
+		if (isSpectator(playnum))
+		{
+			continue; // skip slots that start as spectators
+		}
+		if (!playerData[playnum].isHuman && !playerData[playnum].isAI)
+		{
+			// not an allocated slot (is closed or no player / AI)
+			continue;
+		}
 	}
 	const numOil = getNumOil();
-	const K = (numOil+10)/players.length/defoultNumOil;
+	let K = (numOil+20)*1.25/players.length/defoultNumOil;
+	if (K < 0.5) {K =0.5;}
+	debug(K);
 	players.forEach((p, index) =>
 	{
 
