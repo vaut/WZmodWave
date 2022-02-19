@@ -283,6 +283,7 @@ function wa_eventGameInit()
 	);
 	cleanUnitsAndStruct();
 	queue("pushUnitsAndStruct");
+	queue("recalcLimits");
 	setTimer("scheduler", 6 * 1000);
 	scheduler();
 	setTimer("removeVtol", 11 * 1000);
@@ -290,12 +291,6 @@ function wa_eventGameInit()
 	makeComponentAvailable("MG1Mk1", AI);
 	avalibleScavComponents(AI);
 }
-
-function recalcLimits()
-{
-//TODO
-}
-
 
 function removeVtol()
 {

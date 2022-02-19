@@ -1,3 +1,26 @@
+const defoultUnitsLimits =
+{
+	"DROID_ANY": 150,
+	"DROID_COMMAND": 10,
+	"DROID_CONSTRUCT": 15
+};
+
+const defoultsStructLimit =
+{
+	"A0LightFactory": 5,
+	"A0PowerGenerator": 8,
+	"A0ResearchFacility": 5,
+	"A0ComDroidControl": 1,
+	"A0CyborgFactory": 5,
+	"A0VTolFactory1": 5,
+	"A0LasSatCommand": 1,
+	"A0Sat-linkCentre": 1,
+	"A0RepairCentre3": 3,
+	"A0VtolPad": 50
+};
+
+const defoultNumOil = 40;
+
 function cleanUnitsAndStruct()
 {
 	for (var playnum = 0; playnum < maxPlayers; playnum++)
@@ -32,6 +55,7 @@ function pushUnitsAndStruct()
 		"name": "Truck",
 		"propulsion": "wheeled01"
 	};
+	const numOil = getNumOil();
 	const STRUCTS = ["A0CommandCentre","A0LightFactory","A0PowerGenerator","A0ResearchFacility"];
 	players.forEach((p, index) =>
 	{
@@ -50,6 +74,25 @@ function pushUnitsAndStruct()
 
 function recalcLimits()
 {
-//TODO
-}
+	let players = [];
+	for (var playnum = 0; playnum < maxPlayers; playnum++)
+	{
+		if (playnum == AI){continue;}
+		players.push(playnum);
+	}
+	const numOil = getNumOil();
+	const K = (numOil+10)/players.length/defoultNumOil;
+	players.forEach((p, index) =>
+	{
 
+		for (var droidType in defoultUnitsLimits)
+		{
+			setDroidLimit(p, Math.ceil(defoultUnitsLimits[droidType]*K), droidType);
+		}
+		for (var struct in defoultsStructLimit)
+		{
+			setStructureLimits(struct, Math.ceil(defoultsStructLimit[struct]*K), p);
+		}
+	});
+
+}
