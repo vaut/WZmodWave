@@ -5,17 +5,19 @@
     "map":"ntw_trail10pro2",
     "maxPlayers":6,
     "powerLevel":2,
-    "scavengers":1,
+    "scavengers":0,
     "version":2,
     "name": "Wave defance",
     "openSpectatorSlots": 10,
-    "allowPositionChange": "true"
+    "allowPositionChange": "true",
+    "spectatorHost": true
    },
    "player_0":{
       "position":0,
       "team":0,
-      "name": "Wave"
-
+      "ai": "multiplay/skirmish/Cobra.js",
+      "difficulty": "Hard",
+      "name": "Enemy"
    },
    "player_1":{
       "position":5,

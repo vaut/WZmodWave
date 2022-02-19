@@ -6,15 +6,12 @@ const research = includeJSON("research.json");
 // константы типы волн
 const WAVETYPE = ["NORMAL", "ROYALTANK", "ROYALVTOL"];
 var wave = {time:0, active: false };
-
+const BORDER = 4;
 
 const {waveDifficulty, AI} =  getWaveAI(); //num wawe AI
 game.waveDifficulty = waveDifficulty;
 var redComponents = [];
-const scroll = {
-	zone: {x:0 ,y:mapHeight-35 ,x2:mapWidth ,y2:mapHeight },
-	incriment:10
-};
+var zone = {x:0, y:(mapHeight-settings.startHeight), x2:mapWidth, y2:mapHeight };
 
 namespace("wa_");
 
@@ -50,9 +47,102 @@ function getWaveAI()
 game.protectTime = settings.protectTimeM * 60; //time to first attack in seconds
 game.pauseTime = settings.pauseM * 60; //pause between attacks in seconds
 
+function avalibleScavComponents(player)
+{
+
+	const SCAV_COMPONENTS = [
+		"B4body-sml-trike01",
+		"B3body-sml-buggy01",
+		"B2JeepBody",
+		"BusBody",
+		"FireBody",
+		"B1BaBaPerson01",
+		"BaBaProp",
+		"BaBaLegs",
+		"bTrikeMG",
+		"BuggyMG",
+		"BJeepMG",
+		"BusCannon",
+		"BabaFlame",
+		"BaBaMG",
+		"B2crane1",
+		"scavCrane1",
+		"B2crane2",
+		"scavCrane2",
+		"ScavSensor",
+		"Helicopter",
+		"B2RKJeepBody",
+		"B2tractor",
+		"B3bodyRKbuggy01",
+		"HeavyChopper",
+		"ScavCamperBody",
+		"ScavengerChopper",
+		"ScavIcevanBody",
+		"ScavNEXUSbody",
+		"ScavNEXUStrack",
+		"ScavTruckBody",
+		"MG1-VTOL-SCAVS",
+		"Rocket-VTOL-Pod-SCAVS",
+		"ScavNEXUSlink",
+		"BaBaCannon",
+		"BabaPitRocket",
+		"BabaPitRocketAT",
+		"BabaRocket",
+		"BTowerMG",
+		"Mortar1Mk1",
+	];
+
+	for (var i = 0, len = SCAV_COMPONENTS.length; i < len; ++i)
+	{
+		makeComponentAvailable(SCAV_COMPONENTS[i], player);
+	}
+}
+
+function cleanUnitsAndStruct()
+{
+	for (var playnum = 0; playnum < maxPlayers; playnum++)
+	{
+		enumStruct(playnum).forEach((s) =>
+		{
+			removeObject(s);
+		});
+
+		enumDroid(playnum).forEach((d) =>
+		{
+			removeObject(d);
+		});
+
+	}
+}
+
+function pushUnitsAndStruct()
+{
+	let players = [];
+	for (var playnum = 0; playnum < maxPlayers; playnum++)
+	{
+		if (playnum == AI){continue;}
+		players.push(playnum);
+	}
+	const y = getScrollLimits().y2-(getScrollLimits().y2-getScrollLimits().y)/2;
+	const ConstructorDroid = {
+		"body": "Body1REC",
+		"turrets": "Spade1Mk1",
+		"id": "ConstructorDroid",
+		"name": "Truck",
+		"propulsion": "wheeled01"
+	};
+	players.forEach((p, index) =>
+	{
+		const x = ((mapWidth-(2*BORDER))/(players.length))*(index+0.5)+BORDER;
+		addDroid(p, x, y, ConstructorDroid.name, ConstructorDroid.body, ConstructorDroid.propulsion,"","", ConstructorDroid.turrets);
+	//TODO
+	});
+
+}
+
 function inScrollLimits(obj,limits)
 {
-	if (obj.x > limits.x+4 && obj.x < limits.x2-4 && obj.y > limits.y+4 && obj.y < limits.y2-4)
+	if (obj.x > limits.x+BORDER && obj.x < limits.x2-BORDER && obj.y > limits.y+BORDER && obj.y < limits.y2-BORDER)
 	{
 		return true;
 	}
@@ -84,21 +174,23 @@ function getNumOil()
 	{
 		numOil += enumStruct(playnum, RESOURCE_EXTRACTOR).length;
 	}
+	/*
 	if (numOil > 40 * game.playnum)
 	{
 		numOil = 40 * game.playnum;
 	}
+*/
 	return numOil;
-	//	debug("oil on map", game.numOil, "players", game.playnum);
 }
 
 function getLZ()
 {
 	let limits = getScrollLimits();
+	const radius = 4;
 	let LZ= {
-		x: syncRandom(limits.x2-16)+8,
-		y: limits.y + 8,
-		radius: 4,
+		x: syncRandom(limits.x2-2*(BORDER+radius))+BORDER+radius,
+		y: limits.y + BORDER + radius,
+		radius: radius,
 	};
 	LZ.tiles = LZtile(LZ);
 	return LZ;
@@ -221,60 +313,17 @@ function addSpoter()
 		addSpotter(spotter.x, spotter.y, playnum, spotter.radius, 0, 1000);
 	}
 }
-/*
-function createWaves()
-{
-	let waves = [];
-	WAVETYPE.forEach(function (type)
-	{
-		let pauseTime = settings[type].pauseTime;
-		let count = settings.totalGameTime / pauseTime;
-		for (let i = 1; i <= count; i++)
-		{
-			let timeS = pauseTime * i * 60;
-			if (timeS < settings.protectTimeM * 60)
-			{
-				continue;
-			}
-			let budget = calcBudget(timeS + getStartTime());
-			if (type == "ROYALTANK")
-			{
-				budget.budget *= 2;
-			}
-			if (type == "ROYALVTOL")
-			{
-				budget.budget *= 1.5;
-			}
-			waves.push({
-				time: timeS,
-				type: type,
-				budget: budget.budget,
-				rang: budget.rang,
-				experience: budget.experience,
-				droids: [],
-			});
-		}
-	});
-	waves.sort((a, b) =>
-	{
-		return a.time - b.time;
-	});
-	//	debug(JSON.stringify(waves));
-	return waves;
-	//	return ([{time:360, type: ROYALTANK, {...}])//example output
-}
-*/
 
 function newWave()
 {
-	let zone =  scroll.zone;
-	zone.y -= 10; //TODO убрать константу в настройки
+	zone.y -= settings.expansion;
 	if (zone.y <0)
 	{
 		zone.y =0;
 	}
 	setScrollLimits(zone.x, zone.y, zone.x2, zone.y2);
 	giveResearch();
+	recalcLimits();
 	let budget = calcBudget(gameTime/1000 + getStartTime());
 	wave= {
 		type: "NORMAL",
@@ -309,7 +358,6 @@ function calcBudget(timeS)
 function wa_eventGameInit()
 {
 	addSpoter();
-	const zone =  scroll.zone;
 	setScrollLimits(zone.x, zone.y, zone.x2, zone.y2);
 	console(
 		[
@@ -318,12 +366,21 @@ function wa_eventGameInit()
 			"PauseTime " + game.PauseTime,
 		].join("\n")
 	);
+	cleanUnitsAndStruct();
+	pushUnitsAndStruct();
 	setTimer("scheduler", 6 * 1000);
 	scheduler();
 	setTimer("removeVtol", 11 * 1000);
 	setMissionTime(game.protectTime);
 	makeComponentAvailable("MG1Mk1", AI);
+	avalibleScavComponents(AI);
 }
+
+function recalcLimits()
+{
+//TODO
+}
+
 
 function removeVtol()
 {
