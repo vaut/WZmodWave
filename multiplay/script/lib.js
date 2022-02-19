@@ -47,13 +47,17 @@ function getRandom (arr, n)
 	return result;
 }
 
-var game = {
-	get totalTimeS()
+function getTotalTimeS()
+{
+	if (((gameTime / 1000) + getStartTime()) >= settings.timeHandicapM/60)
+	{
+		return ((gameTime / 1000) + getStartTime() - settings.timeHandicapM/60);
+	}
+	else
 	{
 		return ((gameTime / 1000) + getStartTime());
 	}
-};
-
+}
 
 function getStartTime()
 {
@@ -81,4 +85,31 @@ function getStartTime()
 		startTime = 100 * 60;
 	}
 	return startTime;
+}
+
+function getNumOil()
+{
+
+	const limits =  getScrollLimits();
+	numOil = enumFeature(ALL_PLAYERS).filter(function (e)
+	{
+		if (e.stattype == OIL_RESOURCE && inScrollLimits(e,limits)) {return true;}
+		return false;
+	}).length;
+	numOil += enumStruct(scavengerPlayer, RESOURCE_EXTRACTOR).length;
+	for (let playnum = 0; playnum < maxPlayers; playnum++)
+	{
+		numOil += enumStruct(playnum, RESOURCE_EXTRACTOR).length;
+	}
+	return numOil;
+}
+
+
+function inScrollLimits(obj,limits)
+{
+	if (obj.x > limits.x+BORDER && obj.x < limits.x2-BORDER && obj.y > limits.y+BORDER && obj.y < limits.y2-BORDER)
+	{
+		return true;
+	}
+	return false;
 }

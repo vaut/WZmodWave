@@ -1,15 +1,15 @@
 const allTemplates = includeJSON("templates.json");
 include("multiplay/script/lib.js");
+include("multiplay/script/mods/playersLimits.js");
 const settings = includeJSON("settings.json");
 
 const research = includeJSON("research.json");
 // константы типы волн
-const WAVETYPE = ["NORMAL", "ROYALTANK", "ROYALVTOL"];
+const WAVETYPE = ["NORMAL", "ROYAL"];
 var wave = {time:0, active: false };
 const BORDER = 4;
 
 const {waveDifficulty, AI} =  getWaveAI(); //num wawe AI
-game.waveDifficulty = waveDifficulty;
 var redComponents = [];
 var zone = {x:0, y:(mapHeight-settings.startHeight), x2:mapWidth, y2:mapHeight };
 
@@ -44,8 +44,8 @@ function getWaveAI()
 }
 
 //TODO remove
-game.protectTime = settings.protectTimeM * 60; //time to first attack in seconds
-game.pauseTime = settings.pauseM * 60; //pause between attacks in seconds
+settings.protectTimeM * 60; //time to first attack in seconds
+settings.pauseM * 60; //pause between attacks in seconds
 
 function avalibleScavComponents(player)
 {
@@ -96,91 +96,6 @@ function avalibleScavComponents(player)
 	{
 		makeComponentAvailable(SCAV_COMPONENTS[i], player);
 	}
-}
-
-function cleanUnitsAndStruct()
-{
-	for (var playnum = 0; playnum < maxPlayers; playnum++)
-	{
-		enumStruct(playnum).forEach((s) =>
-		{
-			removeObject(s);
-		});
-
-		enumDroid(playnum).forEach((d) =>
-		{
-			removeObject(d);
-		});
-
-	}
-}
-
-function pushUnitsAndStruct()
-{
-	let players = [];
-	for (var playnum = 0; playnum < maxPlayers; playnum++)
-	{
-		if (playnum == AI){continue;}
-		players.push(playnum);
-	}
-	const y = getScrollLimits().y2-(getScrollLimits().y2-getScrollLimits().y)/2;
-	const ConstructorDroid = {
-		"body": "Body1REC",
-		"turrets": "Spade1Mk1",
-		"id": "ConstructorDroid",
-		"name": "Truck",
-		"propulsion": "wheeled01"
-	};
-	players.forEach((p, index) =>
-	{
-		const x = ((mapWidth-(2*BORDER))/(players.length))*(index+0.5)+BORDER;
-		addDroid(p, x, y, ConstructorDroid.name, ConstructorDroid.body, ConstructorDroid.propulsion,"","", ConstructorDroid.turrets);
-	//TODO
-	});
-
-}
-
-function inScrollLimits(obj,limits)
-{
-	if (obj.x > limits.x+BORDER && obj.x < limits.x2-BORDER && obj.y > limits.y+BORDER && obj.y < limits.y2-BORDER)
-	{
-		return true;
-	}
-	return false;
-}
-
-function getNumOil()
-{
-	game.playnum = 0;
-	for (let playnum = 0; playnum < maxPlayers; playnum++)
-	{
-		if (
-			(playerData[playnum].isAI == true ||
-        playerData[playnum].isHuman == true) &&
-      enumStruct(playnum, HQ).length != 0
-		)
-		{
-			game.playnum++;
-		}
-	}
-	limits =  getScrollLimits();
-	numOil = enumFeature(ALL_PLAYERS).filter(function (e)
-	{
-		if (e.stattype == OIL_RESOURCE && inScrollLimits(e,limits)) {return true;}
-		return false;
-	}).length;
-	numOil += enumStruct(scavengerPlayer, RESOURCE_EXTRACTOR).length;
-	for (let playnum = 0; playnum < maxPlayers; playnum++)
-	{
-		numOil += enumStruct(playnum, RESOURCE_EXTRACTOR).length;
-	}
-	/*
-	if (numOil > 40 * game.playnum)
-	{
-		numOil = 40 * game.playnum;
-	}
-*/
-	return numOil;
 }
 
 function getLZ()
@@ -347,7 +262,7 @@ function calcBudget(timeS)
 	// Первый: бюджет зависит от квадрата времени
 	let A = K / (settings.doublePowerM * 60);
 	let budget = Math.round(
-		((K * timeS + A * timeS ** 2) / 2) * game.waveDifficulty
+		((K * timeS + A * timeS ** 2) / 2) * waveDifficulty
 	);
 	//Второй: опытом. При первом приближении юниты усиливаются +11% за каждый ранг.
 	//Опыт ограничен 16 рангом, вероятно. По этому делаем что бы к концу юниты были максимально злые.
@@ -361,9 +276,9 @@ function wa_eventGameInit()
 	setScrollLimits(zone.x, zone.y, zone.x2, zone.y2);
 	console(
 		[
-			"difficulty " + game.wavedifficulty,
-			"protectTime " + game.protectTime,
-			"PauseTime " + game.PauseTime,
+			"difficulty " + waveDifficulty,
+			"protectTime " + settings.protectTime,
+			"PauseTime " + settings.PauseTime,
 		].join("\n")
 	);
 	cleanUnitsAndStruct();
@@ -371,7 +286,7 @@ function wa_eventGameInit()
 	setTimer("scheduler", 6 * 1000);
 	scheduler();
 	setTimer("removeVtol", 11 * 1000);
-	setMissionTime(game.protectTime);
+	setMissionTime(settings.protectTime);
 	makeComponentAvailable("MG1Mk1", AI);
 	avalibleScavComponents(AI);
 }
@@ -384,15 +299,6 @@ function recalcLimits()
 
 function removeVtol()
 {
-	/*
-	game.listWaves
-		.filter((wave) => {
-			return wave.budget <= 0;
-		})
-		.forEach((wave) => {
-      			debug("прибераем втол"); //TODO
-		});
-*/
 	enumDroid(AI, "DROID_WEAPON")
 		.filter((d) =>
 		{
@@ -444,78 +350,76 @@ function landing()
 
 	debug("units landed", wave.droids.length, wave.type);
 	console("units landed", wave.droids.length, wave.type);
+}
 
-	function getTemplates(timeS, type)
+function getTemplates(timeS, type)
+{
+	avalibleTemplate = [];
+	redComponents = getRedComponents(timeS);
+	for (var key in allTemplates)
 	{
-		avalibleTemplate = [];
-		redComponents = getRedComponents(timeS);
-		for (var key in allTemplates)
+		if (!allTemplates[key].weapons)
 		{
-			if (!allTemplates[key].weapons)
-			{
-				continue;
-			}
-			if (
-				makeTemplate(
-					AI,
-					key,
-					allTemplates[key].body,
-					allTemplates[key].propulsion,
-					"",
-					allTemplates[key].weapons
-				) !== null && //у makeTemplate изменен синтаксис в мастере. Не совместимо с 3.4.1
+			continue;
+		}
+		if (
+			makeTemplate(
+				AI,
+				key,
+				allTemplates[key].body,
+				allTemplates[key].propulsion,
+				"",
+				allTemplates[key].weapons
+			) !== null && //у makeTemplate изменен синтаксис в мастере. Не совместимо с 3.4.1
         allTemplates[key].propulsion != "wheeled01" &&
-        ((type == "ROYALTANK" && allTemplates[key].propulsion == "tracked01") ||
-          (type == "ROYALVTOL" && allTemplates[key].propulsion == "V-Tol") ||
-          type == "NORMAL") &&
         allTemplates[key].weapons[0] != "CommandTurret1" &&
         allTemplates[key].weapons[0] != "MG1Mk1" &&
         !redComponents.includes(allTemplates[key].weapons[0])
-			)
-			{
-				avalibleTemplate.push(key);
-			}
-		}
-		if (avalibleTemplate.length == 0)
+		)
 		{
-			avalibleTemplate.push("ViperMG01Wheels");
-		}
-		return avalibleTemplate;
-
-		function getRedComponents(timeS)
-		{
-			redComponents = [];
-			for (var tech in allRes)
-			{
-				if (allRes[tech] <= timeS && research[tech].redComponents)
-				{
-					redComponents = redComponents.concat(research[tech].redComponents);
-				}
-			}
-			return redComponents;
+			avalibleTemplate.push(key);
 		}
 	}
-	function setDroidsName()
+	if (avalibleTemplate.length == 0)
 	{
-		wave.droidsName = [];
+		avalibleTemplate.push("ViperMG01Wheels");
+	}
+	return avalibleTemplate;
 
-		for (let i = 0; i < wave.LZ.tiles.length; i++)
+	function getRedComponents(timeS)
+	{
+		redComponents = [];
+		for (var tech in allRes)
 		{
-			let droidName =
+			if (allRes[tech] <= timeS && research[tech].redComponents)
+			{
+				redComponents = redComponents.concat(research[tech].redComponents);
+			}
+		}
+		return redComponents;
+	}
+}
+function setDroidsName()
+{
+	wave.droidsName = [];
+
+	for (let i = 0; i < wave.LZ.tiles.length; i++)
+	{
+		let droidName =
         wave.templates[syncRandom(wave.templates.length)];
-			wave.droidsName.push(droidName);
-		}
+		wave.droidsName.push(droidName);
 	}
+}
 
-	function pushUnits()
+function pushUnits()
+{
+	let tiles = Object.assign([], wave.LZ.tiles);
+	hackNetOff();
+	while (wave.budget > 0 && tiles.length > 0)
 	{
-		let tiles = Object.assign([], wave.LZ.tiles);
-		hackNetOff();
-		while (wave.budget > 0 && tiles.length > 0)
-		{
-			let droidName = wave.droidsName.shift();
-			let pos = tiles.shift();
-			/*
+		let droidName = wave.droidsName.shift();
+		let pos = tiles.shift();
+		/*
 			if (allTemplates[droidName].propulsion == "V-Tol")
 			{
 				let borders = [
@@ -528,36 +432,36 @@ function landing()
 				pos = borders.shift();
 			}
 */
-			let unit = addDroid(
-				AI,
-				pos.x,
-				pos.y,
-				droidName,
-				allTemplates[droidName].body,
-				allTemplates[droidName].propulsion,
-				"",
-				"",
-				allTemplates[droidName].weapons
-			);
-			setDroidExperience(unit, wave.experience);
-			wave.budget -= makeTemplate(
-				AI,
-				droidName,
-				allTemplates[droidName].body,
-				allTemplates[droidName].propulsion,
-				"",
-				allTemplates[droidName].weapons
-			).power;
-			wave.droids.push(unit);
-		}
-		hackNetOn();
-		playSound("pcv395.ogg", wave.LZ.x, wave.LZ.y, 0);
+		let unit = addDroid(
+			AI,
+			pos.x,
+			pos.y,
+			droidName,
+			allTemplates[droidName].body,
+			allTemplates[droidName].propulsion,
+			"",
+			"",
+			allTemplates[droidName].weapons
+		);
+		setDroidExperience(unit, wave.experience);
+		wave.budget -= makeTemplate(
+			AI,
+			droidName,
+			allTemplates[droidName].body,
+			allTemplates[droidName].propulsion,
+			"",
+			allTemplates[droidName].weapons
+		).power;
+		wave.droids.push(unit);
 	}
+	hackNetOn();
+	playSound("pcv395.ogg", wave.LZ.x, wave.LZ.y, 0);
 }
+
 
 function giveResearch()
 {
 	hackNetOff();
-	completeResearchOnTime(game.totalTimeS, AI);
+	completeResearchOnTime(getTotalTimeS(), AI);
 	hackNetOn();
 }

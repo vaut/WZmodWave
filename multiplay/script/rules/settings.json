@@ -6,6 +6,5 @@
 	"Kpower" : 0.25,
 	"doublePowerM": 20,
 	"pauseM": 2,
-	"ROYALTANK":{"n": 3},
-	"ROYALVTOL":{"n": 5}
+	"timeHandicapM": 0.5
 }
