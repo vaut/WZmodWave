@@ -282,11 +282,11 @@ function wa_eventGameInit()
 		].join("\n")
 	);
 	cleanUnitsAndStruct();
-	pushUnitsAndStruct();
+	queue("pushUnitsAndStruct");
 	setTimer("scheduler", 6 * 1000);
 	scheduler();
 	setTimer("removeVtol", 11 * 1000);
-	setMissionTime(settings.protectTime);
+	setMissionTime(settings.protectTimeM*60);
 	makeComponentAvailable("MG1Mk1", AI);
 	avalibleScavComponents(AI);
 }
@@ -347,9 +347,6 @@ function landing()
 	wave.LZ = getLZ();
 	setDroidsName();
 	pushUnits();
-
-	debug("units landed", wave.droids.length, wave.type);
-	console("units landed", wave.droids.length, wave.type);
 }
 
 function getTemplates(timeS, type)
@@ -455,6 +452,12 @@ function pushUnits()
 		wave.droids.push(unit);
 	}
 	hackNetOn();
+	if (wave.budget <= 0)
+	{
+		debug("units landed", wave.droids.length, wave.type);
+		console("units landed", wave.droids.length, wave.type);
+		setMissionTime(-1);
+	}
 	playSound("pcv395.ogg", wave.LZ.x, wave.LZ.y, 0);
 }
 
