@@ -44,7 +44,6 @@ function pushUnitsAndStruct()
 	for (var playnum = 0; playnum < maxPlayers; playnum++)
 	{
 		if (playnum == AI){continue;}
-		players.push(playnum);
 		if (isSpectator(playnum))
 		{
 			continue; // skip slots that start as spectators
@@ -54,6 +53,7 @@ function pushUnitsAndStruct()
 			// not an allocated slot (is closed or no player / AI)
 			continue;
 		}
+		players.push(playnum);
 	}
 	const scrollLimits = getScrollLimits();
 	const y = scrollLimits.y2-(scrollLimits.y2-scrollLimits.y)/2;
@@ -65,7 +65,7 @@ function pushUnitsAndStruct()
 		"propulsion": "wheeled01"
 	};
 	const numOil = getNumOil();
-	const STRUCTS = ["A0CommandCentre","A0LightFactory","A0PowerGenerator","A0ResearchFacility"];
+	const STRUCTS = ["A0PowerGenerator","A0ResearchFacility","A0ResearchFacility","A0LightFactory","A0PowerGenerator","A0LightFactory"];
 	players.forEach((p, index) =>
 	{
 		const x = ((mapWidth-(2*BORDER))/(players.length))*(index+0.5)+BORDER;
@@ -95,7 +95,6 @@ function recalcLimits()
 	for (var playnum = 0; playnum < maxPlayers; playnum++)
 	{
 		if (playnum == AI){continue;}
-		players.push(playnum);
 		if (isSpectator(playnum))
 		{
 			continue; // skip slots that start as spectators
@@ -105,6 +104,7 @@ function recalcLimits()
 			// not an allocated slot (is closed or no player / AI)
 			continue;
 		}
+		players.push(playnum);
 	}
 	const numOil = getNumOil();
 	let K = (numOil+20)*1.25/players.length/defoultNumOil;
