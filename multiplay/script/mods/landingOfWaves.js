@@ -7,6 +7,7 @@ const research = includeJSON("research.json");
 // константы типы волн
 const WAVETYPE = ["NORMAL", "ROYAL"];
 var wave = {time:0, active: false };
+var numberWave = 0;
 const BORDER = 4;
 
 const {waveDifficulty, AI} =  getWaveAI(); //num wawe AI
@@ -282,8 +283,8 @@ function wa_eventGameInit()
 		].join("\n")
 	);
 	cleanUnitsAndStruct();
-	queue("pushUnitsAndStruct");
-	queue("recalcLimits");
+	queue("recalcLimits",100);
+	queue("pushUnitsAndStruct",200);
 	setTimer("scheduler", 6 * 1000);
 	scheduler();
 	setTimer("removeVtol", 11 * 1000);
@@ -449,8 +450,9 @@ function pushUnits()
 	hackNetOn();
 	if (wave.budget <= 0)
 	{
-		debug("units landed", wave.droids.length, wave.type);
-		console("units landed", wave.droids.length, wave.type);
+		numberWave++;
+		debug("Wave number", numberWave+".", "Units landed", wave.droids.length+".");
+		console("Wave number",numberWave+".", "Units landed", wave.droids.length+".");
 		setMissionTime(-1);
 	}
 	playSound("pcv395.ogg", wave.LZ.x, wave.LZ.y, 0);

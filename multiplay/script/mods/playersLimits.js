@@ -19,6 +19,8 @@ const defoultsStructLimit =
 	"A0VtolPad": 50
 };
 
+const defoultSTRUCTS = ["A0PowerGenerator","A0ResearchFacility","A0LightFactory"];
+const defoultNumConstruct = 4;
 const defoultNumOil = 40;
 
 function cleanUnitsAndStruct()
@@ -65,17 +67,26 @@ function pushUnitsAndStruct()
 		"propulsion": "wheeled01"
 	};
 	const numOil = getNumOil();
-	const STRUCTS = ["A0PowerGenerator","A0ResearchFacility","A0ResearchFacility","A0LightFactory","A0PowerGenerator","A0LightFactory"];
+	const K=(numOil)/players.length/defoultNumOil;
+	const NumConstruct = Math.ceil(K*defoultNumConstruct);
+	const NumStruct =  Math.ceil(K*5);
 	players.forEach((p, index) =>
 	{
+		let constructor;
 		const x = ((mapWidth-(2*BORDER))/(players.length))*(index+0.5)+BORDER;
 		const HQ = {x:x,y:y};
-		const constructor = addDroid(p, HQ.x, HQ.y, ConstructorDroid.name, ConstructorDroid.body, ConstructorDroid.propulsion,"","", ConstructorDroid.turrets);
-		STRUCTS.forEach((s) =>
+		for (let i = 0; i < NumConstruct; i++)
 		{
-			const tile = pickStructLocation(constructor, s, HQ.x, HQ.y);
-			addStructure(s, p, tile.x*128, tile.y*128);
-		});
+			constructor = addDroid(p, HQ.x, HQ.y, ConstructorDroid.name, ConstructorDroid.body, ConstructorDroid.propulsion,"","", ConstructorDroid.turrets);
+		}
+		for (let i = 0; i < NumStruct; i++)
+		{
+			defoultSTRUCTS.forEach((s) =>
+			{
+				const tile = pickStructLocation(constructor, s, HQ.x, HQ.y);
+				addStructure(s, p, tile.x*128, tile.y*128);
+			});
+		}
 	});
 	if (!isSpectator(-1))
 	{
@@ -87,7 +98,6 @@ function pushUnitsAndStruct()
 		queue("reticuleDesignCheck");
 	}
 }
-
 
 function recalcLimits()
 {
@@ -122,5 +132,4 @@ function recalcLimits()
 			setStructureLimits(struct, Math.ceil(defoultsStructLimit[struct]*K), p);
 		}
 	});
-
 }
