@@ -57,6 +57,7 @@ function pushUnitsAndStruct()
 		}
 		players.push(playnum);
 	}
+	players.sort((a,b)=> {return (playerData[a].position - playerData[b].position);});
 	const scrollLimits = getScrollLimits();
 	const y = scrollLimits.y2-(scrollLimits.y2-scrollLimits.y)/2;
 	const ConstructorDroid = {
@@ -75,6 +76,7 @@ function pushUnitsAndStruct()
 		let constructor;
 		const x = ((mapWidth-(2*BORDER))/(players.length))*(index+0.5)+BORDER;
 		const HQ = {x:x,y:y};
+		if (me == p) {centreView(HQ.x, HQ.y);}
 		for (let i = 0; i < NumConstruct; i++)
 		{
 			constructor = addDroid(p, HQ.x, HQ.y, ConstructorDroid.name, ConstructorDroid.body, ConstructorDroid.propulsion,"","", ConstructorDroid.turrets);
