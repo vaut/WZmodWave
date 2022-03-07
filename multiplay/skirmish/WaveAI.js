@@ -282,8 +282,8 @@ function eventGameInit()
 {
 	setTimer("ordersUpdate", 100);
 	setTimer("groupsManagement", 1000);
-	setTimer("seconTargetsUpdate", 5 * 1000);
-	setTimer("mainTargetsUpdate", 100 * 1000);
+	setTimer("seconTargetsUpdate", 1000);
+	setTimer("mainTargetsUpdate", 10 * 1000);
 }
 
 function stopGame()
@@ -321,7 +321,15 @@ function ordersUpdate()
 		.filter((group) =>
 		{
 			return group.count != 0;
-			//		return (Math.abs((group.grupnum % 10) - (gametime % 1000)/100) < 1); //обязательно проверить как работает
+		})
+		.filter((group) =>
+		{
+			if (group.constructor.name == "Vtol") {return true;}
+			if (group.constructor.name == "Speed")
+			{
+				return ((group.num % 2) == Math.round(gameTime/100)%2);
+			}
+			return ((group.num % 4) == Math.round(gameTime/100+1)%4);
 		})
 		.forEach(function (group)
 		{
@@ -387,6 +395,10 @@ function seconTargetsUpdate()
 		{
 			return group.count != 0;
 		})
+		.filter((group) =>
+		{
+			return ((group.num % 5) == Math.round(gameTime/1000) % 5);
+		})
 		.forEach((group) =>
 		{
 			group.updateSecondTargets();
@@ -399,6 +411,10 @@ function mainTargetsUpdate()
 		.filter((group) =>
 		{
 			return group.count != 0;
+		})
+		.filter((group) =>
+		{
+			return ((group.num % 10) == Math.round(gameTime/1000/10) % 10);
 		})
 		.forEach((group) =>
 		{
