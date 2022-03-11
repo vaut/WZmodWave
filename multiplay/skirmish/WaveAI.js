@@ -294,27 +294,6 @@ function stopGame()
 	removeTimer("mainTargetsUpdate");
 }
 
-function eventDroidIdle(droid)
-{
-	if (droid.player !== me)
-	{
-		return;
-	}
-	groupsManagement();
-	let groupNum = droid.group;
-	if (groupNum == null)
-	{
-		return;
-	}
-	let group = groups
-		.filter(function (group)
-		{
-			return group.num == groupNum;
-		})
-		.shift();
-	group.orderUpdate();
-}
-
 function ordersUpdate()
 {
 	groups
