@@ -36,11 +36,6 @@ in some difficult-to-access areas, so choose accordingly.
 Also, all North side of the map should be suitable for construction.
 The map must not contain any sharp cliffs.
 
-If there are no marked areas in the map, landings are made to the center of the map.
-The script considers any marked zones as drop-off points.
-NOTE The game accepts zones only in the `json` format. The FLAME card editor saves them in `ini` format.
-You can change some parameters in this file: `/multiplay/script/rules/settings.json`
-
 ### Tuning
 All parameters are in `multiplay/script/rules/settings.json`:
 
