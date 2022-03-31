@@ -12,7 +12,6 @@ const BORDER = 4;
 
 const {waveDifficulty, AI} =  getWaveAI(); //num wawe AI
 var redComponents = [];
-var zone = {x:0, y:(mapHeight-settings.startHeight), x2:mapWidth, y2:mapHeight };
 
 namespace("wa_");
 
@@ -43,10 +42,6 @@ function getWaveAI()
 	}
 	return {AI:AI, waveDifficulty: waveDifficulty};
 }
-
-//TODO remove
-settings.protectTimeM * 60; //time to first attack in seconds
-settings.pauseM * 60; //pause between attacks in seconds
 
 function avalibleScavComponents(player)
 {
@@ -232,6 +227,7 @@ function addSpoter()
 
 function newWave()
 {
+	let zone = getScrollLimits();
 	zone.y -= settings.expansion;
 	if (zone.y <0)
 	{
@@ -274,7 +270,8 @@ function calcBudget(timeS)
 function wa_eventGameInit()
 {
 	addSpoter();
-	setScrollLimits(zone.x, zone.y, zone.x2, zone.y2);
+	const startZone = {x:0, y:(mapHeight-settings.startHeight), x2:mapWidth, y2:mapHeight };
+	setScrollLimits(startZone.x, startZone.y, startZone.x2, startZone.y2);
 	console(
 		[
 			"difficulty " + waveDifficulty,
