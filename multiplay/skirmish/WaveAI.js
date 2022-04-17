@@ -1,6 +1,9 @@
 include("multiplay/script/lib.js");
 include("multiplay/script/astar.js");
 var groups = [];
+var unusedGroup = newGroup();
+
+
 
 class Group
 {
@@ -91,6 +94,11 @@ class Group
 
 	updateMainTarget()
 	{
+		if (noOpponents())
+		{
+			stopGame();
+			return null;
+		}
 		let targets = enumMainEnemyObjects();
 		if (targets.length == 0)
 		{
@@ -110,6 +118,11 @@ class Group
 
 	updateSecondTargets()
 	{
+		if (noOpponents())
+		{
+			stopGame();
+			return null;
+		}
 		if (
 			!this.mainTarget ||
       !getObject(
@@ -150,7 +163,7 @@ class Group
 
 	get secondTarget()
 	{
-		if (enumMainEnemyObjects().length == 0)
+		if (noOpponents())
 		{
 			stopGame();
 			return null;
@@ -205,6 +218,15 @@ class Group
 			}
 		});
 	}
+
+	toUnused()
+	{
+		this.droids.forEach((o) =>
+		{
+			groupAdd(unusedGroup, o);
+		});
+	}
+
 }
 
 class Vtol extends Group
@@ -288,14 +310,22 @@ function eventGameInit()
 
 function stopGame()
 {
+	groups.forEach((group) => group.toUnused());
 	removeTimer("ordersUpdate");
 	removeTimer("groupsManagement");
 	removeTimer("seconTargetsUpdate");
 	removeTimer("mainTargetsUpdate");
 }
 
+
+
 function ordersUpdate()
 {
+	if (noOpponents())
+	{
+		stopGame();
+		return null;
+	}
 	groups
 		.filter((group) =>
 		{
@@ -318,6 +348,11 @@ function ordersUpdate()
 
 function groupsManagement()
 {
+	if (noOpponents())
+	{
+		stopGame();
+		return null;
+	}
 	groups = groups.filter(function (group)
 	{
 		return group.count != 0;
@@ -369,6 +404,11 @@ function groupsManagement()
 
 function seconTargetsUpdate()
 {
+	if (noOpponents())
+	{
+		stopGame();
+		return null;
+	}
 	groups
 		.filter((group) =>
 		{
@@ -386,6 +426,11 @@ function seconTargetsUpdate()
 
 function mainTargetsUpdate()
 {
+	if (noOpponents())
+	{
+		stopGame();
+		return null;
+	}
 	groups
 		.filter((group) =>
 		{
@@ -399,6 +444,11 @@ function mainTargetsUpdate()
 		{
 			group.updateMainTarget();
 		});
+}
+
+function noOpponents()
+{
+	return (enumMainEnemyObjects().length == 0);
 }
 
 function enumEnemyObjects()
