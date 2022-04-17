@@ -4,7 +4,7 @@
 	"expansion": 10,
 	"startHeight": 35,
 	"Kpower" : 0.25,
-	"doublePowerM": 20,
+	"doublePowerM": 40,
 	"pauseM": 2,
 	"timeHandicapM": 0.5
 }

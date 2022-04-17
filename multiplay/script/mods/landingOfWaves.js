@@ -227,13 +227,7 @@ function addSpoter()
 
 function newWave()
 {
-	let zone = getScrollLimits();
-	zone.y -= settings.expansion;
-	if (zone.y <0)
-	{
-		zone.y =0;
-	}
-	setScrollLimits(zone.x, zone.y, zone.x2, zone.y2);
+
 	giveResearch();
 	recalcLimits();
 	let budget = calcBudget(gameTime/1000 + getStartTime());
@@ -270,8 +264,6 @@ function calcBudget(timeS)
 function wa_eventGameInit()
 {
 	addSpoter();
-	const startZone = {x:0, y:(mapHeight-settings.startHeight), x2:mapWidth, y2:mapHeight };
-	setScrollLimits(startZone.x, startZone.y, startZone.x2, startZone.y2);
 	console(
 		[
 			"difficulty " + waveDifficulty,
@@ -312,6 +304,7 @@ function scheduler()
 	wave.droids = enumDroid(AI, "DROID_WEAPON");
 	if (wave.droids.length == 0 && wave.active == true)
 	{
+		expansion();
 		wave.time = gameTime/1000 + settings.pauseM * 60;
 		setMissionTime(settings.pauseM*60);
 		wave.active = false;
@@ -325,6 +318,25 @@ function scheduler()
 		landing();
 	}
 }
+
+
+function expansion()
+{
+	let zone = getScrollLimits();
+	zone.y += settings.expansion;
+	if (zone.y > mapHeight)
+	{
+		zone.y = mapHeight;
+	}
+	obj = enumArea(0, 0, mapWidth, zone.y, ALL_PLAYERS, false);
+	obj.forEach((o) =>
+	{
+		removeObject(o);
+	});
+
+	setScrollLimits(zone.x, zone.y, zone.x2, zone.y2);
+}
+
 
 function landing()
 {

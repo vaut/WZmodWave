@@ -276,7 +276,7 @@ function isMapFullyOpen()
 		"y": 0,
 		"y2": mapHeight
 	};
-	if (limits.y === 0)
+	if (limits.y >= mapHeight-30)
 	{
 		return true;
 	}
