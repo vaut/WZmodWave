@@ -448,7 +448,18 @@ function mainTargetsUpdate()
 
 function noOpponents()
 {
-	return (enumMainEnemyObjects().length == 0);
+	if (gameTime<1000){return false;}
+	for (let playnum = 0; playnum < maxPlayers; playnum++)
+	{
+		if (playnum == me || allianceExistsBetween(me, playnum))
+		{
+			continue;
+		}
+		if (enumStruct(playnum).length > 0){return false;}
+		if (enumDroid(playnum).length > 0){return false;}
+	}
+	debug("true");
+	return (true);
 }
 
 function enumEnemyObjects()
