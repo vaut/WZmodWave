@@ -168,27 +168,22 @@ class Group
 			stopGame();
 			return null;
 		}
-		while (
-			!(
-				this.secondTargets[0] &&
-        getObject(
-        	this.secondTargets[0].type,
-        	this.secondTargets[0].player,
-        	this.secondTargets[0].id
-        )
-			)
-		)
+
+		// We find in all secondary targets the first still living unit. And we return it
+		let theTarget = this.secondTargets.find( (o) =>
 		{
-			if (this.secondTargets.length == 0)
-			{
-				this.updateSecondTargets();
-			}
-			else
-			{
-				this.secondTargets.shift();
-			}
+			return ((o) && getObject(o.type, o.player, o.id));
+		});
+		if (theTarget != undefined)
+		{
+			return theTarget;
 		}
-		return this.secondTargets[0];
+
+		// If we have reached here, then there are no living targets. We get a new list of targets.
+		// And return the first target from it.
+		this.updateSecondTargets();
+		theTarget = this.secondTargets.shift();
+		return theTarget;
 	}
 
 	orderUpdate()
@@ -448,17 +443,14 @@ function mainTargetsUpdate()
 
 function noOpponents()
 {
-	if (gameTime<1000){return false;}
-	for (let playnum = 0; playnum < maxPlayers; playnum++)
+	if (gameTime<1000)
 	{
-		if (playnum == me || allianceExistsBetween(me, playnum))
-		{
-			continue;
-		}
-		if (enumStruct(playnum).length > 0){return false;}
-		if (enumDroid(playnum).length > 0){return false;}
+		return false;
 	}
-	debug("true");
+	if (countDroid(DROID_ANY, ENEMIES) !== 0 && countStruct(DROID_ANY, ENEMIES) !== 0)
+	{
+		return false;
+	}
 	return (true);
 }
 
