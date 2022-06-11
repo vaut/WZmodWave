@@ -79,7 +79,6 @@ function pushUnitsAndStruct()
 		const A = 2*Math.PI*index/players.length;
 		const XP = (Math.sin(A)*R)+x;
 		const YP = (Math.cos(A)*R)+y;
-		debug(A, R, XP, YP);
 		const HQ = {x:XP,y:YP};
 		if (me == p) {centreView(HQ.x, HQ.y);}
 		for (let i = 0; i < NumConstruct; i++)
@@ -126,7 +125,6 @@ function recalcLimits()
 	const numOil = getNumOil();
 	let K = (numOil+20)*1.25/players.length/defoultNumOil;
 	if (K < 0.5) {K =0.5;}
-	debug(K);
 	players.forEach((p, index) =>
 	{
 

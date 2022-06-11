@@ -12,6 +12,7 @@ const BORDER = 4;
 
 const {waveDifficulty, AI} =  getWaveAI(); //num wawe AI
 var redComponents = [];
+var newZone ={};
 
 namespace("wa_");
 
@@ -96,11 +97,10 @@ function avalibleScavComponents(player)
 
 function getLZ()
 {
-	let limits = getScrollLimits();
 	const radius = 4;
 	let LZ= {
-		x: syncRandom(limits.x2-2*(BORDER+radius))+BORDER+radius,
-		y: limits.y + BORDER + radius,
+		x: syncRandom(newZone.x2-newZone.x-radius*2-BORDER)+radius+newZone.x+BORDER/2,
+		y: syncRandom(newZone.y2-newZone.y-radius*2-BORDER)+radius+newZone.y+BORDER/2,
 		radius: radius,
 	};
 	LZ.tiles = LZtile(LZ);
@@ -227,16 +227,53 @@ function addSpoter()
 
 function newWave()
 {
+
+
 	let zone = getScrollLimits();
-	zone.y -= settings.expansion;
-	if (zone.y <0)
+	if (numberWave % 4 == 0)
 	{
-		zone.y =0;
+		zone.y -= settings.expansion;
+		if (zone.y <0)
+		{
+			zone.y =0;
+		}
+		newZone= {x:zone.x, y:zone.y, x2:zone.x2, y2:zone.y+settings.expansion};
+	}
+
+	if (numberWave % 4 == 1)
+	{
+		zone.x -= settings.expansion;
+		if (zone.x <0)
+		{
+			zone.x =0;
+		}
+		newZone= {x:zone.x, y:zone.y, x2:zone.x+settings.expansion, y2:zone.y2};
+	}
+
+	if (numberWave % 4 == 2)
+	{
+		zone.y2 += settings.expansion;
+		if (zone.y2 <0)
+		{
+			zone.y2 =0;
+		}
+		newZone= {x:zone.x, y:zone.y2-settings.expansion, x2:zone.x2, y2:zone.y2};
+	}
+
+	if (numberWave % 4 == 3)
+	{
+		zone.x2 += settings.expansion;
+		if (zone.x2 <0)
+		{
+			zone.x2 =0;
+		}
+		newZone= {x:zone.x2-settings.expansion, y:zone.y, x2:zone.x2, y2:zone.y2};
 	}
 	setScrollLimits(zone.x, zone.y, zone.x2, zone.y2);
+
 	giveResearch();
 	recalcLimits();
-	let budget = calcBudget(gameTime/1000 + getStartTime());
+	let budget = calcBudget(getTotalTimeS());
 	wave= {
 		type: "NORMAL",
 		budget: budget.budget,
@@ -251,7 +288,6 @@ function newWave()
 
 function calcBudget(timeS)
 {
-	timeS = timeS - settings.protectTimeM*60/3;
 	let K = getNumOil() * settings.Kpower;
 	// Игрок по мере игры получает апы на ген, что проиводит к росуту доступных ресурсов.
 	// При первом приблежении вторая производная энергии по времени прямая с увеличением в два раза за 20 минут.
