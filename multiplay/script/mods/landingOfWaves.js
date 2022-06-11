@@ -270,7 +270,7 @@ function calcBudget(timeS)
 function wa_eventGameInit()
 {
 	addSpoter();
-	const startZone = {x:0, y:(mapHeight-settings.startHeight), x2:mapWidth, y2:mapHeight };
+	const startZone = {x:(mapWidth-settings.startHeight)/2, y:(mapHeight-settings.startHeight)/2, x2:(mapWidth+settings.startHeight)/2, y2:(mapHeight+settings.startHeight)/2 };
 	setScrollLimits(startZone.x, startZone.y, startZone.x2, startZone.y2);
 	console(
 		[

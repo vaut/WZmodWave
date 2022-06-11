@@ -59,7 +59,8 @@ function pushUnitsAndStruct()
 	}
 	players.sort((a,b)=> {return (playerData[a].position - playerData[b].position);});
 	const scrollLimits = getScrollLimits();
-	const y = scrollLimits.y2-(scrollLimits.y2-scrollLimits.y)/2;
+	const y = mapWidth/2;
+	const x = mapHeight/2;
 	const ConstructorDroid = {
 		"body": "Body1REC",
 		"turrets": "Spade1Mk1",
@@ -71,11 +72,15 @@ function pushUnitsAndStruct()
 	const K=(numOil)/players.length/defoultNumOil;
 	const NumConstruct = Math.ceil(K*defoultNumConstruct);
 	const NumStruct =  Math.ceil(K*5);
+	const R=(scrollLimits.x2-scrollLimits.x)/3;
 	players.forEach((p, index) =>
 	{
 		let constructor;
-		const x = ((mapWidth-(2*BORDER))/(players.length))*(index+0.5)+BORDER;
-		const HQ = {x:x,y:y};
+		const A = 2*Math.PI*index/players.length;
+		const XP = (Math.sin(A)*R)+x;
+		const YP = (Math.cos(A)*R)+y;
+		debug(A, R, XP, YP);
+		const HQ = {x:XP,y:YP};
 		if (me == p) {centreView(HQ.x, HQ.y);}
 		for (let i = 0; i < NumConstruct; i++)
 		{
