@@ -1,3 +1,4 @@
+include("multiplay/script/lib.js");
 const defoultUnitsLimits =
 {
 	[DROID_ANY]: 150,
@@ -22,6 +23,29 @@ const defoultsStructLimit =
 const defoultSTRUCTS = ["A0PowerGenerator","A0ResearchFacility","A0LightFactory"];
 const defoultNumConstruct = 4;
 const defoultNumOil = 40;
+
+namespace("wa_players_");
+
+function wa_players_eventGameInit()
+{
+	addSpoter();
+	cleanUnitsAndStruct();
+	queue("recalcLimits",100);
+	queue("pushUnitsAndStruct",200);
+	setTimer("recalcLimits", 30*1000);
+}
+
+function addSpoter()
+{
+	const x = mapWidth / 2;
+	const y = mapHeight / 2;
+	const radius = (Math.sqrt(mapWidth * mapWidth + mapHeight * mapHeight) / 2) * 128;
+	for (let playnum = 0; playnum < maxPlayers; playnum++)
+	{
+		addSpotter(x, y, playnum, radius, 0, 1000);
+	}
+}
+
 
 function cleanUnitsAndStruct()
 {

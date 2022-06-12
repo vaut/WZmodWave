@@ -1,20 +1,20 @@
 const allTemplates = includeJSON("templates.json");
 include("multiplay/script/lib.js");
-include("multiplay/script/mods/playersLimits.js");
+include("multiplay/script/mods/AItechAndComponents.js");
 const settings = includeJSON("settings.json");
-
 const research = includeJSON("research.json");
+
+namespace("wa_");
+
 // константы типы волн
 const WAVETYPE = ["NORMAL", "ROYAL"];
 var wave = {time:0, active: false };
 var numberWave = 0;
 const BORDER = 4;
+const LZRADIUS = 4;
 
 const {waveDifficulty, AI} =  getWaveAI(); //num wawe AI
-var redComponents = [];
-var newZone ={};
 
-namespace("wa_");
 
 function getWaveAI()
 {
@@ -44,64 +44,88 @@ function getWaveAI()
 	return {AI:AI, waveDifficulty: waveDifficulty};
 }
 
-function avalibleScavComponents(player)
+
+function wa_eventGameInit()
 {
+	const {x, y, x2, y2} = {x:(mapWidth-settings.startHeight)/2, y:(mapHeight-settings.startHeight)/2, x2:(mapWidth+settings.startHeight)/2, y2:(mapHeight+settings.startHeight)/2 };
+	setScrollLimits(x, y, x2, y2);
+	console(
+		[
+			"difficulty " + waveDifficulty,
+			"protectTime " + settings.protectTime,
+			"PauseTime " + settings.PauseTime,
+		].join("\n")
+	);
+	setTimer("scheduler", 32 * 1000);
+	scheduler();
+	setTimer("removeVtol", 11 * 1000);
+	setMissionTime(settings.protectTimeM*60);
+	makeComponentAvailable("MG1Mk1", AI);
+	avalibleScavComponents(AI);
+}
 
-	const SCAV_COMPONENTS = [
-		"B4body-sml-trike01",
-		"B3body-sml-buggy01",
-		"B2JeepBody",
-		"BusBody",
-		"FireBody",
-		"B1BaBaPerson01",
-		"BaBaProp",
-		"BaBaLegs",
-		"bTrikeMG",
-		"BuggyMG",
-		"BJeepMG",
-		"BusCannon",
-		"BabaFlame",
-		"BaBaMG",
-		"B2crane1",
-		"scavCrane1",
-		"B2crane2",
-		"scavCrane2",
-		"ScavSensor",
-		"Helicopter",
-		"B2RKJeepBody",
-		"B2tractor",
-		"B3bodyRKbuggy01",
-		"HeavyChopper",
-		"ScavCamperBody",
-		"ScavengerChopper",
-		"ScavIcevanBody",
-		"ScavNEXUSbody",
-		"ScavNEXUStrack",
-		"ScavTruckBody",
-		"MG1-VTOL-SCAVS",
-		"Rocket-VTOL-Pod-SCAVS",
-		"ScavNEXUSlink",
-		"BaBaCannon",
-		"BabaPitRocket",
-		"BabaPitRocketAT",
-		"BabaRocket",
-		"BTowerMG",
-		"Mortar1Mk1",
-	];
-
-	for (var i = 0, len = SCAV_COMPONENTS.length; i < len; ++i)
+function scheduler()
+{
+	if (settings.protectTimeM *60 > gameTime / 1000)
 	{
-		makeComponentAvailable(SCAV_COMPONENTS[i], player);
+		return;
 	}
+	wave.droids = enumDroid(AI, "DROID_WEAPON");
+	if (wave.droids.length == 0 && wave.active == true)
+	{
+		wave.time = gameTime/1000 + settings.pauseM * 60;
+		setMissionTime(settings.pauseM*60);
+		wave.active = false;
+	}
+ 	if (wave.time <= gameTime/1000)
+	{
+		if (wave.active == false)
+		{
+			newWave();
+		}
+		landing();
+	}
+}
+
+function removeVtol()
+{
+	enumDroid(AI, "DROID_WEAPON")
+		.filter((d) =>
+		{
+			return d.isVTOL && d.weapons[0].armed < 1;
+		})
+		.forEach((v) =>
+		{
+			removeObject(v);
+		});
+}
+
+
+
+function landing()
+{
+	if (wave.budget <= 0)
+	{
+		return;
+	}
+	// делаем высадку
+	wave.templates = getTemplates(
+		gameTime / 1000 + getStartTime(),
+		wave.type
+	);
+	wave.LZ = getLZ(); //WTF
+	setDroidsName();
+	pushUnits();
 }
 
 function getLZ()
 {
-	const radius = 4;
+	const {x, y, x2, y2} = wave.unitZone;
+	debug (x,y,x2,y2);
 	let LZ= {
-		x: syncRandom(newZone.x2-newZone.x-radius*2-BORDER)+radius+newZone.x+BORDER/2,
-		y: syncRandom(newZone.y2-newZone.y-radius*2-BORDER)+radius+newZone.y+BORDER/2,
-		radius: radius,
+		x: syncRandom(x2-x-LZRADIUS*2)+LZRADIUS+x,
+		y: syncRandom(y2-y-LZRADIUS*2)+LZRADIUS+y,
+		radius: LZRADIUS,
 	};
 	LZ.tiles = LZtile(LZ);
 	return LZ;
@@ -212,176 +236,95 @@ function LZtile(LZ)
 	return LZtile;
 }
 
-function addSpoter()
-{
-	let spotter = {
-		x: mapWidth / 2,
-		y: mapHeight / 2,
-		radius: (Math.sqrt(mapWidth * mapWidth + mapHeight * mapHeight) / 2) * 128,
-	};
-	for (let playnum = 0; playnum < maxPlayers; playnum++)
-	{
-		addSpotter(spotter.x, spotter.y, playnum, spotter.radius, 0, 1000);
-	}
-}
-
 function newWave()
 {
+	let {x, y, x2, y2} = getScrollLimits();
+	let unitZone = {x:x, y:y, x2:x2, y2:y2};
+	//let structZone = {} TODO
+	if (y < 2*settings.expansion) //Final
+	{
+		y = 0;
+		x = 0;
+		x2 = mapWidth;
+		y2 = mapHeight;
 
+		giveResearch();
+		const budget = calcBudget(getTotalTimeS());
+		wave= {
+			type: "FINAL",
+			budget: budget.budget,
+			rang: budget.rang,
+			experience: budget.experience,
+			droids: [],
+			unitZone: {x:LZRADIUS+BORDER, y:LZRADIUS+BORDER, x2:x2-LZRADIUS-BORDER, y2:y2-LZRADIUS-BORDER},
+			active:true,
+			time:0
+		};
+		setScrollLimits(x, y, x2, y2);
+		return;
+	}
 
-	let zone = getScrollLimits();
 	if (numberWave % 4 == 0)
 	{
-		zone.y -= settings.expansion;
-		if (zone.y <0)
-		{
-			zone.y =0;
-		}
-		newZone= {x:zone.x, y:zone.y, x2:zone.x2, y2:zone.y+settings.expansion};
+		unitZone.y2 = y;
+		y -= settings.expansion;
+		unitZone.y = y;
 	}
-
 	if (numberWave % 4 == 1)
 	{
-		zone.x -= settings.expansion;
-		if (zone.x <0)
-		{
-			zone.x =0;
-		}
-		newZone= {x:zone.x, y:zone.y, x2:zone.x+settings.expansion, y2:zone.y2};
+		unitZone.x2 = x;
+		x -= settings.expansion;
+		unitZone.x = x;
 	}
-
 	if (numberWave % 4 == 2)
 	{
-		zone.y2 += settings.expansion;
-		if (zone.y2 <0)
-		{
-			zone.y2 =0;
-		}
-		newZone= {x:zone.x, y:zone.y2-settings.expansion, x2:zone.x2, y2:zone.y2};
+		unitZone.y = y2;
+		y2 += settings.expansion;
+		unitZone.y2 = y2;
 	}
-
 	if (numberWave % 4 == 3)
 	{
-		zone.x2 += settings.expansion;
-		if (zone.x2 <0)
-		{
-			zone.x2 =0;
-		}
-		newZone= {x:zone.x2-settings.expansion, y:zone.y, x2:zone.x2, y2:zone.y2};
+		unitZone.x = x2;
+		x2 += settings.expansion;
+		unitZone.x2 = x2;
 	}
-	setScrollLimits(zone.x, zone.y, zone.x2, zone.y2);
+	setScrollLimits(x, y, x2, y2);
 
 	giveResearch();
-	recalcLimits();
-	let budget = calcBudget(getTotalTimeS());
+	const budget = calcBudget(getTotalTimeS());
 	wave= {
 		type: "NORMAL",
 		budget: budget.budget,
 		rang: budget.rang,
 		experience: budget.experience,
 		droids: [],
+		unitZone: unitZone,
 		active:true,
 		time:0
 	};
-
 }
 
 function calcBudget(timeS)
 {
-	let K = getNumOil() * settings.Kpower;
+	const K = getNumOil() * settings.Kpower;
 	// Игрок по мере игры получает апы на ген, что проиводит к росуту доступных ресурсов.
 	// При первом приблежении вторая производная энергии по времени прямая с увеличением в два раза за 20 минут.
 	// Используем два способа компенсиовать одновременно.
 	// Первый: бюджет зависит от квадрата времени
-	let A = K / (settings.doublePowerM * 60);
-	let budget = Math.round(
+	const A = K / (settings.doublePowerM * 60);
+	const budget = Math.round(
 		((K * timeS + A * timeS ** 2) / 2) * waveDifficulty
 	);
 	//Второй: опытом. При первом приближении юниты усиливаются +11% за каждый ранг.
 	//Опыт ограничен 16 рангом, вероятно. По этому делаем что бы к концу юниты были максимально злые.
-	let rang = Math.round((14 / (settings.totalGameTime * 60)) * timeS);
+	const rang = Math.round((14 / (settings.totalGameTime * 60)) * timeS);
 	return { budget: budget, rang: rang, experience: Math.round(2 ** rang) };
-}
-
-function wa_eventGameInit()
-{
-	addSpoter();
-	const startZone = {x:(mapWidth-settings.startHeight)/2, y:(mapHeight-settings.startHeight)/2, x2:(mapWidth+settings.startHeight)/2, y2:(mapHeight+settings.startHeight)/2 };
-	setScrollLimits(startZone.x, startZone.y, startZone.x2, startZone.y2);
-	console(
-		[
-			"difficulty " + waveDifficulty,
-			"protectTime " + settings.protectTime,
-			"PauseTime " + settings.PauseTime,
-		].join("\n")
-	);
-	cleanUnitsAndStruct();
-	queue("recalcLimits",100);
-	queue("pushUnitsAndStruct",200);
-	setTimer("scheduler", 6 * 1000);
-	scheduler();
-	setTimer("removeVtol", 11 * 1000);
-	setMissionTime(settings.protectTimeM*60);
-	makeComponentAvailable("MG1Mk1", AI);
-	avalibleScavComponents(AI);
-}
-
-function removeVtol()
-{
-	enumDroid(AI, "DROID_WEAPON")
-		.filter((d) =>
-		{
-			return d.isVTOL && d.weapons[0].armed < 1;
-		})
-		.forEach((v) =>
-		{
-			removeObject(v);
-		});
-}
-
-function scheduler()
-{
-	if (settings.protectTimeM *60 > gameTime / 1000)
-	{
-		return;
-	}
-	wave.droids = enumDroid(AI, "DROID_WEAPON");
-	if (wave.droids.length == 0 && wave.active == true)
-	{
-		wave.time = gameTime/1000 + settings.pauseM * 60;
-		setMissionTime(settings.pauseM*60);
-		wave.active = false;
-	}
- 	if (wave.time <= gameTime/1000)
-	{
-		if (wave.active == false)
-		{
-			newWave();
-		}
-		landing();
-	}
-}
-
-function landing()
-{
-	if (wave.budget <= 0)
-	{
-		return;
-	}
-	// делаем высадку
-	wave.templates = getTemplates(
-		gameTime / 1000 + getStartTime(),
-		wave.type
-	);
-	wave.LZ = getLZ();
-	setDroidsName();
-	pushUnits();
 }
 
 function getTemplates(timeS, type)
 {
 	avalibleTemplate = [];
-	redComponents = getRedComponents(timeS);
+	const redComponents = getRedComponents(timeS);
 	for (var key in allTemplates)
 	{
 		if (!allTemplates[key].weapons)
@@ -406,25 +349,9 @@ function getTemplates(timeS, type)
 			avalibleTemplate.push(key);
 		}
 	}
-	if (avalibleTemplate.length == 0)
-	{
-		avalibleTemplate.push("ViperMG01Wheels");
-	}
 	return avalibleTemplate;
-
-	function getRedComponents(timeS)
-	{
-		redComponents = [];
-		for (var tech in allRes)
-		{
-			if (allRes[tech] <= timeS && research[tech].redComponents)
-			{
-				redComponents = redComponents.concat(research[tech].redComponents);
-			}
-		}
-		return redComponents;
-	}
 }
+
 function setDroidsName()
 {
 	wave.droidsName = [];
@@ -489,12 +416,4 @@ function pushUnits()
 		setMissionTime(-1);
 	}
 	playSound("pcv395.ogg", wave.LZ.x, wave.LZ.y, 0);
-}
-
-
-function giveResearch()
-{
-	hackNetOff();
-	completeResearchOnTime(getTotalTimeS(), AI);
-	hackNetOn();
 }

@@ -1,0 +1,76 @@
+{
+   "challenge":{
+    "alliances":2,
+    "bases":"1",
+    "map":"Stone-Jungle-v2w-T1",
+    "maxPlayers":10,
+    "powerLevel":2,
+    "scavengers":0,
+    "version":2,
+    "name": "Wave defance",
+    "openSpectatorSlots": 10,
+    "allowPositionChange": "true",
+    "spectatorHost": true
+   },
+   "player_0":{
+      "position":0,
+      "team":0,
+      "difficulty": "Hard",
+      "name": "Enemy"
+   },
+   "player_1":{
+      "position":1,
+      "team":0,
+      "difficulty": "Hard",
+      "name": "Enemy"
+   },
+   "player_2":{
+      "position":2,
+      "team":0,
+      "difficulty": "Hard",
+      "name": "Enemy"
+   },
+   "player_3":{
+      "position":3,
+      "team":0,
+      "difficulty": "Hard",
+      "name": "Enemy"
+   },
+   "player_4":{
+      "position":4,
+      "team":0,
+      "difficulty": "Hard",
+      "name": "Enemy"
+   },
+   "player_5":{
+      "position":5,
+      "team":0,
+      "difficulty": "Hard",
+      "name": "Enemy"
+   },
+   "player_6":{
+      "position":6,
+      "team":0,
+      "difficulty": "Hard",
+      "name": "Enemy"
+   },
+   "player_7":{
+      "position":7,
+      "team":0,
+      "difficulty": "Hard",
+      "name": "Enemy"
+   },
+   "player_8":{
+      "position":8,
+      "team":0,
+      "difficulty": "Hard",
+      "name": "Enemy"
+   },
+   "player_9":{
+      "position":9,
+      "team":1,
+	"name": "Wave",
+	"ai": "multiplay/skirmish/WaveAI.js",
+        "difficulty": "Easy"
+   }
+}

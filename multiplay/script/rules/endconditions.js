@@ -248,7 +248,7 @@ function checkEndConditions()
 	{
 		return team.isContender();
 	});
-	if (isMapFullyOpen() || contenderTeams.length === 0) // custum end game
+	if ((isMapFullyOpen() && countDroid(DROID_ANY, AI) === 0) || contenderTeams.length === 0) // custum end game
 	{
 		contenderTeams.forEach((team) =>
 		{
@@ -268,15 +268,8 @@ function checkEndConditions()
 
 function isMapFullyOpen()
 {
-	let limits = getScrollLimits();
-	const mapSize = {
-		"type": 5,
-		"x": 0,
-		"x2": mapWidth,
-		"y": 0,
-		"y2": mapHeight
-	};
-	if (limits.y === 0)
+	const {x, y, x2, y2} = getScrollLimits();
+	if (y === 0 && x == 0 && x2 === mapWidth && y2 === mapHeight)
 	{
 		return true;
 	}
