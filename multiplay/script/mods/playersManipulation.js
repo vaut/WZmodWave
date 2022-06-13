@@ -9,14 +9,14 @@ const defoultUnitsLimits =
 const defoultsStructLimit =
 {
 	"A0LightFactory": 5,
-	"A0PowerGenerator": 8,
+	"A0PowerGenerator": 10,
 	"A0ResearchFacility": 5,
 	"A0ComDroidControl": 1,
 	"A0CyborgFactory": 5,
 	"A0VTolFactory1": 5,
 	"A0LasSatCommand": 1,
 	"A0Sat-linkCentre": 1,
-	"A0RepairCentre3": 3,
+	"A0RepairCentre3": 5,
 	"A0VtolPad": 50
 };
 
@@ -147,7 +147,7 @@ function recalcLimits()
 		players.push(playnum);
 	}
 	const numOil = getNumOil();
-	let K = (numOil+20)*1.25/players.length/defoultNumOil;
+	let K = (numOil+20)*1.1/players.length/defoultNumOil;
 	if (K < 0.5) {K =0.5;}
 	players.forEach((p, index) =>
 	{

@@ -1,4 +1,5 @@
 const allTemplates = includeJSON("templates.json");
+const allStructs = includeJSON("structure.json");
 include("multiplay/script/lib.js");
 include("multiplay/script/mods/AItechAndComponents.js");
 const settings = includeJSON("settings.json");
@@ -56,9 +57,9 @@ function wa_eventGameInit()
 			"PauseTime " + settings.PauseTime,
 		].join("\n")
 	);
-	setTimer("scheduler", 32 * 1000);
 	scheduler();
-	setTimer("removeVtol", 11 * 1000);
+	//setTimer("removeUnusedUnits", 2*60*1000);
+	setTimer("removeVtol", 6*1000);
 	setMissionTime(settings.protectTimeM*60);
 	makeComponentAvailable("MG1Mk1", AI);
 	avalibleScavComponents(AI);
@@ -66,41 +67,76 @@ function wa_eventGameInit()
 
 function scheduler()
 {
+	// пропускаем стартовые минуты
 	if (settings.protectTimeM *60 > gameTime / 1000)
 	{
+		queue("scheduler", 6*1000);
 		return;
 	}
 	wave.droids = enumDroid(AI, "DROID_WEAPON");
-	if (wave.droids.length == 0 && wave.active == true)
+
+	// отразили волну
+	if (wave.droids.length == 0 && wave.active == true && wave.budget < 0 )
 	{
 		wave.time = gameTime/1000 + settings.pauseM * 60;
 		setMissionTime(settings.pauseM*60);
 		wave.active = false;
+		queue("scheduler", 6*1000);
+		return;
 	}
- 	if (wave.time <= gameTime/1000)
+
+	// первая высадка в волне
+	if (wave.time <= gameTime/1000 && wave.active == false)
 	{
-		if (wave.active == false)
-		{
-			newWave();
-		}
+		newWave();
 		landing();
+		queue("scheduler", 36*1000);
+		return;
 	}
+
+	// следующая высадка в волне
+ 	if (wave.time <= gameTime/1000 && wave.active == true)
+	{
+		landing();
+		queue("scheduler", 36*1000);
+		return;
+	}
+
+	// заглушка на случай отсутсвия действия
+	queue("scheduler", 6*1000);
 }
 
 function removeVtol()
 {
-	enumDroid(AI, "DROID_WEAPON")
+	if (enumStruct(AI, REARM_PAD).length <= 0)
+	{
+		const droids = enumDroid(AI, "DROID_WEAPON");
+		droids
+			.filter((d) =>
+			{
+				return d.isVTOL && d.weapons[0].armed <= 0.1;
+			})
+			.forEach((v) =>
+			{
+				removeObject(v);
+			});
+	}
+}
+/* не работает, может уничтожить новых юнитов в высадке
+function removeUnusedUnits()
+{
+	const droids = enumDroid(AI, "DROID_WEAPON");
+	droids
 		.filter((d) =>
 		{
-			return d.isVTOL && d.weapons[0].armed < 1;
+			return d.weapons[0].lastFired - gameTime < 3*60*1000;
 		})
-		.forEach((v) =>
+		.forEach((u) =>
 		{
-			removeObject(v);
+			removeObject(u);
 		});
 }
-
-
+*/
 
 function landing()
 {
@@ -113,18 +149,20 @@ function landing()
 		gameTime / 1000 + getStartTime(),
 		wave.type
 	);
-	wave.LZ = getLZ(); //WTF
+	wave.LZ = getLZ();
 	setDroidsName();
 	pushUnits();
+	let avalibleStructs = getStructs(gameTime / 1000 + getStartTime());
+	debug(JSON.stringify(avalibleStructs));
+	pushStructss(avalibleStructs);
 }
 
 function getLZ()
 {
 	const {x, y, x2, y2} = wave.unitZone;
-	debug (x,y,x2,y2);
 	let LZ= {
-		x: syncRandom(x2-x-LZRADIUS*2)+LZRADIUS+x,
-		y: syncRandom(y2-y-LZRADIUS*2)+LZRADIUS+y,
+		x: syncRandom(x2-x)+x,
+		y: syncRandom(y2-y)+y,
 		radius: LZRADIUS,
 	};
 	LZ.tiles = LZtile(LZ);
@@ -239,9 +277,9 @@ function LZtile(LZ)
 function newWave()
 {
 	let {x, y, x2, y2} = getScrollLimits();
-	let unitZone = {x:x, y:y, x2:x2, y2:y2};
-	//let structZone = {} TODO
-	if (y < 2*settings.expansion) //Final
+	let unitZone = {x:x+BORDER+LZRADIUS, y:y+BORDER+LZRADIUS, x2:x2-BORDER-LZRADIUS, y2:y2-BORDER-LZRADIUS};
+	let structZone = {x:x, y:y, x2:x2, y2:y2};
+	if (y < settings.expansion) //Final
 	{
 		y = 0;
 		x = 0;
@@ -266,27 +304,35 @@ function newWave()
 
 	if (numberWave % 4 == 0)
 	{
+		unitZone.y = y-LZRADIUS;
 		unitZone.y2 = y;
+		structZone.y = y-settings.expansion;
+		structZone.y2 = y-LZRADIUS*2;
 		y -= settings.expansion;
-		unitZone.y = y;
 	}
 	if (numberWave % 4 == 1)
 	{
+		unitZone.x = x-LZRADIUS;
 		unitZone.x2 = x;
+		structZone.x = x-settings.expansion;
+		structZone.x2 = x-LZRADIUS*2;
 		x -= settings.expansion;
-		unitZone.x = x;
 	}
 	if (numberWave % 4 == 2)
 	{
 		unitZone.y = y2;
+		unitZone.y2 = y2+LZRADIUS;
+		structZone.y = y2+LZRADIUS*2;
+		structZone.y2 = y2+settings.expansion;
 		y2 += settings.expansion;
-		unitZone.y2 = y2;
 	}
 	if (numberWave % 4 == 3)
 	{
 		unitZone.x = x2;
+		unitZone.x2 = x2+LZRADIUS;
+		structZone.x = x2+LZRADIUS*2;
+		structZone.x2 = x2+settings.expansion;
 		x2 += settings.expansion;
-		unitZone.x2 = x2;
 	}
 	setScrollLimits(x, y, x2, y2);
 
@@ -295,10 +341,12 @@ function newWave()
 	wave= {
 		type: "NORMAL",
 		budget: budget.budget,
+		structBudget: budget.budget,
 		rang: budget.rang,
 		experience: budget.experience,
 		droids: [],
 		unitZone: unitZone,
+		structZone: structZone,
 		active:true,
 		time:0
 	};
@@ -351,6 +399,7 @@ function getTemplates(timeS, type)
 	}
 	return avalibleTemplate;
 }
+
 
 function setDroidsName()
 {
@@ -417,3 +466,48 @@ function pushUnits()
 	}
 	playSound("pcv395.ogg", wave.LZ.x, wave.LZ.y, 0);
 }
+
+function getStructs(timeS)
+{
+	let avalibleStructs = [];
+	const redComponents = getRedComponents(timeS);
+	for (var key in allStructs)
+	{
+		if (isStructureAvailable(key, AI) && allStructs[key].type === "DEFENSE")
+		{
+			if (allStructs[key].weapons && redComponents.includes(allStructs[key].weapons[0]))
+			{
+				continue;
+			}
+			avalibleStructs.push(key);
+		}
+		if (isStructureAvailable(key, AI) && allStructs[key].type === "REARM PAD")
+		{
+			avalibleStructs.push(key);
+
+		}
+	}
+	return avalibleStructs;
+}
+
+function pushStructss(avalibleStructs)
+{
+	const {x, y, x2, y2} = wave.structZone;
+	if (avalibleStructs.length === 0)
+	{
+		return;
+	}
+	while (wave.structBudget > 0)
+	{
+		let X = (syncRandom(x2-x)+x)*128;
+		let Y = (syncRandom(y2-y)+y)*128;
+		let key = avalibleStructs[syncRandom(avalibleStructs.length)];
+		hackNetOff();
+		addStructure(key, AI, X, Y);
+		hackNetOn();
+		wave.structBudget-=allStructs[key].buildPower;
+	}
+
+}
+
+
