@@ -153,7 +153,6 @@ function landing()
 	setDroidsName();
 	pushUnits();
 	let avalibleStructs = getStructs(gameTime / 1000 + getStartTime());
-	debug(JSON.stringify(avalibleStructs));
 	pushStructss(avalibleStructs);
 }
 
@@ -421,19 +420,20 @@ function pushUnits()
 	{
 		let droidName = wave.droidsName.shift();
 		let pos = tiles.shift();
-		/*
-			if (allTemplates[droidName].propulsion == "V-Tol")
-			{
-				let borders = [
-					{ x: 2, y: pos.y },
-					{ x: pos.x, y: 2 },
-					{ x: mapWidth - 2, y: pos.y },
-					{ x: pos.x, y: mapHeight - 2 },
-				];
-				sortBymDist(borders, pos);
-				pos = borders.shift();
-			}
-*/
+		if (allTemplates[droidName].propulsion == "V-Tol")
+		{
+			let {x, y, x2, y2} = getScrollLimits();
+			[x, y, x2, y2] = [x+BORDER, y+BORDER, x2-BORDER, y2-BORDER];
+
+			let borders = [
+				{ x: x, y: pos.y },
+				{ x: pos.x, y: y },
+				{ x: x2, y: pos.y },
+				{ x: pos.x, y: y2 },
+			];
+			sortBymDist(borders, pos);
+			pos = borders.shift();
+		}
 		let unit = addDroid(
 			AI,
 			pos.x,
