@@ -15,6 +15,7 @@
    "player_0":{
       "position":0,
       "team":0,
+      "ai": "multiplay/skirmish/Cobra.js",
       "difficulty": "Hard",
       "name": "Enemy"
    },
@@ -22,48 +23,56 @@
       "position":1,
       "team":0,
       "difficulty": "Hard",
+      "ai": "multiplay/skirmish/Cobra.js",
       "name": "Enemy"
    },
    "player_2":{
       "position":2,
       "team":0,
       "difficulty": "Hard",
+      "ai": "multiplay/skirmish/Cobra.js",
       "name": "Enemy"
    },
    "player_3":{
       "position":3,
       "team":0,
       "difficulty": "Hard",
+      "ai": "multiplay/skirmish/Cobra.js",
       "name": "Enemy"
    },
    "player_4":{
       "position":4,
       "team":0,
       "difficulty": "Hard",
+      "ai": "multiplay/skirmish/nb_turtle.js",
       "name": "Enemy"
    },
    "player_5":{
       "position":5,
       "team":0,
       "difficulty": "Hard",
+      "ai": "multiplay/skirmish/nb_turtle.js",
       "name": "Enemy"
    },
    "player_6":{
       "position":6,
       "team":0,
       "difficulty": "Hard",
+      "ai": "multiplay/skirmish/semperfi.js",
       "name": "Enemy"
    },
    "player_7":{
       "position":7,
       "team":0,
       "difficulty": "Hard",
+      "ai": "multiplay/skirmish/semperfi.js",
       "name": "Enemy"
    },
    "player_8":{
       "position":8,
       "team":0,
       "difficulty": "Hard",
+      "ai": "multiplay/skirmish/semperfi.js",
       "name": "Enemy"
    },
    "player_9":{
