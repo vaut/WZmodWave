@@ -114,7 +114,7 @@ function removeVtol()
 		droids
 			.filter((d) =>
 			{
-				return d.isVTOL && d.weapons[0].armed <= 0.1;
+				return d.isVTOL && d.weapons[0].armed <= 1;
 			})
 			.forEach((v) =>
 			{
@@ -473,7 +473,7 @@ function getStructs(timeS)
 	const redComponents = getRedComponents(timeS);
 	for (var key in allStructs)
 	{
-		if (isStructureAvailable(key, AI) && allStructs[key].type === "DEFENSE")
+		if (isStructureAvailable(key, AI) && (allStructs[key].type === "DEFENSE" || allStructs[key].type === "GENERIC"))
 		{
 			if (allStructs[key].weapons && redComponents.includes(allStructs[key].weapons[0]))
 			{

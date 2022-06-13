@@ -1,10 +1,10 @@
 {
 	"protectTimeM": 5,
-	"totalGameTime": 180,
+	"totalGameTime": 200,
 	"expansion": 20,
 	"startHeight": 50,
-	"Kpower" : 0.18,
-	"doublePowerM": 100,
-	"pauseM": 4,
+	"Kpower" : 0.12,
+	"doublePowerM": 120,
+	"pauseM": 2,
 	"timeHandicapM": 3.5
 }

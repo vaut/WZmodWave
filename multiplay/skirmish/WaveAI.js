@@ -261,6 +261,11 @@ class Vtol extends Group
 			orderDroidLoc(o, DORDER_SCOUT, target.x, target.y);
 			return;
 		});
+		this.droids.filter((d) => {return (d.weapons[0].armed < 1);}).forEach((o) =>
+		{
+			orderDroid(o, DORDER_REARM);
+			return;
+		});
 	}
 }
 
