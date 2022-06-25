@@ -452,7 +452,7 @@ function noOpponents()
 	{
 		return false;
 	}
-	if (countDroid(DROID_ANY, ENEMIES) !== 0 && countStruct(DROID_ANY, ENEMIES) !== 0)
+	if (countStruct("A0LightFactory", ENEMIES) !== 0 || countStruct("A0CyborgFactory", ENEMIES) !== 0 || countDroid(DROID_ANY, ENEMIES) !== 0)
 	{
 		return false;
 	}

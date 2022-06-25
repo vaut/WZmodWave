@@ -78,7 +78,7 @@ function scheduler()
 	// отразили волну
 	if (wave.droids.length == 0 && wave.active == true && wave.budget < 0 )
 	{
-		wave.time = gameTime/1000 + settings.pauseM * 60;
+		wave.time = gameTime/1000 + settings.pauseM * 60 +(gameTime/1000/100);
 		setMissionTime(settings.pauseM*60+(gameTime/1000/100));
 		wave.active = false;
 		queue("scheduler", 3*1000);
@@ -503,6 +503,10 @@ function pushStructss(avalibleStructs)
 	{
 		let X = (syncRandom(x2-x)+x)*128;
 		let Y = (syncRandom(y2-y)+y)*128;
+		if (getObject(X/128, Y/128))
+		{
+			continue;
+		}
 		let key = avalibleStructs[syncRandom(avalibleStructs.length)];
 		hackNetOff();
 		addStructure(key, AI, X, Y);
