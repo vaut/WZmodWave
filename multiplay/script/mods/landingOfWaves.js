@@ -76,7 +76,7 @@ function scheduler()
 	wave.droids = enumDroid(AI, "DROID_WEAPON");
 
 	// отразили волну
-	if (wave.droids.length == 0 && wave.active == true && wave.budget < 0 )
+	if (wave.droids.length == 0 && wave.active == true && wave.budget <= 0 )
 	{
 		wave.time = gameTime/1000 + settings.pauseM * 60 +(gameTime/1000/100);
 		setMissionTime(settings.pauseM*60+(gameTime/1000/100));
