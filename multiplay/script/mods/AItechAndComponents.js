@@ -69,3 +69,47 @@ function giveResearch()
 	completeResearchOnTime(getTotalTimeS(), AI);
 	hackNetOn();
 }
+
+function getRedBody(timeS)
+{
+	// кобра делает устаревшими все предыдущие тела, кроме киборгов
+	let redBodies = [
+		"B1BaBaPerson01",
+		"B1BaBaPerson01-Ultimate",
+		"B2JeepBody",
+		"B2JeepBody-Ultimate",
+		"B2RKJeepBody",
+		"B2RKJeepBody-Ultimate",
+		"B2crane1",
+		"B2crane2",
+		"B2tractor",
+		"B3body-sml-buggy01",
+		"B3body-sml-buggy01-Ultimate",
+		"B3bodyRKbuggy01",
+		"B3bodyRKbuggy01-Ultimate",
+		"B4body-sml-trike01",
+		"B4body-sml-trike01-Ultimate",
+		"Body1REC",
+		"Body4ABT",
+		"BusBody",
+		"FireBody",
+		"HeavyChopper",
+		"ScavCamperBody",
+		"ScavIcevanBody",
+		"ScavNEXUSbody",
+		"ScavNEXUStrack",
+		"ScavTruckBody",
+		"ScavengerChopper",
+		"SuperTransportBody",
+		"TransporterBody",
+		"ZNULLBODY"
+	];
+	for (var tech in allRes)
+	{
+		if (allRes[tech] <= timeS && tech == "R-Vehicle-Body05")
+		{
+			return redBodies;
+		}
+	}
+	return [];
+}
