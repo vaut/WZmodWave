@@ -1,2 +1,5 @@
 *.zip
 *.swp
+*.swo
+functions/
+functions/weather.js
