@@ -248,7 +248,7 @@ function checkEndConditions()
 	{
 		return team.isContender();
 	});
-	if ((isMapFullyOpen() && countDroid(DROID_ANY, AI) === 0) || contenderTeams.length === 0) // custum end game
+	if ((isMapFullyOpen() && wave.active === false && countDroid(DROID_ANY, AI) === 0) || contenderTeams.length === 0) // custum end game
 	{
 		contenderTeams.forEach((team) =>
 		{

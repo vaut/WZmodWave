@@ -75,7 +75,16 @@ function scheduler()
 		queue("scheduler", 6*1000);
 		return;
 	}
-	wave.droids = enumDroid(AI, "DROID_WEAPON").filter((d) => {return (!d.isVTOL || !d.canHitGround);});
+	wave.droids = enumDroid(AI, "DROID_WEAPON").filter((d) => {return (!d.isVTOL && d.canHitGround);});
+
+
+	// отразили финальную волну
+	if (wave.droids.length == 0 && wave.active == true && wave.budget <= 0 && wave.type == "FINAL")
+	{
+		wave.active = false;
+		return;
+	}
+
 
 	// отразили волну
 	if (wave.droids.length == 0 && wave.active == true && wave.budget <= 0 )
@@ -280,7 +289,7 @@ function newWave()
 	let {x, y, x2, y2} = getScrollLimits();
 	let unitZone = {x:x+BORDER+LZRADIUS, y:y+BORDER+LZRADIUS, x2:x2-BORDER-LZRADIUS, y2:y2-BORDER-LZRADIUS};
 	let structZone = {x:x, y:y, x2:x2, y2:y2};
-	if (y < settings.expansion) //Final
+	if ((y < settings.expansion) && (numberWave % 4 == 0)) //Final
 	{
 		y = 0;
 		x = 0;
@@ -291,7 +300,7 @@ function newWave()
 		const budget = calcBudget(getTotalTimeS());
 		wave= {
 			type: "FINAL",
-			budget: budget.budget,
+			budget: budget.budget * settings.Kfinal,
 			rang: budget.rang,
 			experience: budget.experience,
 			droids: [],
@@ -496,6 +505,7 @@ function getStructs(timeS)
 
 function pushStructss(avalibleStructs)
 {
+	if (!wave.structZone) {return;}
 	const {x, y, x2, y2} = wave.structZone;
 	if (avalibleStructs.length === 0)
 	{

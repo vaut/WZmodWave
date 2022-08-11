@@ -7,5 +7,6 @@
 	"doublePowerM": 90,
 	"pauseM": 0.8,
 	"inWavePauseS": 17,
-	"timeHandicapM": 1.5
+	"timeHandicapM": 1.5,
+	"Kfinal": 4
 }
