@@ -75,13 +75,13 @@ function scheduler()
 		queue("scheduler", 6*1000);
 		return;
 	}
-	wave.droids = enumDroid(AI, "DROID_WEAPON");
+	wave.droids = enumDroid(AI, "DROID_WEAPON").filter((d) => {return (!d.isVTOL || !d.canHitGround);});
 
 	// отразили волну
 	if (wave.droids.length == 0 && wave.active == true && wave.budget <= 0 )
 	{
-		wave.time = gameTime/1000 + settings.pauseM * 60 +(gameTime/1000/100);
-		setMissionTime(settings.pauseM*60+(gameTime/1000/100));
+		wave.time = gameTime/1000 + settings.pauseM * 60;
+		setMissionTime(settings.pauseM*60);
 		wave.active = false;
 		queue("scheduler", 3*1000);
 		return;
@@ -92,7 +92,7 @@ function scheduler()
 	{
 		newWave();
 		landing();
-		queue("scheduler", 27*1000);
+		queue("scheduler", settings.inWavePauseS*1000);
 		return;
 	}
 
@@ -100,7 +100,7 @@ function scheduler()
  	if (wave.time <= gameTime/1000 && wave.active == true)
 	{
 		landing();
-		queue("scheduler", 27*1000);
+		queue("scheduler", settings.inWavePauseS*1000);
 		return;
 	}
 
