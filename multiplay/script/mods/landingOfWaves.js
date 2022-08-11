@@ -50,13 +50,15 @@ function wa_eventGameInit()
 {
 	const {x, y, x2, y2} = {x:(mapWidth-settings.startHeight)/2, y:(mapHeight-settings.startHeight)/2, x2:(mapWidth+settings.startHeight)/2, y2:(mapHeight+settings.startHeight)/2 };
 	setScrollLimits(x, y, x2, y2);
-	console(
-		[
-			"difficulty " + waveDifficulty,
-			"protectTime " + settings.protectTime,
-			"PauseTime " + settings.PauseTime,
-		].join("\n")
-	);
+	const salutation = [
+		"Mod from Vaut. Repository: https://github.com/vaut/WZmodWave",
+		"Explore the Theta sector and destroy the enemy forces.",
+		"We're counting on you Commander.",
+		"You have no right to make a mistake, loading and saving are not possible.",
+		"difficulty " + Math.round(waveDifficulty*100) +"%",
+	].join("\n");
+	console(salutation);
+	debug (salutation);
 	scheduler();
 	//setTimer("removeUnusedUnits", 2*60*1000);
 	setTimer("removeVtol", 6*1000);
@@ -505,6 +507,7 @@ function pushStructss(avalibleStructs)
 		let Y = (syncRandom(y2-y)+y)*128;
 		if (getObject(X/128, Y/128))
 		{
+			wave.structBudget--; //защита от бесконечного цикла при нехватке места
 			continue;
 		}
 		let key = avalibleStructs[syncRandom(avalibleStructs.length)];
