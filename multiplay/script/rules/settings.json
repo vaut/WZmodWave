@@ -1,9 +1,9 @@
 {
 	"protectTimeM": 3,
 	"totalGameTime": 90,
-	"expansion": 25,
+	"expansion": 24,
 	"startHeight": 50,
-	"Kpower" : 0.21,
+	"Kpower" : 0.13,
 	"doublePowerM": 90,
 	"pauseM": 0.8,
 	"inWavePauseS": 17,

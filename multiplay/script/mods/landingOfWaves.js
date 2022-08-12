@@ -289,7 +289,7 @@ function newWave()
 	let {x, y, x2, y2} = getScrollLimits();
 	let unitZone = {x:x+BORDER+LZRADIUS, y:y+BORDER+LZRADIUS, x2:x2-BORDER-LZRADIUS, y2:y2-BORDER-LZRADIUS};
 	let structZone = {x:x, y:y, x2:x2, y2:y2};
-	if ((y < settings.expansion) && (numberWave % 4 == 0)) //Final
+	if ((y <= settings.expansion) && (numberWave % 4 == 0)) //Final
 	{
 		y = 0;
 		x = 0;
