@@ -1,3 +1,5 @@
+[Русский/Russian](README.ru.md)
+
 # Wave Defense MOD
 
 Mod changes skirmish mode to wave protection mode. Supports multiplayer.
@@ -22,19 +24,23 @@ In order to win, you have to survive untill the whole map is revealed.
 ## How to launch
 
 - Pack catalog `multiplay` into a zip archive and put them in `autoload`.
-- Put the maps `10c-ntw_trail10pro2.wz` in the catalog `maps` 
+- Put the maps `10c-Stone-Jungle-v3w.wz` in the catalog `maps` 
 Read more https://github.com/Warzone2100/warzone2100/blob/master/README.md#configuration
-- Add one `waveAI` to any slot. AI difficulty level will affect the number of enemy units.
+- Add one `waveAI` to the last slot. AI difficulty level will affect the number of enemy units.
 - Only the host needs to enable the mod.
 
 ## Tuning and maps
 ### Choosing a map
+You can use any map, but `10c-Stone-Jungle-v3w.wz` is recommended.
+Another mode is supported, when the map is expanding to North, for that
+you can use the map `10c-ntw_trail10pro2.wz` which is provided. Replace
+`multiplay/script/rules/settings.json` with   `multiplay/script/rules/settings.json_ntw_trail10pro2.` to use it.
 
-You can use any map, but `10c-ntw_trail10pro2.wz` is recommended.
-When choosing another map, note that there is a chance that enemies could be stuck
-in some difficult-to-access areas, so choose accordingly.
-Also, all North side of the map should be suitable for construction.
-The map must not contain any sharp cliffs.
+
+When choosing another map:
+- must not contain any isolated areas, units may be stuck inside them
+- must not contain large, sharp cliffs
+- in the center (or in the south, with one-side expansion) must be an area suitable for your own base building. Spawn points don't depend on location of your HQ.
 
 ### Tuning
 All parameters are in `multiplay/script/rules/settings.json`:
@@ -44,10 +50,13 @@ All parameters are in `multiplay/script/rules/settings.json`:
 	"protectTimeM": 4, # minutes untill first wave
 	"totalGameTime": 90, # time in minutes untill enemies reach the rank 16
 	"expansion": 10, # tile growth after each wave
-	"startHeight": 35, # initial map height (first wave)
+	"startHeight": 35, # initial map height when using one-side expansion mode, or the initial radius otherwise 
 	"Kpower" : 0.25, # linear wave growth factor, depends on time
 	"doublePowerM": 20, # quadratic wave growth factor, depends on time
 	"pauseM": 2, # delay in minutes between waves
+	"inWavePauseS": 11 # delay between landings within the same wave
+	"Kfinal": 2 # final wave size multiplier
+	"expansionDirection": "north"/"all" # expansion direction
 	"timeHandicapM": 0.5 # slight lag in research for AI
 }
 ``` 
@@ -56,8 +65,8 @@ All parameters are in `multiplay/script/rules/settings.json`:
 - Enemies don't make any difference between a structure or a droid. You could use 
 cheap  structures to distract them, and get some time
 - Enemy's droid templates do vary with time, but do not depend on your templates. Try to find more effective propulsion/body combinations.
-- Enemy only has Bombards and Mortars, no Howitzers, nor Ground Shakers.
-- In about an hour of game, number of enemies will start growing huge. You 
-should try to win before that time mark.
+- Enemy doesn't have Sensors units, but has artillery and sensor towers.
+- In about an hour of game, number of enemies will start growing huge. You should try to win before that time mark.
+- You can delay next landing by leaving some enemy units alive for some time. This doesn't include VTOL, AA guns, and fortifications.
 - Don't forget to add more structures, as your limits increase.
 - About a half of enemy units will have fragile propulsion, so use heavy artillery to your advantage.
