@@ -48,8 +48,16 @@ function getWaveAI()
 
 function wa_eventGameInit()
 {
-	const {x, y, x2, y2} = {x:(mapWidth-settings.startHeight)/2, y:(mapHeight-settings.startHeight)/2, x2:(mapWidth+settings.startHeight)/2, y2:(mapHeight+settings.startHeight)/2 };
-	setScrollLimits(x, y, x2, y2);
+	if (settings.expansionDirection == "all")
+	{
+		const {x, y, x2, y2} = {x:(mapWidth-settings.startHeight)/2, y:(mapHeight-settings.startHeight)/2, x2:(mapWidth+settings.startHeight)/2, y2:(mapHeight+settings.startHeight)/2 };
+		setScrollLimits(x, y, x2, y2);
+	}
+	if (settings.expansionDirection == "north")
+	{
+		const {x, y, x2, y2} = {x:0, y:(mapHeight-settings.startHeight), x2:mapWidth, y2:mapHeight };
+		setScrollLimits(x, y, x2, y2);
+	}
 	const salutation = [
 		"Mod from Vaut. Repository: https://github.com/vaut/WZmodWave",
 		"Explore the Theta sector and destroy the enemy forces.",
@@ -312,7 +320,7 @@ function newWave()
 		return;
 	}
 
-	if (numberWave % 4 == 0)
+	if (numberWave % 4 == 0 || settings.expansionDirection == "north")
 	{
 		unitZone.y = y-LZRADIUS;
 		unitZone.y2 = y;
@@ -320,7 +328,7 @@ function newWave()
 		structZone.y2 = y-LZRADIUS*2;
 		y -= settings.expansion;
 	}
-	if (numberWave % 4 == 1)
+	if (numberWave % 4 == 1 && settings.expansionDirection == "all")
 	{
 		unitZone.x = x-LZRADIUS;
 		unitZone.x2 = x;
@@ -328,7 +336,7 @@ function newWave()
 		structZone.x2 = x-LZRADIUS*2;
 		x -= settings.expansion;
 	}
-	if (numberWave % 4 == 2)
+	if (numberWave % 4 == 2 && settings.expansionDirection == "all")
 	{
 		unitZone.y = y2;
 		unitZone.y2 = y2+LZRADIUS;
@@ -336,7 +344,7 @@ function newWave()
 		structZone.y2 = y2+settings.expansion;
 		y2 += settings.expansion;
 	}
-	if (numberWave % 4 == 3)
+	if (numberWave % 4 == 3 && settings.expansionDirection == "all")
 	{
 		unitZone.x = x2;
 		unitZone.x2 = x2+LZRADIUS;

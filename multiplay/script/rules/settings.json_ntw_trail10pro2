@@ -1,0 +1,13 @@
+{
+	"protectTimeM": 4,
+	"totalGameTime": 90,
+	"expansion": 10,
+	"startHeight": 35,
+	"Kpower" : 0.25,
+	"doublePowerM": 20,
+	"pauseM": 2,
+	"inWavePauseS": 6,
+	"timeHandicapM": 0,
+	"Kfinal": 4,
+	"expansionDirection" : "north"
+}

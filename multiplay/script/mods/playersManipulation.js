@@ -96,14 +96,27 @@ function pushUnitsAndStruct()
 	const K=(numOil)/players.length/defoultNumOil;
 	const NumConstruct = Math.ceil(K*defoultNumConstruct);
 	const NumStruct =  Math.ceil(K*5);
+
 	const R=(scrollLimits.x2-scrollLimits.x)/3;
 	players.forEach((p, index) =>
 	{
 		let constructor;
-		const A = 2*Math.PI*index/players.length;
-		const XP = (Math.sin(A)*R)+x;
-		const YP = (Math.cos(A)*R)+y;
-		const HQ = {x:XP,y:YP};
+		let HQ = {};
+		if (settings.expansionDirection == "all")
+		{
+
+			const A = 2*Math.PI*index/players.length;
+			const XP = (Math.sin(A)*R)+x;
+			const YP = (Math.cos(A)*R)+y;
+			HQ = {x:XP,y:YP};
+		}
+		if (settings.expansionDirection == "north")
+		{
+			const XP = ((mapWidth-(2*BORDER))/(players.length))*(index+0.5)+BORDER;
+			const YP = scrollLimits.y2-(scrollLimits.y2-scrollLimits.y)/2;
+			HQ = {x:XP,y:YP};
+		}
+
 		if (me == p) {centreView(HQ.x, HQ.y);}
 		for (let i = 0; i < NumConstruct; i++)
 		{
