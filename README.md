@@ -1,5 +1,7 @@
 [Русский/Russian](README.ru.md)
 
+[Français/French](README.fr.md)
+
 # Wave Defense MOD
 
 Mod changes skirmish mode to wave protection mode. Supports multiplayer.
