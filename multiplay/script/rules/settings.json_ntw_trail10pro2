@@ -3,11 +3,11 @@
 	"totalGameTime": 90,
 	"expansion": 10,
 	"startHeight": 35,
-	"Kpower" : 0.25,
-	"doublePowerM": 20,
+	"Kpower" : 0.20,
+	"doublePowerM": 40,
 	"pauseM": 2,
-	"inWavePauseS": 6,
-	"timeHandicapM": 0,
-	"Kfinal": 4,
+	"inWavePauseS": 11,
+	"timeHandicapM": 2,
+	"Kfinal": 2,
 	"expansionDirection" : "north"
 }
