@@ -6,6 +6,7 @@
 	"startHeight": 50,
 	"Kpower" : 0.15,
 	"doublePowerM": 120,
+        "multiplierForStructures": 0.7,
 	"pauseM": 0.8,
 	"inWavePauseS": 7,
 	"timeHandicapM": 2,

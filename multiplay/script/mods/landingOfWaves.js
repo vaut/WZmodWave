@@ -15,6 +15,7 @@ var wave = {time:0, active: false };
 var numberWave = 0;
 var BORDER = 4;
 var LZRADIUS = 4;
+var RESIDUAL = 0.07;
 
 
 function getWaveAI()
@@ -84,7 +85,6 @@ function wa_eventGameInit()
 	console(salutation);
 	debug (salutation);
 	scheduler();
-	//setTimer("removeUnusedUnits", 2*60*1000);
 	setTimer("removeVtol", 6*1000);
 	setMissionTime(settings.protectTimeM*60);
 	makeComponentAvailable("MG1Mk1", AI);
@@ -111,7 +111,7 @@ function scheduler()
 
 
 	// отразили волну
-	if (wave.droids.length == 0 && wave.active == true && wave.budget <= 0 )
+	if (wave.droids.length <= residualAdjustment(wave.droidsCount) && wave.active == true && wave.budget <= 0 )
 	{
 		wave.time = gameTime/1000 + settings.pauseM * 60;
 		setMissionTime(settings.pauseM*60);
@@ -141,6 +141,11 @@ function scheduler()
 	queue("scheduler", 3*1000);
 }
 
+function residualAdjustment(count)
+{
+	return Math.ceil(count*RESIDUAL);
+}
+
 function removeVtol()
 {
 	if (enumStruct(AI, REARM_PAD).length <= 0)
@@ -157,21 +162,6 @@ function removeVtol()
 			});
 	}
 }
-/* не работает, может уничтожить новых юнитов в высадке
-function removeUnusedUnits()
-{
-	const droids = enumDroid(AI, "DROID_WEAPON");
-	droids
-		.filter((d) =>
-		{
-			return d.weapons[0].lastFired - gameTime < 3*60*1000;
-		})
-		.forEach((u) =>
-		{
-			removeObject(u);
-		});
-}
-*/
 
 function landing()
 {
@@ -330,9 +320,15 @@ function newWave()
 			droids: [],
 			unitZone: {x:LZRADIUS+BORDER, y:LZRADIUS+BORDER, x2:x2-LZRADIUS-BORDER, y2:y2-LZRADIUS-BORDER},
 			active:true,
-			time:0
+			time:0,
+			droidsCount:0
 		};
 		setScrollLimits(x, y, x2, y2);
+		console(_(
+			`Commander, we've spotted a lot of transports.
+Our air defense cannot stop them. Landings are observed throughout the sector.
+THEY ARE IN THE TREES, JOHNNY! FUCKING HOOKES EVERYWHERE!`
+		));
 		return;
 	}
 
@@ -375,14 +371,15 @@ function newWave()
 	wave= {
 		type: "NORMAL",
 		budget: budget.budget,
-		structBudget: budget.budget,
+		structBudget: budget.budget*settings.multiplierForStructures,
 		rang: budget.rang,
 		experience: budget.experience,
 		droids: [],
 		unitZone: unitZone,
 		structZone: structZone,
 		active:true,
-		time:0
+		time:0,
+		droidsCount:0
 	};
 }
 
@@ -492,13 +489,15 @@ function pushUnits()
 			allTemplates[droidName].weapons
 		).power;
 		wave.droids.push(unit);
+		wave.droidsCount++;
 	}
 	hackNetOn();
 	if (wave.budget <= 0)
 	{
 		numberWave++;
-		debug("Wave number", numberWave+".", "Units landed", wave.droids.length+".");
-		console("Wave number",numberWave+".", "Units landed", wave.droids.length+".");
+		const str = [_("Wave number"), numberWave, ". ", _("Units landed "), wave.droidsCount, "."].join("");
+		debug(str);
+		console(str);
 		setMissionTime(-1);
 	}
 	playSound("pcv395.ogg", wave.LZ.x, wave.LZ.y, 0);
