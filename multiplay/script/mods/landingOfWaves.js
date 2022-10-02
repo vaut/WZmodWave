@@ -1,20 +1,20 @@
-const allTemplates = includeJSON("templates.json");
-const allStructs = includeJSON("structure.json");
+var allTemplates = includeJSON("templates.json");
+var allStructs = includeJSON("structure.json");
 include("multiplay/script/lib.js");
 include("multiplay/script/mods/AItechAndComponents.js");
-const settings = includeJSON("settings.json");
-const research = includeJSON("research.json");
+
+var settings = {};
+var research = includeJSON("research.json");
 
 namespace("wa_");
 
 // константы типы волн
-const WAVETYPE = ["NORMAL", "ROYAL"];
+var WAVETYPE = ["NORMAL", "ROYAL"];
+var {waveDifficulty, AI} = getWaveAI(); //num wawe AI
 var wave = {time:0, active: false };
 var numberWave = 0;
-const BORDER = 4;
-const LZRADIUS = 4;
-
-const {waveDifficulty, AI} =  getWaveAI(); //num wawe AI
+var BORDER = 4;
+var LZRADIUS = 4;
 
 
 function getWaveAI()
@@ -46,8 +46,24 @@ function getWaveAI()
 }
 
 
+function loadSettings()
+{
+	settingsName = [mapName, "settings.json"].join(".");
+	settings = includeJSON(settingsName);
+	if (typeof (settings) !== 'object')
+	{
+		settings = includeJSON("settings.json");
+		const str = settingsName + _(" settings file not found\nDefault settings are used");
+		debug(str);
+		console(str);
+	}
+	LZRADIUS = settings.LZRADIUS;
+}
+
+
 function wa_eventGameInit()
 {
+	loadSettings();
 	if (settings.expansionDirection == "all")
 	{
 		const {x, y, x2, y2} = {x:(mapWidth-settings.startHeight)/2, y:(mapHeight-settings.startHeight)/2, x2:(mapWidth+settings.startHeight)/2, y2:(mapHeight+settings.startHeight)/2 };

@@ -2,6 +2,7 @@
 	"protectTimeM": 4,
 	"totalGameTime": 90,
 	"expansion": 10,
+	"LZRADIUS": 4,
 	"startHeight": 35,
 	"Kpower" : 0.20,
 	"doublePowerM": 40,
