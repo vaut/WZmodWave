@@ -15,7 +15,8 @@ var wave = {time:0, active: false };
 var numberWave = 0;
 var BORDER = 4;
 var LZRADIUS = 4;
-var RESIDUAL = 0.07;
+var RESIDUAL = 0.03;
+var INCREM_PAUSEM = 0.1;
 
 
 function getWaveAI()
@@ -113,8 +114,8 @@ function scheduler()
 	// отразили волну
 	if (wave.droids.length <= residualAdjustment(wave.droidsCount) && wave.active == true && wave.budget <= 0 )
 	{
-		wave.time = gameTime/1000 + settings.pauseM * 60;
-		setMissionTime(settings.pauseM*60);
+		wave.time = gameTime/1000 + (settings.pauseM + INCREM_PAUSEM * numberWave)  * 60 ;
+		setMissionTime((settings.pauseM + INCREM_PAUSEM * numberWave) * 60);
 		wave.active = false;
 		queue("scheduler", 3*1000);
 		return;
@@ -495,7 +496,7 @@ function pushUnits()
 	if (wave.budget <= 0)
 	{
 		numberWave++;
-		const str = [_("Wave number"), numberWave, ". ", _("Units landed "), wave.droidsCount, "."].join("");
+		const str = [_("Wave number "), numberWave, ". ", _("Units landed "), wave.droidsCount, "."].join("");
 		debug(str);
 		console(str);
 		setMissionTime(-1);
