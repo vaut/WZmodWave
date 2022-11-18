@@ -112,7 +112,7 @@ function scheduler()
 
 
 	// отразили волну
-	if (wave.droids.length <= residualAdjustment(wave.droidsCount) && wave.active == true && wave.budget <= 0 )
+	if (wave.droids.length <= residualAdjustment(wave.droidsCount) && wave.active == true && wave.budget <= 0 && wave.type !== "FINAL" )
 	{
 		wave.time = gameTime/1000 + (settings.pauseM + INCREM_PAUSEM * numberWave)  * 60 ;
 		setMissionTime((settings.pauseM + INCREM_PAUSEM * numberWave) * 60);
