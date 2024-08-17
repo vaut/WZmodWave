@@ -1,0 +1,15 @@
+{
+	"protectTimeM": 5,
+	"totalGameTime": 120,
+	"expansion": 10,
+	"LZRADIUS": 4,
+	"startHeight": 35,
+	"Kpower" : 0.65,
+	"doublePowerM": 140,
+	"multiplierForStructures": 0.5,
+	"pauseM": 2.2,
+	"inWavePauseS": 11,
+	"timeHandicapM": 2,
+	"Kfinal": 4,
+	"expansionDirection" : "north"
+}
