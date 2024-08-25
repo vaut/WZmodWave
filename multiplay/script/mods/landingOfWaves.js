@@ -50,7 +50,8 @@ function getWaveAI()
 
 function loadSettings()
 {
-	settingsName = [mapName, "settings.json"].join(".");
+	const cleanMapName = mapName.replace(/-T[1-4]$/, "");
+	settingsName = [cleanMapName, "settings.json"].join(".");
 	settings = includeJSON(settingsName);
 	if (typeof (settings) !== 'object')
 	{
@@ -313,6 +314,7 @@ function newWave()
 
 		giveResearch();
 		const budget = calcBudget(getTotalTimeS());
+		setPower (budget, AI);
 		wave= {
 			type: "FINAL",
 			budget: budget.budget * settings.Kfinal,
