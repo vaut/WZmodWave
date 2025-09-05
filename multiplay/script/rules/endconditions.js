@@ -7,7 +7,6 @@ const STATE_loser = "loser";
 const STATE_spectator = "spectator";
 const STRUCTS = [FACTORY, CYBORG_FACTORY, VTOL_FACTORY]; // structures in which you can continue to play
 
-
 // Uses global var: ```idleTime```
 // The time that the player's inactivity is allowed. Actions are considered
 // - unit building
@@ -15,9 +14,8 @@ const STRUCTS = [FACTORY, CYBORG_FACTORY, VTOL_FACTORY]; // structures in which 
 // - construction of base structures (factories, power plants, laboratories, modules and oil rigs)
 // - dealing damage
 const BASESTRUCTS = [FACTORY, CYBORG_FACTORY, VTOL_FACTORY, HQ, RESOURCE_EXTRACTOR, POWER_GEN, RESEARCH_LAB];
-const ENABLE_activity = (challenge != true && isMultiplayer === true && idleTime > 0); //The prohibition on passive play can interfere when playing against bots. There is no reason to end a fight earlier in PVE.
-//const ENABLE_activity = true; //debug
 
+var ENABLE_activity;
 var teams; // array class instance Team
 var playersTeam; // array class instancePlayer
 
@@ -64,16 +62,15 @@ class Player
 
 	canReachOil()
 	{
-		if (enumStruct(this.playNum, RESOURCE_EXTRACTOR).length != 0)
+		if (enumStruct(this.playNum, RESOURCE_EXTRACTOR).length > 0)
 		{
 			return true;
 		}
 
-		let oils = enumFeature(ALL_PLAYERS).filter(function(e)
-		{
-			return e.stattype === OIL_RESOURCE;
-		});
-		for (let playnum = 0; playnum < maxPlayers; playnum++)
+		let oils = enumFeature(ALL_PLAYERS).filter((e) => (
+			e.stattype === OIL_RESOURCE
+		));
+		for (let playnum = 0; playnum < maxPlayers; ++playnum)
 		{
 			oils = oils.concat(enumStruct(playnum, "A0ResourceExtractor"));
 		}
@@ -97,11 +94,11 @@ class Player
 	finalizeGame(state)
 	{
 		const transformToSpectator = (state === STATE_loser && !isSpectator(this.playNum) && playerData[this.playNum].isHuman);
-		if (state === STATE_loser && this.playNum == selectedPlayer)
+		if (state === STATE_loser && this.playNum === selectedPlayer)
 		{
 			gameOverMessage(false);
 		}
-		if (state === STATE_winner && this.playNum == selectedPlayer)
+		if (state === STATE_winner && this.playNum === selectedPlayer)
 		{
 			gameOverMessage(true);
 		}
@@ -113,25 +110,18 @@ class Player
 	}
 }
 
-
 class Team
 {
 	constructor(playerPlayNums)
 	{
-		this.players = playerPlayNums.map(function(playNum)
-		{
-			return new Player(playNum);
-		}); // array class instance  Player
+		this.players = playerPlayNums.map((playNum) => (new Player(playNum))); // array class instance  Player
 		this.lastActivity = gameTime;
-		this.onlyAIbots = playerPlayNums.some((playNum) => {
-			return playerData[playNum].isAI === true;
+		this.onlyAIbots = playerPlayNums.some((playNum) => (
+			playerData[playNum].isAI === true
+		));
+		playerPlayNums.forEach((playerNum) => {
+			playersTeam[playerNum] = this;
 		});
-		playerPlayNums.forEach(
-			(playerNum) =>
-			{
-				playersTeam[playerNum]= this;
-			}
-		);
 	}
 
 	activeGame()
@@ -208,7 +198,7 @@ class Team
 			this.players.forEach(
 				(player) =>
 				{
-					//					debug("Setting player " + player.playNum + " to state: " + this.state);
+//					debug("Setting player " + player.playNum + " to state: " + this.state);
 					player.finalizeGame(this.state);
 				}
 			);
@@ -223,12 +213,10 @@ class Team
 
 function checkEndConditions()
 {
-	const newlyLosingTeams = teams.filter((team) =>
-	{
-		return (team.isContender() && !team.canPlay());
-	});
-	newlyLosingTeams.forEach((team) =>
-	{
+	const newlyLosingTeams = teams.filter((team) => (
+		team.isContender() && !team.canPlay()
+	));
+	newlyLosingTeams.forEach((team) => {
 		// inform other players if this team / player lost by virtue of being inactive
 		if (!team.activeGame() && ENABLE_activity)
 		{
@@ -244,14 +232,10 @@ function checkEndConditions()
 		// set to loser status
 		team.setState(STATE_loser);
 	});
-	const contenderTeams = teams.filter((team) =>
-	{
-		return team.isContender();
-	});
+	const contenderTeams = teams.filter((team) => (team.isContender()));
 	if ((isMapFullyOpen() && wave.active === false && countDroid(DROID_ANY, AI) === 0) || contenderTeams.length === 0) // custum end game
 	{
-		contenderTeams.forEach((team) =>
-		{
+		contenderTeams.forEach((team) => {
 			team.setState(STATE_winner);
 		});
 
@@ -259,7 +243,7 @@ function checkEndConditions()
 		// (can be spectator-only slots who have not yet received a message,
 		// or previous losers who were converted to spectators who should now receive
 		// a new message that the game has fully ended)
-		if (isSpectator(-1) && !newlyLosingTeams.some((team) => { return team.containsPlayer(selectedPlayer); }))
+		if (isSpectator(-1))
 		{
 			gameOverMessage(false);
 		}
@@ -308,9 +292,9 @@ function inOneTeam(playnum, splaynum)
 function createTeams()
 {
 	teams = [];
-	playersTeam = new Array(maxPlayers);
-	const inTeamPlayNums = new Array(maxPlayers).fill(false);
-	for (let playNum = 0; playNum < maxPlayers; playNum++)
+	playersTeam = Array(maxPlayers);
+	const inTeamPlayNums = Array(maxPlayers).fill(false);
+	for (let playNum = 0; playNum < maxPlayers; ++playNum)
 	{
 		if (isSpectator(playNum)|| playerData[playNum].name == "Wave")
 		{
@@ -327,7 +311,7 @@ function createTeams()
 		}
 		inTeamPlayNums[playNum] = true;
 		const members =[playNum];
-		for (let splayNum = 0; splayNum < maxPlayers; splayNum++)
+		for (let splayNum = 0; splayNum < maxPlayers; ++splayNum)
 		{
 			if (isSpectator(splayNum))
 			{
@@ -338,7 +322,7 @@ function createTeams()
 				// not an allocated slot (is closed or no player / AI)
 				continue;
 			}
-			if ( inTeamPlayNums[splayNum] === false && inOneTeam(playNum, splayNum) === true)
+			if (inTeamPlayNums[splayNum] === false && inOneTeam(playNum, splayNum) === true)
 			{
 				members.push(splayNum);
 				inTeamPlayNums[splayNum] = true;
@@ -364,6 +348,7 @@ function createTeams()
 
 function conditions_eventGameInit()
 {
+	ENABLE_activity = (challenge != true && isMultiplayer === true && idleTime > 0); //The prohibition on passive play can interfere when playing against bots. There is no reason to end a fight earlier in PVE.
 	createTeams();
 	//find old type spectators
 	if  (ENABLE_activity && !isSpectator(-1))
@@ -371,11 +356,32 @@ function conditions_eventGameInit()
 		setTimer("activityAlert", 10*1000);
 	}
 	setTimer("checkEndConditions", 3000);
+
+	if (gameTimeLimit > 0)
+	{
+		queue("timeOutGameTenMinWarning", gameTimeLimit - (10 * 60 * 1000));
+		queue("timeOutGame", gameTimeLimit);
+	}
 }
 
 function conditions_eventGameLoaded()
 {
 	createTeams();
+}
+
+function timeOutGameTenMinWarning()
+{
+	console(
+		_("Host-configured game time limit is approaching. If there is no winner within 10 minutes, the game will end.")
+	);
+}
+
+function timeOutGame()
+{
+	console(
+		_("Host-configured game time limit exceeded. Game is over.")
+	);
+	gameOverMessage(false);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -385,7 +391,7 @@ function conditions_eventGameLoaded()
 function activityAlert()
 {
 	// avoid using selectedPlayer to access playersTeam array if it's a spectator (as it may be beyond the bounds of playersTeam.length for spectator-only slots)
-	if (isSpectator(-1) || (playersTeam[selectedPlayer].state != STATE_contender))
+	if (isSpectator(-1) || (playersTeam[selectedPlayer].state !== STATE_contender))
 	{
 		setMissionTime(-1);
 		removeTimer("activityAlert");
@@ -400,10 +406,9 @@ function activityAlert()
 			_("- unit building - research completion - construction of base structures (factories, power plants, laboratories, modules and oil derricks) - dealing damage")
 		);
 		/*
-		if (getMissionTime() > idleTime)
+		if (getMissionTime() <= -1)
 		{
-			setMissionTime(
-				(playersTeam[selectedPlayer].lastActivity + idleTime - gameTime) / 1000);
+			setMissionTime((playersTeam[selectedPlayer].lastActivity + idleTime - gameTime) / 1000);
 		}
 		*/
 	}
