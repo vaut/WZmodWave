@@ -19,7 +19,7 @@
         "name": "Wave Mod",
         "techLevel": 1,
         "spectatorHost": true,
-        "openSpectatorSlots": 9,
+        "openSpectatorSlots": 9
     },
     "player_0":{
         "position": 0,
