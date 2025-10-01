@@ -1,6 +1,5 @@
 function avalibleScavComponents(player)
 {
-
 	const SCAV_COMPONENTS = [
 		"B4body-sml-trike01",
 		"B3body-sml-buggy01",
@@ -49,10 +48,9 @@ function avalibleScavComponents(player)
 	}
 }
 
-
 function getRedComponents(timeS)
 {
-	redComponents = [];
+	let redComponents = [];
 	for (var tech in allRes)
 	{
 		if (allRes[tech] <= timeS && research[tech].redComponents)

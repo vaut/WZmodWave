@@ -28,8 +28,17 @@ namespace("wa_players_");
 
 function wa_players_eventGameInit()
 {
+	if (settings.playersManipulation === false)
+	{
+		return;
+	}
+	if (settings.playersManipulation === "AI")
+	{
+		cleanUnitsAndStruct(AI);
+		return;
+	}
 	addSpoter();
-	cleanUnitsAndStruct();
+	cleanAllUnitsAndStruct();
 	queue("recalcLimits",100);
 	queue("pushUnitsAndStruct",200);
 	setTimer("recalcLimits", 30*1000);
@@ -46,22 +55,18 @@ function addSpoter()
 	}
 }
 
-
-function cleanUnitsAndStruct()
+function cleanAllUnitsAndStruct()
 {
 	for (var playnum = 0; playnum < maxPlayers; playnum++)
 	{
-		enumStruct(playnum).forEach((s) =>
-		{
-			removeObject(s);
-		});
-
-		enumDroid(playnum).forEach((d) =>
-		{
-			removeObject(d);
-		});
-
+		cleanUnitsAndStruct(playnum);
 	}
+}
+
+function cleanUnitsAndStruct(playnum)
+{
+	enumDroid(playnum).forEach(d => removeObject(d));
+	enumStruct(playnum).forEach(s => removeObject(s));
 }
 
 function pushUnitsAndStruct()
@@ -133,8 +138,6 @@ function pushUnitsAndStruct()
 	});
 	if (!isSpectator(-1))
 	{
-
-
 		queue("reticuleManufactureCheck");
 		queue("reticuleResearchCheck");
 		queue("reticuleBuildCheck");

@@ -49,23 +49,29 @@ All parameters are in `multiplay/script/rules/settings.json`:
 
 ```
 {
-	"protectTimeM": 4, # minutes untill first wave
-	"totalGameTime": 90, # time in minutes untill enemies reach the rank 16
+	"protectTimeM": 4, # minutes until first wave
+	"totalGameTime": 90, # time in minutes until enemies reach the rank 16
 	"expansion": 10, # tile growth after each wave
 	"startHeight": 35, # initial map height when using one-side expansion mode, or the initial radius otherwise 
 	"Kpower" : 0.25, # linear wave growth factor, depends on time
 	"doublePowerM": 20, # quadratic wave growth factor, depends on time
+	"multiplierForStructures": 0.7, # control the amount of structures
 	"pauseM": 2, # delay in minutes between waves
 	"inWavePauseS": 11 # delay between landings within the same wave
-	"Kfinal": 2 # final wave size multiplier
-	"expansionDirection": "north"/"all" # expansion direction
-	"timeHandicapM": 0.5 # slight lag in research for AI
+	"timeHandicapM": 0.5, # slight lag in research for AI
+	"Kfinal": 2, # final wave size multiplier
+	"expansionDirection": "north"/"all", # expansion direction
+	"RESIDUAL": 0.03, # a wave is considered defeated when only 3% of units remain
+	"INCREM_PAUSEM": 0.1, # each wave, increase the delay between waves in minutes
+	"waterWave": false, # waves can land in water
+	"playersManipulation": true # change the player's base and limits at start
+	"structs": ["DEFENSE", "GENERIC", "REARM PAD"] # allowed structure types
 }
 ``` 
 
 ## Tricks & hints
 - Enemies don't make any difference between a structure or a droid. You could use 
-cheap  structures to distract them, and get some time
+cheap structures to distract them, and get some time
 - Enemy's droid templates do vary with time, but do not depend on your templates. Try to find more effective propulsion/body combinations.
 - Enemy doesn't have Sensors units, but has artillery and sensor towers.
 - In about an hour of game, number of enemies will start growing huge. You should try to win before that time mark.

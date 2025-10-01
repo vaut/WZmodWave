@@ -22,19 +22,19 @@ function cosPhy(pos, target1, target2)
 	return (a.x*b.x+a.y*b.y)*Math.abs(a.x*b.x+a.y*b.y)/((a.x**2+a.y**2)*(b.x**2+b.y**2));
 }
 
-function sortBymDist (list, pos)
+function sortBymDist(list, pos)
 {
 	const sorter = (a, b) => mDist (a, pos) -  mDist (b, pos);
 	return list.sort(sorter);
 }
 
-function sortByDist (list, pos)
+function sortByDist(list, pos)
 {
 	const sorter = (a, b) => dist (a, pos) -  dist (b, pos);
 	return list.sort(sorter);
 }
 
-function getRandom (arr, n)
+function getRandom(arr, n)
 {
 	let len = arr.length;
 	if (!n) {return arr[Math.floor(Math.random() * len)];}
@@ -89,7 +89,6 @@ function getStartTime()
 
 function getNumOil()
 {
-
 	const limits =  getScrollLimits();
 	numOil = enumFeature(ALL_PLAYERS).filter(function (e)
 	{
@@ -103,7 +102,6 @@ function getNumOil()
 	}
 	return numOil;
 }
-
 
 function inScrollLimits(obj,limits)
 {

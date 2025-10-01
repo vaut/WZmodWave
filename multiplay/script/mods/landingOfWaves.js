@@ -1,10 +1,10 @@
-var allTemplates = includeJSON("templates.json");
-var allStructs = includeJSON("structure.json");
 include("multiplay/script/lib.js");
 include("multiplay/script/mods/AItechAndComponents.js");
 
 var settings = {};
-var research = includeJSON("research.json");
+var allTemplates = {};
+var allStructs = {};
+var research = {};
 
 namespace("wa_");
 
@@ -14,9 +14,9 @@ var {waveDifficulty, AI} = getWaveAI(); //num wawe AI
 var wave = {time:0, active: false };
 var numberWave = 0;
 var BORDER = 4;
-var LZRADIUS = 4;
-var RESIDUAL = 0.03;
-var INCREM_PAUSEM = 0.1;
+var LZRADIUS = null; // initialize in loadSettings()
+var RESIDUAL = null; // initialize in loadSettings()
+var INCREM_PAUSEM = null; // initialize in loadSettings()
 
 
 function getWaveAI()
@@ -47,26 +47,51 @@ function getWaveAI()
 	return {AI:AI, waveDifficulty: waveDifficulty};
 }
 
-
 function loadSettings()
 {
 	const cleanMapName = mapName.replace(/-T[1-4]$/, "");
-	settingsName = [cleanMapName, "settings.json"].join(".");
-	settings = includeJSON(settingsName);
-	if (typeof (settings) !== 'object')
+	const settingsName = [cleanMapName, "settings.json"].join(".");
+
+	let defaultSettings = includeJSON("settings.json");
+	if (!defaultSettings)
 	{
-		settings = includeJSON("settings.json");
-		const str = settingsName + _(" settings file not found\nDefault settings are used");
+		throw new Error("Missing default settings file: multiplay/script/rules/settings.json");
+	}
+
+	let customSettings = includeJSON(settingsName);
+	if (!customSettings)
+	{
+		customSettings = {};
+
+		const str = settingsName + _(" settings file not found\nUsing default settings");
 		debug(str);
 		console(str);
 	}
+
+	settings = {
+		...defaultSettings,
+		...customSettings
+	}
+
 	LZRADIUS = settings.LZRADIUS;
+	RESIDUAL = settings.RESIDUAL;
+	INCREM_PAUSEM = settings.INCREM_PAUSEM;
 }
 
+function loadData()
+{
+	allTemplates = includeJSON("templates.json");
+	allStructs = includeJSON("structure.json");
+	research = includeJSON("research.json");
+
+	// Needle Gun is better than Heavy Cannon
+	research["R-Wpn-RailGun01"].redComponents.push("Cannon375mmMk1");
+}
 
 function wa_eventGameInit()
 {
 	loadSettings();
+	loadData();
 	if (settings.expansionDirection == "all")
 	{
 		const {x, y, x2, y2} = {x:(mapWidth-settings.startHeight)/2, y:(mapHeight-settings.startHeight)/2, x2:(mapWidth+settings.startHeight)/2, y2:(mapHeight+settings.startHeight)/2 };
@@ -85,7 +110,7 @@ function wa_eventGameInit()
 		"difficulty " + Math.round(waveDifficulty*100) +"%",
 	].join("\n");
 	console(salutation);
-	debug (salutation);
+	debug(salutation);
 	scheduler();
 	setTimer("removeVtol", 6*1000);
 	setMissionTime(settings.protectTimeM*60);
@@ -179,8 +204,8 @@ function landing()
 	wave.LZ = getLZ();
 	setDroidsName();
 	pushUnits();
-	let avalibleStructs = getStructs(getTotalTimeS());
-	pushStructss(avalibleStructs);
+	let availableStructs = getStructs(getTotalTimeS());
+	pushStructss(availableStructs);
 }
 
 function getLZ()
@@ -201,12 +226,31 @@ function LZtile(LZ)
 	const CLIFF = "X"; //impassable tile
 	const POSS = "."; //landing is possible
 
+	// Returns the structure/feature at x, y
+	// Returns null if empty
+	// NOTE not accurate for big structures/features (e.g. factories)
+	function getTileStructFeat(x, y)
+	{
+		return (
+			enumArea(x, y, x+1, y+1, ALL_PLAYERS, false).filter(o => o.type === STRUCTURE || o.type === FEATURE)?.[0] ?? null
+		);
+	}
+
 	function isPassable(x, y)
 	{
-		//TODO добавить проверку есть ли тут объект
-		return (
-			terrainType(x, y) !== TER_CLIFFFACE && terrainType(x, y) !== TER_WATER
-		);
+		if (terrainType(x, y) == TER_CLIFFFACE)
+		{
+			return false;
+		}
+		if (getTileStructFeat(x, y))
+		{
+			return false;
+		}
+		if (terrainType(x, y) == TER_WATER && settings.waterWave == false)
+		{
+			return false;
+		}
+		return true;
 	}
 
 	function markAvailableTile(tiles)
@@ -296,7 +340,6 @@ function LZtile(LZ)
 		}
 	}
 	sortBymDist(LZtile, LZ);
-	//TODO добавить фильтр занятых объектами клеток
 	return LZtile;
 }
 
@@ -508,51 +551,67 @@ function pushUnits()
 
 function getStructs(timeS)
 {
-	let avalibleStructs = [];
+	let availableStructs = [];
 	const redComponents = getRedComponents(timeS);
-	for (var key in allStructs)
+	for (const [id, struct] of Object.entries(allStructs))
 	{
-		if (isStructureAvailable(key, AI) && (allStructs[key].type === "DEFENSE" || allStructs[key].type === "GENERIC"))
+		if (settings.structs && !settings.structs.includes(struct.type))
 		{
-			if (allStructs[key].weapons && redComponents.includes(allStructs[key].weapons[0]))
-			{
-				continue;
-			}
-			avalibleStructs.push(key);
+			continue;
 		}
-		if (isStructureAvailable(key, AI) && allStructs[key].type === "REARM PAD")
+		if (!isStructureAvailable(id, AI))
 		{
-			avalibleStructs.push(key);
-
+			continue;
 		}
+		if (struct.weapons && redComponents.includes(struct.weapons[0]))
+		{
+			continue;
+		}
+		availableStructs.push(id);
 	}
-	return avalibleStructs;
+	return availableStructs;
 }
 
-function pushStructss(avalibleStructs)
+function pushStructss(availableStructs)
 {
 	if (!wave.structZone) {return;}
 	const {x, y, x2, y2} = wave.structZone;
-	if (avalibleStructs.length === 0)
+	if (availableStructs.length === 0)
 	{
 		return;
 	}
+
 	while (wave.structBudget > 0)
 	{
-		let X = (syncRandom(x2-x)+x)*128;
-		let Y = (syncRandom(y2-y)+y)*128;
-		if (getObject(X/128, Y/128))
+		const X = (syncRandom(x2-x)+x);
+		const Y = (syncRandom(y2-y)+y);
+
+		if (terrainType(X, Y) == TER_CLIFFFACE || terrainType(X, Y) == TER_WATER)
+		{
+			wave.structBudget--; //защита от бесконечного цикла
+			continue;
+		}
+
+		if (getObject(X, Y))
 		{
 			wave.structBudget--; //защита от бесконечного цикла при нехватке места
 			continue;
 		}
-		let key = avalibleStructs[syncRandom(avalibleStructs.length)];
-		hackNetOff();
-		addStructure(key, AI, X, Y);
-		hackNetOn();
-		wave.structBudget-=allStructs[key].buildPower;
-	}
 
+		const key = availableStructs[syncRandom(availableStructs.length)];
+		const struct = allStructs[key];
+
+		if (enumStruct(AI, key).length >= getStructureLimit(key, AI))
+		{
+			wave.structBudget--; //защита от бесконечного цикла
+			continue;
+		}
+
+		hackNetOff();
+		addStructure(key, AI, X*128, Y*128);
+		hackNetOn();
+		wave.structBudget -= struct.buildPower;
+	}
 }
 
 

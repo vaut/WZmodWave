@@ -2,14 +2,19 @@
 	"protectTimeM": 3,
 	"totalGameTime": 120,
 	"expansion": 24,
-	"LZRADIUS" : 4,
+	"LZRADIUS": 4,
 	"startHeight": 50,
-	"Kpower" : 0.15,
+	"Kpower": 0.15,
 	"doublePowerM": 190,
 	"multiplierForStructures": 0.3,
 	"pauseM": 0.9,
 	"inWavePauseS": 7,
 	"timeHandicapM": 2,
 	"Kfinal": 4,
-	"expansionDirection" : "all"
+	"expansionDirection" : "all",
+	"RESIDUAL": 0.03,
+	"INCREM_PAUSEM": 0.1,
+	"waterWave": false,
+	"playersManipulation": true,
+	"structs": ["DEFENSE", "GENERIC", "REARM PAD"]
 }
