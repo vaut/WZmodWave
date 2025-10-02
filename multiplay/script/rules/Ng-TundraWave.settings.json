@@ -16,5 +16,6 @@
 	"INCREM_PAUSEM": 0.1,
 	"waterWave": false,
 	"playersManipulation": true,
-	"structs": ["DEFENSE", "GENERIC", "REARM PAD"]
+	"structs": ["DEFENSE", "GENERIC", "REARM PAD"],
+	"enableExperience": true
 }

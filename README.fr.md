@@ -42,8 +42,9 @@ Tous les paramètres sont dans `multiplay/script/rules/settings.json`:
 	"RESIDUAL": 0.03, # une vague est considérée comme vaincue lorsqu'il ne reste plus que 3 % des unités
 	"INCREM_PAUSEM": 0.1, # à chaque vague, augmentez le délai entre les vagues en minutes
 	"waterWave": false, # les vagues peuvent débarquer dans l'eau
-	"playersManipulation": true # modifications apportées à la base du joueur et restrictions au début du jeu
-	"structs": ["DEFENSE", "GENERIC", "REARM PAD"] # Types de structures autorisées
+	"playersManipulation": true, # modifications apportées à la base du joueur et restrictions au début du jeu
+	"structs": ["DEFENSE", "GENERIC", "REARM PAD"], # Types de structures autorisées
+	"enableExperience": true, # Grades des unités. Activé/Désactivé
 }
 ```
 

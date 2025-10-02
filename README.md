@@ -64,8 +64,9 @@ All parameters are in `multiplay/script/rules/settings.json`:
 	"RESIDUAL": 0.03, # a wave is considered defeated when only 3% of units remain
 	"INCREM_PAUSEM": 0.1, # each wave, increase the delay between waves in minutes
 	"waterWave": false, # waves can land in water
-	"playersManipulation": true # change the player's base and limits at start
-	"structs": ["DEFENSE", "GENERIC", "REARM PAD"] # allowed structure types
+	"playersManipulation": true, # change the player's base and limits at start
+	"structs": ["DEFENSE", "GENERIC", "REARM PAD"], # allowed structure types
+	"enableExperience": true # unit ranks. on/off
 }
 ``` 
 

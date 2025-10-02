@@ -525,7 +525,10 @@ function pushUnits()
 			"",
 			allTemplates[droidName].weapons
 		);
-		setDroidExperience(unit, wave.experience);
+		if (settings.enableExperience)
+		{
+			setDroidExperience(unit, wave.experience);
+		}
 		wave.budget -= makeTemplate(
 			AI,
 			droidName,
