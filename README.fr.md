@@ -33,13 +33,22 @@ Tous les paramètres sont dans `multiplay/script/rules/settings.json`:
 	"startHeight": 35, # le radius de la zone de départ (où la hauteur, lorsque applicable)
 	"Kpower" : 0.25, # le multiplicateur de la taille de débarquement par le temps
 	"doublePowerM": 20, # le multiplicateur de la taille de débarquement par le temps au carré
+	"multiplierForStructures": 0.7, # contrôler le nombre de structures
 	"pauseM": 2, # le temps entre deux vagues
 	"inWavePauseS": 11, # le temps entre deux débarquements dans la même vague
 	"timeHandicapM": 0.5 # le retard de l’AI dans les recherches, en minutes
 	"Kfinal": 2, # le multiplicateur de la taille de la dernière vague
 	"expansionDirection" : "north"/"all" # vers où la map va s’aggrandir: Nord uniquement ou toutes les directions
+	"RESIDUAL": 0.03, # une vague est considérée comme vaincue lorsqu'il ne reste plus que 3 % des unités
+	"INCREM_PAUSEM": 0.1, # à chaque vague, augmentez le délai entre les vagues en minutes
+	"waterWave": false, # les vagues peuvent débarquer dans l'eau
+	"playersManipulation": true, # modifications apportées à la base du joueur et restrictions au début du jeu
+	"structs": ["DEFENSE", "GENERIC", "REARM PAD"], # Types de structures autorisées
+	"enableExperience": true, # Grades des unités. Activé/Désactivé
 }
 ```
+
+
 
 ## Conseils pour réussir
 - l’AI n’est pas très maline, et ne fait pas de distinction entre votre armée, les murs, et les points de défense, et va détruire méthodiquement tout ce qu’elle trouve. Construisez des défenses peu chères pour faire distraction.

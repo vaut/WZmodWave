@@ -1,0 +1,21 @@
+{
+	"protectTimeM": 2,
+	"totalGameTime": 90,
+	"expansion": 7,
+	"LZRADIUS": 3,
+	"startHeight": 75,
+	"Kpower": 0.07,
+	"doublePowerM": 1.6,
+	"multiplierForStructures": 0.02,
+	"pauseM": 2,
+	"inWavePauseS": 3,
+	"timeHandicapM": 0.06,
+	"Kfinal": 2,
+	"expansionDirection" : "north",
+	"RESIDUAL": 100.00,
+	"INCREM_PAUSEM": 0.0,
+	"waterWave": false,
+	"playersManipulation": "AI",
+	"structs": ["REARM PAD"],
+	"enableExperience": false
+}

@@ -4,12 +4,18 @@
 	"expansion": 10,
 	"LZRADIUS": 4,
 	"startHeight": 35,
-	"Kpower" : 0.20,
+	"Kpower": 0.20,
 	"doublePowerM": 120,
 	"multiplierForStructures": 0.3,
 	"pauseM": 2.2,
 	"inWavePauseS": 11,
 	"timeHandicapM": 2,
 	"Kfinal": 2,
-	"expansionDirection" : "north"
+	"expansionDirection" : "north",
+	"RESIDUAL": 0.03,
+	"INCREM_PAUSEM": 0.1,
+	"waterWave": false,
+	"playersManipulation": true,
+	"structs": ["DEFENSE", "GENERIC", "REARM PAD"],
+	"enableExperience": true
 }
