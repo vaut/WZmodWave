@@ -1,0 +1,39 @@
+{
+    "locked": {
+        "power": true,
+        "alliances": true,
+        "teams": true,
+        "difficulty": true,
+        "ai": true,
+        "scavengers": true,
+        "position": true,
+        "bases": true
+    },
+    "challenge": {
+        "map": "Murmansk_E",
+        "maxPlayers": 3,
+        "scavengers": 0,
+        "alliances": 2,
+        "powerLevel": 2,
+        "bases": 1,
+        "name": "Wave Mod",
+        "techLevel": 1,
+        "spectatorHost": true,
+        "openSpectatorSlots": 9
+    },
+    "player_0":{
+        "position": 0,
+        "team": 0,
+        "name": "Wave",
+        "ai": "multiplay/skirmish/WaveAI.js",
+        "difficulty": "Medium"
+    },
+    "player_1":{
+        "position": 1,
+        "team": 1
+    },
+    "player_2":{
+        "position": 2,
+        "team": 1
+    }
+}

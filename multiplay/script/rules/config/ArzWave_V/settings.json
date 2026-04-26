@@ -1,0 +1,36 @@
+{
+	"totalGameTime": 90,
+	"protectTimeM": 5,
+	"pauseM": 2,
+	"inWavePauseS": 3,
+	"INCREM_PAUSEM": 0.0,
+	"timeHandicapM": 4,
+	"RESIDUAL": null,
+
+	"startHeight": 37,
+	"expansionDirection": "north",
+	"expansionAmount": 4,
+	"transporterUnitCount": 35,
+	"transporterExperience": 9999,
+
+	"Kpower": 0.03,
+	"doublePowerM": 1,
+	"startPowerC": 1100,
+	"Kfinal": 2,
+	"structPower": {},
+
+	"waterLanding": false,
+	"waterStructure": false,
+	"enableWaveExperience": false,
+	"waveExperienceModifier": 0,
+	"playerExperienceModifier": 0,
+	"playersManipulation": "AI",
+
+	"rules": {
+		"hoverFlame": false,
+		"strongHover": false,
+		"lateTracks": false,
+		"noT4halftrack": true,
+		"noSnails": true
+	}
+}

@@ -1,0 +1,53 @@
+{
+	"CyborgLightBody": 80,
+	"CyborgHeavyBody": 0,
+
+	"Body1REC": 100,
+	"Body5REC": 100,
+	"Body11ABT": 100,
+
+	"Body4ABT": 100,
+	"Body8MBT": 100,
+	"Body12SUP": 100,
+
+	"Body2SUP": 100,
+	"Body6SUPP": 100,
+	"Body9REC": 100,
+
+	"Body3MBT": 100,
+	"Body7ABT": 100,
+	"Body10MBT": 100,
+
+	"Body13SUP": 100,
+	"Body14SUP": 100,
+
+	"HalfTrack": 100,
+	"tracked01": 0,
+	"hover01": 100,
+	"V-Tol": 0,
+
+	"Rocket-BB": 100,
+	"Laser4-PlasmaCannon": 100,
+
+	"AAGun2Mk1": 15,
+	"QuadMg1AAGun": 20,
+	"Rocket-Sunburst": 25,
+	"AAGun2Mk1Quad": 30,
+	"QuadRotAAGun": 35,
+	"Missile-LtSAM": 40,
+	"AAGunLaser": 45,
+	"Missile-HvySAM": 50,
+
+	"SpyTurret01": 50,
+	"MortarEMP": 50,
+	"EMP-Cannon": 50,
+
+	"RailGun1Mk1": 300,
+	"RailGun2Mk1": 300,
+	"ParticleGun": 450,
+	"RailGun3Mk1": 650,
+
+	"TransporterBody": 0,
+	"SuperTransportBody": 0,
+	"CommandTurret1": 0
+}

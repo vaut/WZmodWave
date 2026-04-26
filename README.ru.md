@@ -31,32 +31,92 @@
 
 
 ### Тюнинг
-Варзона не поддерживает передачу доп параметров в мод. Так что все настройки находятся в самом моде.
-Файл `multiplay/script/rules/settings.json`:
+По умолчанию мод будет использовать файл:
+- `multiplay/script/rules/settings.json`
+- `multiplay/script/rules/research.json`
+- `multiplay/script/rules/structure.json`
+- `multiplay/script/rules/startingComponents.json`
+- `multiplay/script/rules/componentWeights.json`
+- `multiplay/script/rules/redundantComponents.json`
+Или, если он присутствует:
+- `multiplay/script/rules/<MapName>/settings.json`
+- `multiplay/script/rules/<MapName>/research.json`
+- `multiplay/script/rules/<MapName>/structure.json`
+- `multiplay/script/rules/<MapName>/startingComponents.json`
+- `multiplay/script/rules/<MapName>/componentWeights.json`
+- `multiplay/script/rules/<MapName>/redundantComponents.json`
 
-```text
+Объяснение для `settings.json`:
+```
 {
-	"protectTimeM": 4, # время в минутах перед первой волной
-	"totalGameTime": 90, # время в минутах через которое юниты дохотят до 16 ранга
-	"expansion": 10, # количество клеток на которое увеличивается карта при десанте
-	"startHeight": 35, # радиус стартовой зоны (высота при выборе одностороннего расширения)
-	"Kpower" : 0.25, # коэффициент при времени влияющий на размер волн
-	"doublePowerM": 20, # коэффициент при квадрате времени влияющий на размер волн
-	"multiplierForStructures": 0.7, # контролировать количество структур
-	"pauseM": 2, # время между волнами в минутах
-	"inWavePauseS": 11, # время между десантом в одной волне в секундах
-	"timeHandicapM": 0.5 # небольшое отставание по исследованиям у бота в минутах
-	"Kfinal": 2, # во сколько раз финальная волна больше обычных
-	"expansionDirection" : "north"/"all" # направлене расшинения карты только на север или во все стороны 
-	"RESIDUAL": 0.03, # волна считается побежденной, когда остается только 3% юнитов
+	"totalGameTime": 90,  # время в минутах через которое юниты дохотят до 16 ранга
+	"protectTimeM": 3,    # время в минутах перед первой волной
+	"pauseM": 0.8,        # время между волнами в минутах
+	"inWavePauseS": 7,    # время между десантом в одной волне в секундах
 	"INCREM_PAUSEM": 0.1, # каждая волна, увеличение задержки между волнами в минутах
-	"waterWave": false, # волны могут высаживаться в воде
-	"playersManipulation": true, # изменения в базе игрока и ограничения в начале игры
-	"structs": ["DEFENSE", "GENERIC", "REARM PAD"], # Допустимые типы структур
-	"enableExperience": true # Звания юнитов. Вкл./Выкл
+	"timeHandicapM": 2,   # небольшое отставание по исследованиям у бота в минутах
+	"RESIDUAL": 0.03,     # волна считается побежденной, когда остается только 3% юнитов
+                                     
+	"startHeight": 50,             # радиус стартовой зоны (высота при выборе одностороннего расширения)
+	"expansionDirection": "all",   # направлене расшинения карты только на север или во все стороны (north/east/south/west/all)
+	"expansionAmount": 24,         # количество клеток на которое увеличивается карта при десанте
+	"transporterUnitCount": 45,    # количество единиц, которые приземляются с каждого транспорта
+	"transporterExperience": 9999, # присваивает ранг транспортам (сложнее убить)
+                                  
+	"Kpower": 0.15,        # коэффициент при времени влияющий на размер волн
+	"doublePowerM": 120,   # коэффициент при квадрате времени влияющий на размер волн
+	"startPowerC": 0,      # постоянная дополнительная мощность
+	"Kfinal": 3,           # во сколько раз финальная волна больше обычных
+	"structPower": {       # разрешенные типы структур
+		"DEFENSE": 0.01,   # количество структур DEFENSE
+		"REARM PAD": 0.001 # количество структур REARM PAD
+	},                             
+                          
+	"waterLanding": false,            # юниты могут высаживаться на воду
+	"waterStructure": false,          # сооружения могут появляться на воде
+	"enableWaveExperience": true,     # Звания юнитов. Вкл./Выкл
+	"waveExperienceModifier": null,   # скорость, с которой вражеские единицы получают опыт (null = по умолчанию)
+	"playerExperienceModifier": null, # скорость, с которой ваши единицы получают опыт (null = по умолчанию)
+	"playersManipulation": true       # изменения в базе игрока и ограничения в начале игры
 }
 ```
-
+Объяснение для `componentWeights.json`:
+```
+{
+	"Rocket-Sunburst": 40,     # на 60% меньше
+	"EMP-Cannon": 50,          # на 50% больше
+	"CyborgLegs": 100,         # по умолчанию
+	"V-Tol": 0,                # отключить
+	"Rocket-VTOL-Sunburst": 0, # отключить
+	"RailGun1Mk1": 300,        # на 300% больше
+	"RailGun2Mk1": 300,        # на 350% больше
+	"TransporterBody": 0,      # отключить
+	"SuperTransportBody": 0,   # отключить
+	"CommandTurret1": 0        # отключить
+}
+```
+Объяснение для `redundantComponents.json`:
+```
+{
+	"R-Vehicle-Prop-Halftracks": [
+		"wheeled01"                # Перестать использовать колеса после исследования Half-Track
+	],
+	"R-Wpn-Howitzer-Incendiary": [
+		"Mortar-Incendiary"        # Перестать использовать зажигательные минометы после исследования Incendiary Howitzer
+	],
+	"R-Vehicle-Body11": [
+		"Body1REC"                 # Прекратить использование Viper после исследования Python
+	]
+}
+```
+Объяснение для `startingComponents.json`:
+```
+[
+	"B2JeepBody",
+	"BusBody",    # Сделать компоненты доступными для Wave AI в начале
+	"BaBaMG"     
+]
+```
 
 
 ## Хитрости по прохождению

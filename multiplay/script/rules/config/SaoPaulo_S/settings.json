@@ -1,0 +1,45 @@
+{
+	"waveUnitsExpTimeM": { "zero": 45, "hero": 70 },
+	"transportExpTimeM": { "zero": 45, "hero": 70 },
+	"protectTimeM": 2,
+	"pauseM": 2.5,
+	"inWavePauseS": 0,
+	"INCREM_PAUSEM": 0,
+	"timeHandicapM": 2,
+	"RESIDUAL": null,
+
+	"mapExpansionPattern": "north",
+	"startHeight": 96,
+	"expansionAmount": 0,
+
+	"powerA": 100,
+	"powerB": 0.75,
+	"powerC": 1500,
+	"Kfinal": 3,
+	"structPower": {},
+
+	"flightDistanceA": 0.085,
+	"flightDistanceB": 1.5,
+	"flightDistanceC": -20,
+	"cyborgTransport": false,
+	"transporterUnitCount": 17,
+	"waterLanding": false,
+	"waterStructure": false,
+
+	"waveExperienceModifier": 0,
+	"playerExperienceModifier": 0,
+
+	"autoBase": false,
+	"recalcLimits": false,
+	"forceLimits": true,
+	"infinite": true,
+
+	"rules": {
+		"hoverFlame": false,
+		"strongHover": false,
+		"lateTracks": false,
+		"noT4halftracks": true,
+		"noSnails": true,
+		"noLongRange": false
+	}
+}

@@ -1,3 +1,14 @@
-include("multiplay/script/mods/landingOfWaves.js"); // выдача юнитов и строений АИ, изменение карты
-include("multiplay/script/mods/playersManipulation.js"); // стартовые базы, лимиты игрока.
-
+include("multiplay/script/mods/SaveLoad.js");
+include("multiplay/script/mods/utils.js");
+include("multiplay/script/mods/Config.js");
+include("multiplay/script/mods/MapExpander.js");
+include("multiplay/script/mods/Wave.js");
+include("multiplay/script/mods/WeightedRandom.js");
+include("multiplay/script/mods/TemplateFactory.js");
+include("multiplay/script/mods/Dropship.js");
+include("multiplay/script/mods/WaveTransport.js");
+include("multiplay/script/mods/Scrim.js");
+include("multiplay/script/mods/Pim.js");
+include("multiplay/script/mods/main.js");
+include("multiplay/script/mods/playersManipulation.js");
+include("multiplay/script/mods/BugFix.js");

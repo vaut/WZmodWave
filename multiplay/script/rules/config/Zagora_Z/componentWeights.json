@@ -1,0 +1,47 @@
+{
+	"CyborgLightBody": 100,
+	"CyborgHeavyBody": 40,
+
+	"Body1REC": 0,
+	"Body5REC": 0,
+	"Body11ABT": 0,
+
+	"Body4ABT": 0,
+	"Body8MBT": 0,
+	"Body12SUP": 0,
+
+	"Body2SUP": 0,
+	"Body6SUPP": 0,
+	"Body9REC": 0,
+
+	"Body3MBT": 0,
+	"Body7ABT": 0,
+	"Body10MBT": 0,
+
+	"Body13SUP": 0,
+	"Body14SUP": 0,
+
+	"CyborgChaingun": 60,
+	"CyborgFlamer01": 60,
+	"CyborgCannon": 140,
+	"CyborgRocket": 190,
+	"Cyb-Wpn-Grenade": 60,
+	"Cyb-Wpn-Thermite": 70,
+	"CyborgRotMG": 100,
+
+	"Cyb-Hvywpn-Mcannon": 130,
+	"Cyb-Hvywpn-Acannon": 100,
+	"Cyb-Hvywpn-HPV": 300,
+	"Cyb-Hvywpn-TK": 100,
+
+	"Cyb-Wpn-Laser": 100,
+	"Cyb-Wpn-Atmiss": 100,
+	"Cyb-Wpn-Rail1": 150,
+	"Cyb-Hvywpn-A-T": 100,
+	"Cyb-Hvywpn-PulseLsr": 130,
+	"Cyb-Hvywpn-RailGunner": 300,
+
+	"TransporterBody": 0,
+	"SuperTransportBody": 0,
+	"CommandTurret1": 0
+}

@@ -1,0 +1,50 @@
+{
+	"CyborgLegs": 300,
+	"HalfTrack": 100,
+	"tracked01": 300,
+	"hover01": 40,
+	"V-Tol": 8,
+
+	"Body2SUP": 20,
+	"Body8MBT": 20,
+	"Body12SUP": 20,
+
+	"Mortar2Mk1": 0,
+	"Mortar3ROTARYMk1": 0,
+	"Mortar-Incendiary": 0,
+	"Howitzer105Mk1": 0,
+	"Howitzer-Incendiary": 0,
+	"Howitzer03-Rot": 0,
+	"Howitzer150Mk1": 0,
+	"Rocket-IDF": 0,
+	"Missile-HvyArt": 0,
+	"PlasmaHeavy": 0,
+
+	"AAGun2Mk1": 15,
+	"QuadMg1AAGun": 20,
+	"Rocket-Sunburst": 25,
+	"AAGun2Mk1Quad": 30,
+	"QuadRotAAGun": 35,
+	"Missile-LtSAM": 40,
+	"AAGunLaser": 45,
+	"Missile-HvySAM": 50,
+
+	"SpyTurret01": 30,
+	"EMP-Cannon": 40,
+	"MortarEMP": 50,
+
+	"RailGun1Mk1": 300,
+	"RailGun2Mk1": 300,
+	"ParticleGun": 450,
+	"RailGun3Mk1": 650,
+
+	"MG4ROTARY-VTOL": 0,
+	"Laser4-PlasmaCannon": 0,
+	"Rocket-VTOL-Sunburst": 0,
+	"Cyb-Wpn-Grenade": 0,
+	"Rocket-BB": 0,
+
+	"TransporterBody": 0,
+	"SuperTransportBody": 0,
+	"CommandTurret1": 0
+}

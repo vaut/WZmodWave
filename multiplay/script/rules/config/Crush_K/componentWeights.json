@@ -1,0 +1,18 @@
+{
+	"CyborgLegs": 40,
+	"hover01": 0,
+	"V-Tol": 0,
+
+	"Laser4-PlasmaCannon": 100,
+
+	"AAGun2Mk1": 0,
+	"AAGun2Mk1Quad": 0,
+
+	"RailGun1Mk1": 300,
+	"RailGun2Mk1": 300,
+	"RailGun3Mk1": 650,
+
+	"TransporterBody": 0,
+	"SuperTransportBody": 0,
+	"CommandTurret1": 0
+}

@@ -1,0 +1,151 @@
+{
+	"R-Vehicle-Prop-Halftracks": [
+		"wheeled01"
+	],
+	"R-Struc-Factory-Cyborg": [
+		"B1BaBaPerson01",
+		"BaBaLegs"
+	],
+	"R-Vehicle-Body05": [
+		"Body4ABT",
+		"B1BaBaPerson01-Ultimate",
+		"B2JeepBody",
+		"B2JeepBody-Ultimate",
+		"B2RKJeepBody",
+		"B2RKJeepBody-Ultimate",
+		"B2crane1",
+		"B2crane2",
+		"B2tractor",
+		"B3body-sml-buggy01",
+		"B3body-sml-buggy01-Ultimate",
+		"B3bodyRKbuggy01",
+		"B3bodyRKbuggy01-Ultimate",
+		"B4body-sml-trike01",
+		"B4body-sml-trike01-Ultimate",
+		"BusBody",
+		"FireBody",
+		"HeavyChopper",
+		"ScavCamperBody",
+		"ScavIcevanBody",
+		"ScavNEXUSbody",
+		"ScavNEXUStrack",
+		"ScavTruckBody",
+		"ScavengerChopper",
+		"SuperTransportBody",
+		"TransporterBody",
+		"ZNULLBODY"
+	],
+	"R-Vehicle-Body11": [
+		"Body1REC"
+	],
+	"R-Vehicle-Body03": [
+		"Body5REC",
+		"Body8MBT"
+	],
+	"R-Vehicle-Body07": [
+		"Body12SUP",
+		"Body6SUPP"
+	],
+	"R-Vehicle-Body09": [
+		"Body2SUP",
+		"Body8MBT"
+	],
+	"R-Vehicle-Body10": [
+		"Body11ABT",
+		"Body3MBT"
+	],
+	"R-Vehicle-Body13": [
+		"Body9REC"
+	],
+	"R-Vehicle-Body14": [
+		"Body7ABT"
+	],
+	"R-Cyborg-Hvywpn-Mcannon": [
+		"CyborgCannon"
+	],
+	"R-Cyborg-Hvywpn-A-T": [
+		"Cyb-Hvywpn-TK",
+		"Cyb-Wpn-Atmiss"
+	],
+	"R-Cyborg-Hvywpn-PulseLsr": [
+		"Cyb-Wpn-Laser"
+	],
+	"R-Cyborg-Hvywpn-RailGunner": [
+		"Cyb-Wpn-Rail1",
+		"CyborgLightBody"
+	],
+	"R-Cyborg-Hvywpn-TK": [
+		"CyborgRocket"
+	],
+	"R-Wpn-AAGun04": [
+		"QuadMg1AAGun",
+		"Rocket-Sunburst",
+		"AAGun2Mk1"
+	],
+	"R-Wpn-Missile-LtSAM": [
+		"QuadRotAAGun",
+		"AAGun2Mk1Quad"
+	],
+	"R-Wpn-AALaser": [
+		"Missile-LtSAM"
+	],
+	"R-Wpn-Missile-HvSAM": [
+		"AAGunLaser"
+	],
+	"R-Wpn-Rocket07-Tank-Killer": [
+		"Rocket-LtA-T"
+	],
+	"R-Wpn-Cannon2Mk1": [
+		"Cannon1Mk1"
+	],
+	"R-Wpn-Cannon6TwinAslt": [
+		"Cannon5VulcanMk1",
+		"Cannon4AUTOMk1"
+	],
+	"R-Wpn-Mortar3": [
+		"Mortar1Mk1",
+		"Cyb-Wpn-Grenade"
+	],
+	"R-Wpn-Mortar-Incendiary": [
+		"Mortar3ROTARYMk1",
+		"Mortar2Mk1"
+	],
+	"R-Wpn-Howitzer-Incendiary": [
+		"Mortar-Incendiary"
+	],
+	"R-Wpn-MG5": [
+		"MG4ROTARYMk1",
+		"Rocket-MRL-Hvy"
+	],
+	"R-Wpn-Laser01": [
+		"MG4ROTARY-VTOL",
+		"CyborgRotMG",
+		"Cyb-Wpn-Thermite",
+		"MG5TWINROTARY"
+	],
+	"R-Wpn-Laser02": [
+		"Laser3BEAM-VTOL",
+		"Laser3BEAMMk1",
+		"PlasmiteFlamer"
+	],
+	"R-Wpn-HvyLaser": [
+		"Laser2PULSEMk1",
+		"Laser2PULSE-VTOL"
+	],
+	"R-Wpn-RailGun01": [
+		"Cannon4AUTOMk1",
+		"Cannon4AUTO-VTOL",
+		"Cannon5Vulcan-VTOL",
+		"Cannon375mmMk1",
+		"Cyb-Hvywpn-Acannon",
+		"Cyb-Hvywpn-HPV",
+		"Cyb-Hvywpn-Mcannon"
+	],
+	"R-Wpn-RailGun02": [
+		"RailGun1-VTOL",
+		"RailGun1Mk1",
+		"Cannon6TwinAslt",
+		"Rocket-BB",
+		"Laser4-PlasmaCannon"
+	]
+}

@@ -22,32 +22,92 @@ de faire avancer la recherche à la même vitesse que votre adversaire, mais en 
 `10c-Stone-Jungle-v3w.wz` n’est pas la seule disponible, mais celle qui est recommandée. Il est possible de modifier l’expansion de la map vers le Nord uniquement, pour ce faire, utilisez la map `10c-ntw_trail10pro2.wz` et les settings qui vont avec `multiplay/script/rules/settings.json_ntw_trail10pro2`, à mettre à la place de `multiplay/script/rules/settings.json`.
 
 ### Tuning
+Par défaut, le mod utilisera:
+- `multiplay/script/rules/settings.json`
+- `multiplay/script/rules/research.json`
+- `multiplay/script/rules/structure.json`
+- `multiplay/script/rules/startingComponents.json`
+- `multiplay/script/rules/componentWeights.json`
+- `multiplay/script/rules/redundantComponents.json`
+Ou, s'il est présent:
+- `multiplay/script/rules/<MapName>/settings.json`
+- `multiplay/script/rules/<MapName>/research.json`
+- `multiplay/script/rules/<MapName>/structure.json`
+- `multiplay/script/rules/<MapName>/startingComponents.json`
+- `multiplay/script/rules/<MapName>/componentWeights.json`
+- `multiplay/script/rules/<MapName>/redundantComponents.json`
 
-Tous les paramètres sont dans `multiplay/script/rules/settings.json`:
-
-```text
+Explication pour `settings.json`:
+```
 {
-	"protectTimeM": 4, # le temps avant la première vague
-	"totalGameTime": 90, # le temps qu’il faut avant que les unités débarquées n’atteigne le rang 16
-	"expansion": 10, # la vitesse d’expansion de la map, le nombre des carreaux qui s’ajoutent
-	"startHeight": 35, # le radius de la zone de départ (où la hauteur, lorsque applicable)
-	"Kpower" : 0.25, # le multiplicateur de la taille de débarquement par le temps
-	"doublePowerM": 20, # le multiplicateur de la taille de débarquement par le temps au carré
-	"multiplierForStructures": 0.7, # contrôler le nombre de structures
-	"pauseM": 2, # le temps entre deux vagues
-	"inWavePauseS": 11, # le temps entre deux débarquements dans la même vague
-	"timeHandicapM": 0.5 # le retard de l’AI dans les recherches, en minutes
-	"Kfinal": 2, # le multiplicateur de la taille de la dernière vague
-	"expansionDirection" : "north"/"all" # vers où la map va s’aggrandir: Nord uniquement ou toutes les directions
-	"RESIDUAL": 0.03, # une vague est considérée comme vaincue lorsqu'il ne reste plus que 3 % des unités
+	"totalGameTime": 90,  # le temps qu’il faut avant que les unités débarquées n’atteigne le rang 16
+	"protectTimeM": 3,    # le temps avant la première vague
+	"pauseM": 0.8,        # le temps entre deux vagues
+	"inWavePauseS": 7,    # le temps entre deux débarquements dans la même vague
 	"INCREM_PAUSEM": 0.1, # à chaque vague, augmentez le délai entre les vagues en minutes
-	"waterWave": false, # les vagues peuvent débarquer dans l'eau
-	"playersManipulation": true, # modifications apportées à la base du joueur et restrictions au début du jeu
-	"structs": ["DEFENSE", "GENERIC", "REARM PAD"], # Types de structures autorisées
-	"enableExperience": true, # Grades des unités. Activé/Désactivé
+	"timeHandicapM": 2,   # le retard de l’AI dans les recherches, en minutes
+	"RESIDUAL": 0.03,     # une vague est considérée comme vaincue lorsqu'il ne reste plus que 3% des unités
+                                     
+	"startHeight": 50,             # le radius de la zone de départ (où la hauteur, lorsque applicable)
+	"expansionDirection": "all",   # vers où la map va s’aggrandir: Nord uniquement ou toutes les directions
+	"expansionAmount": 24,         # la vitesse d’expansion de la map, le nombre des carreaux qui s’ajoutent
+	"transporterUnitCount": 45,    # nombre d'unités qui atterrissent à partir de chaque transporteur
+	"transporterExperience": 9999, # attribue un rang aux transporteurs (plus difficiles à détruire)
+                                  
+	"Kpower": 0.15,        # le multiplicateur de la taille de débarquement par le temps
+	"doublePowerM": 120,   # le multiplicateur de la taille de débarquement par le temps au carré
+	"startPowerC": 0,      # puissance supplémentaire constante
+	"Kfinal": 3,           # le multiplicateur de la taille de la dernière vague
+	"structPower": {       # types de structures autorisés
+		"DEFENSE": 0.01,   # nombre de structures de DÉFENSE
+		"REARM PAD": 0.001 # nombre de structures REARM PAD
+	},                             
+                          
+	"waterLanding": false,            # les unités peuvent atterrir dans l'eau
+	"waterStructure": false,          # les structures peuvent apparaître sur l'eau
+	"enableWaveExperience": true,     # Grades des unités. Activé/Désactivé
+	"waveExperienceModifier": null,   # vitesse à laquelle les unités ennemies gagnent de l'expérience (null = par défaut)
+	"playerExperienceModifier": null, # vitesse à laquelle vos unités gagnent de l'expérience (null = par défaut)
+	"playersManipulation": true       # modifications apportées à la base du joueur et restrictions au début du jeu
 }
 ```
-
+Explication pour `componentWeights.json`:
+```
+{
+	"Rocket-Sunburst": 40,     # 60% de moins
+	"EMP-Cannon": 50,          # 50% de moins
+	"CyborgLegs": 100,         # défaut
+	"V-Tol": 0,                # Désactivé
+	"Rocket-VTOL-Sunburst": 0, # Désactivé
+	"RailGun1Mk1": 300,        # 300% de plus
+	"RailGun2Mk1": 300,        # 350% de plus
+	"TransporterBody": 0,      # Désactivé
+	"SuperTransportBody": 0,   # Désactivé
+	"CommandTurret1": 0        # Désactivé
+}
+```
+Explication pour `redundantComponents.json`:
+```
+{
+	"R-Vehicle-Prop-Halftracks": [
+		"wheeled01"                # Arrêter d'utiliser les roues après avoir recherché Half-Track
+	],
+	"R-Wpn-Howitzer-Incendiary": [
+		"Mortar-Incendiary"        # Arrêter d'utiliser le mortier incendiaire après avoir recherché Incendiary Howitzer
+	],
+	"R-Vehicle-Body11": [
+		"Body1REC"                 # Arrêter d'utiliser le Viper après avoir recherché le Python
+	]
+}
+```
+Explication pour `startingComponents.json`:
+```
+[
+	"B2JeepBody",
+	"BusBody",    # Rendre les composants disponibles pour l'IA Wave au démarrage
+	"BaBaMG"     
+]
+```
 
 
 ## Conseils pour réussir

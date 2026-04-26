@@ -1,0 +1,88 @@
+{
+	"R-Vehicle-Prop-Halftracks": [
+		"wheeled01"
+	],
+	"R-Struc-Factory-Cyborg": [
+		"B1BaBaPerson01",
+		"BaBaLegs"
+	],
+	"R-Vehicle-Body05": [
+		"Body4ABT",
+		"B1BaBaPerson01-Ultimate",
+		"B2JeepBody",
+		"B2JeepBody-Ultimate",
+		"B2RKJeepBody",
+		"B2RKJeepBody-Ultimate",
+		"B2crane1",
+		"B2crane2",
+		"B2tractor",
+		"B3body-sml-buggy01",
+		"B3body-sml-buggy01-Ultimate",
+		"B3bodyRKbuggy01",
+		"B3bodyRKbuggy01-Ultimate",
+		"B4body-sml-trike01",
+		"B4body-sml-trike01-Ultimate",
+		"BusBody",
+		"FireBody",
+		"HeavyChopper",
+		"ScavCamperBody",
+		"ScavIcevanBody",
+		"ScavNEXUSbody",
+		"ScavNEXUStrack",
+		"ScavTruckBody",
+		"ScavengerChopper",
+		"SuperTransportBody",
+		"TransporterBody",
+		"ZNULLBODY"
+	],
+	"R-Vehicle-Body11": [
+		"Body1REC"
+	],
+	"R-Vehicle-Body03": [
+		"Body5REC",
+		"Body8MBT"
+	],
+	"R-Vehicle-Body07": [
+		"Body12SUP",
+		"Body6SUPP"
+	],
+	"R-Vehicle-Body09": [
+		"Body2SUP",
+		"Body8MBT"
+	],
+	"R-Vehicle-Body10": [
+		"Body11ABT",
+		"Body3MBT"
+	],
+	"R-Vehicle-Body13": [
+		"Body9REC"
+	],
+	"R-Vehicle-Body14": [
+		"Body7ABT"
+	],
+	"R-Cyborg-Hvywpn-Mcannon": [
+		"CyborgCannon"
+	],
+	"R-Cyborg-Hvywpn-RailGunner": [
+		"Cyb-Wpn-Rail1"
+	],
+	"R-Wpn-Cannon3Mk1": [
+		"Cannon2A-TMk1",
+		"Cannon4AUTOMk1"
+	],
+	"R-Wpn-Cannon6TwinAslt": [
+		"Cannon5VulcanMk1"
+	],
+	"R-Wpn-RailGun01": [
+		"Cannon375mmMk1",
+		"Cannon6TwinAslt",
+		"Cyb-Hvywpn-Acannon",
+		"Cyb-Hvywpn-HPV",
+		"Cyb-Hvywpn-Mcannon",
+		"Laser4-PlasmaCannon"
+	],
+	"R-Wpn-RailGun02": [
+		"RailGun1-VTOL",
+		"RailGun1Mk1"
+	]
+}
